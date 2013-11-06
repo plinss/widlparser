@@ -40,6 +40,9 @@ class Construct(ChildProduction):
     def __len__(self):
         return 0
     
+    def keys(self):
+        return []
+    
     def __getitem__(self, key):
         return None
     
@@ -441,6 +444,9 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" id
     def __len__(self):
         return len(self.members)
     
+    def keys(self):
+        return [member.name for member in self.members]
+    
     def __getitem__(self, key):
         if (isinstance(key, basestring)):
             for member in self.members:
@@ -598,6 +604,9 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" id
     def __len__(self):
         return len(self.members)
     
+    def keys(self):
+        return [member.name for member in self.members]
+    
     def __getitem__(self, key):
         if (isinstance(key, basestring)):
             for member in self.members:
@@ -708,6 +717,9 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" identifier "=" R
     
     def __len__(self):
         return len(self.interface.members) if (self.interface) else 0
+    
+    def keys(self):
+        return [member.name for member in self.interface.members] if (self.interface) else []
     
     def __getitem__(self, key):
         if (self.interface):
@@ -867,6 +879,9 @@ class Exception(Construct):   # [ExtendedAttributes] "exception" identifier [Inh
     
     def __len__(self):
         return len(self.members)
+    
+    def keys(self):
+        return [member.name for member in self.members]
     
     def __getitem__(self, key):
         if (isinstance(key, basestring)):
