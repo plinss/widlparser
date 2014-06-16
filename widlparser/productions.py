@@ -803,29 +803,30 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
         if (Symbol.peek(tokens, '=')):
             if (ConstValue.peek(tokens)):
                 return tokens.popPosition(True)
+            if (Symbol.peek(tokens, '[')):
+                return tokens.popPosition(Symbol.peek(tokens, ']'))
             token = tokens.peek()
-            if (token and token.isString()):
-                return tokens.popPosition(True)
-            if (token and token.isSymbol('[')):
-                token = tokens.peek(False)
-                return tokens.popPosition(token and token.isSymbol(']'))
-            return tokens.popPosition(False)
+            return tokens.popPosition(token and token.isString())
         return tokens.popPosition(False)
 
     def __init__(self, tokens):
         Production.__init__(self, tokens)
         self._equals = Symbol(tokens, '=')
+        self._openBracket = None
+        self._closeBracket = None
         token = tokens.sneakPeek()
         if (token.isString()):
             self.value = tokens.next().text
         elif (token.isSymbol('[')):
-            self.value = tokens.next().text + tokens.next().text
+            self._openBracket = Symbol(tokens, '[')
+            self._closeBracket = Symbol(tokens, ']', False)
+            self.value = None
         else:
             self.value = ConstValue(tokens)
         self._didParse(tokens)
 
     def _unicode(self):
-        return unicode(self._equals) + unicode(self.value)
+        return unicode(self._equals) + (unicode(self.value) if (self.value) else unicode(self._openBracket) + unicode(self._closeBracket))
 
     def __repr__(self):
         return '[Default: ' + repr(self.value) + ']'
