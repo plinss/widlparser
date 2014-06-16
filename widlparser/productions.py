@@ -796,7 +796,7 @@ class Inheritance(Production):   # ":" identifier [IgnoreMultipleInheritance]
         return '[inherits: ' + self.base.encode('ascii', 'replace') + ']'
 
 
-class Default(Production):   # "=" ConstValue | "=" string
+class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
     @classmethod
     def peek(cls, tokens):
         tokens.pushPosition(False)
@@ -804,7 +804,12 @@ class Default(Production):   # "=" ConstValue | "=" string
             if (ConstValue.peek(tokens)):
                 return tokens.popPosition(True)
             token = tokens.peek()
-            return tokens.popPosition(token and token.isString())
+            if (token and token.isString()):
+                return tokens.popPosition(True)
+            if (token and token.isSymbol('[')):
+                token = tokens.peek(False)
+                return tokens.popPosition(token and token.isSymbol(']'))
+            return tokens.popPosition(False)
         return tokens.popPosition(False)
 
     def __init__(self, tokens):
@@ -813,6 +818,8 @@ class Default(Production):   # "=" ConstValue | "=" string
         token = tokens.sneakPeek()
         if (token.isString()):
             self.value = tokens.next().text
+        elif (token.isSymbol('[')):
+            self.value = tokens.next().text + tokens.next().text
         else:
             self.value = ConstValue(tokens)
         self._didParse(tokens)
