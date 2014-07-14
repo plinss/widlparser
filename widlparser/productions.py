@@ -1035,7 +1035,7 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
     def __init__(self, tokens, parent):
         ChildProduction.__init__(self, tokens, parent)
         self.inherit = Symbol(tokens, 'inherit') if (Symbol.peek(tokens, 'inherit')) else None
-        self.rest = AttributeRest(tokens)
+        self.attribute = AttributeRest(tokens)
         self._didParse(tokens)
 
     @property
@@ -1044,7 +1044,7 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
     
     @property
     def name(self):
-        return self.rest.name
+        return self.attribute.name
     
     @property
     def arguments(self):
@@ -1056,16 +1056,16 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
     
     def _unicode(self):
         output = unicode(self.inherit) if (self.inherit) else ''
-        return output + unicode(self.rest)
+        return output + unicode(self.attribute)
     
     def _markup(self, generator):
         generator.addText(self.inherit)
-        return self.rest._markup(generator)
+        return self.attribute._markup(generator)
 
     def __repr__(self):
         output = '[attribute: '
         output += '[inherit] ' if (self.inherit) else ''
-        return output + repr(self.rest) + ']'
+        return output + repr(self.attribute) + ']'
 
 
 class OperationRest(ChildProduction):   # [identifier] "(" [ArgumentList] ")" [Ignore] ";"
@@ -1204,7 +1204,7 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
         while (Special.peek(tokens)):
             self.specials.append(Special(tokens))
         self.returnType = ReturnType(tokens)
-        self.rest = OperationRest(tokens, self)
+        self.operation = OperationRest(tokens, self)
         self._didParse(tokens)
 
     @property
@@ -1213,11 +1213,11 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
 
     @property
     def name(self):
-        return self.rest.name if (self.rest.name) else self.specials[0].name
+        return self.operation.name if (self.operation.name) else self.specials[0].name
 
     @property
     def arguments(self):
-        return self.rest.arguments
+        return self.operation.arguments
 
     @property
     def methodName(self):
@@ -1230,17 +1230,17 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
 
     def _unicode(self):
         output = u''.join([unicode(special) for special in self.specials])
-        return output + unicode(self.returnType) + unicode(self.rest)
+        return output + unicode(self.returnType) + unicode(self.operation)
 
     def _markup(self, generator):
         for special in self.specials:
             special.markup(generator)
         self.returnType.markup(generator)
-        return self.rest._markup(generator)
+        return self.operation._markup(generator)
 
     def __repr__(self):
         output = '[SpecialOperation: ' + ' '.join([repr(special) for special in self.specials])
-        return output + ' ' + repr(self.returnType) + ' ' + repr(self.rest) + ']'
+        return output + ' ' + repr(self.returnType) + ' ' + repr(self.operation) + ']'
 
 
 class Operation(ChildProduction):   # ReturnType OperationRest
@@ -1254,7 +1254,7 @@ class Operation(ChildProduction):   # ReturnType OperationRest
     def __init__(self, tokens, parent):
         ChildProduction.__init__(self, tokens, parent)
         self.returnType = ReturnType(tokens)
-        self.rest = OperationRest(tokens, self)
+        self.operation = OperationRest(tokens, self)
         self._didParse(tokens)
 
     @property
@@ -1263,11 +1263,11 @@ class Operation(ChildProduction):   # ReturnType OperationRest
         
     @property
     def name(self):
-        return self.rest.name
+        return self.operation.name
 
     @property
     def arguments(self):
-        return self.rest.arguments
+        return self.operation.arguments
     
     @property
     def methodName(self):
@@ -1279,14 +1279,14 @@ class Operation(ChildProduction):   # ReturnType OperationRest
         return name + ')'
 
     def _unicode(self):
-        return unicode(self.returnType) + unicode(self.rest)
+        return unicode(self.returnType) + unicode(self.operation)
     
     def _markup(self, generator):
         self.returnType.markup(generator)
-        return self.rest._markup(generator)
+        return self.operation._markup(generator)
     
     def __repr__(self):
-        return '[Operation: ' + repr(self.returnType) + ' ' + repr(self.rest) + ']'
+        return '[Operation: ' + repr(self.returnType) + ' ' + repr(self.operation) + ']'
 
 
 class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier" ReturnType OperationRest | "stringifier" ";"
