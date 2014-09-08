@@ -507,7 +507,7 @@ class SingleType(Production):    # NonAnyType | "any" [TypeSuffixStartingWithArr
 
 class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix] |
                                 # identifier [TypeSuffix] | "sequence" "<" Type ">" [Null] | "object" [TypeSuffix] |
-                                # "Date" [TypeSuffix] | "RegExp" [TypeSuffix] | "Promise" "<" Type ">"
+                                # "Date" [TypeSuffix] | "RegExp" [TypeSuffix] | "Promise" "<" Type ">" [Null]
     @classmethod
     def peek(cls, tokens):
         if (PrimitiveType.peek(tokens)):
@@ -525,8 +525,9 @@ class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [Typ
                         return tokens.popPosition(True)
         elif (token and token.isSymbol('Promise')):
             if (Symbol.peek(tokens, '<')):
-                if (Type.peek(tokens)):
+                if (ReturnType.peek(tokens)):
                     if (Symbol.peek(tokens, '>')):
+                        Symbol.peek(tokens, '?')
                         return tokens.popPosition(True)
         return tokens.popPosition(False)
 
@@ -555,8 +556,9 @@ class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [Typ
             elif (token.isSymbol('Promise')):
                 self.promise = Symbol(tokens, 'Promise')
                 self._openType = Symbol(tokens, '<')
-                self.type = Type(tokens)
+                self.type = ReturnType(tokens)
                 self._closeType = Symbol(tokens, '>', False)
+                self.null = Symbol(tokens, '?', False) if (Symbol.peek(tokens, '?')) else None
             else:
                 self.type = Symbol(tokens, None, False)  # "ByteString" | "DOMString" | "object" | "Date" | "RegExp"
                 self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
