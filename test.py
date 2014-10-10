@@ -132,6 +132,7 @@ interface Simple{
     iterable<Foo, Bar>;
     readonly maplike<Foo, Bar>;
     setlike<Uint8ClampedArray>;
+    attribute boolean required;
     static attribute Foo foo;
     static Foo foo();
     Promise<ReallyISwear>? theCheckIsInTheMail();

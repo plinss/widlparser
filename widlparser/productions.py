@@ -1067,7 +1067,7 @@ class Special(Production):   # "getter" | "setter" | "creator" | "deleter" | "le
         return '[' + self.name.encode('ascii', 'replace') + ']'
 
 
-class AttributeRest(Production):   # ["readonly"] "attribute" Type identifier [Ignore] ";"
+class AttributeRest(Production):   # ["readonly"] "attribute" Type ("required" | identifier) [Ignore] ";"
     @classmethod
     def peek(cls, tokens):
         token = tokens.pushPosition()
@@ -1076,7 +1076,7 @@ class AttributeRest(Production):   # ["readonly"] "attribute" Type identifier [I
         if (token and token.isSymbol('attribute')):
             if (Type.peek(tokens)):
                 token = tokens.peek()
-                return tokens.popPosition(token and token.isIdentifier())
+                return tokens.popPosition(token and (token.isIdentifier() or token.isSymbol('required')))
         return tokens.popPosition(False)
     
     def __init__(self, tokens):
@@ -1084,21 +1084,31 @@ class AttributeRest(Production):   # ["readonly"] "attribute" Type identifier [I
         self.readonly = Symbol(tokens, 'readonly') if (Symbol.peek(tokens, 'readonly')) else None
         self._attribute = Symbol(tokens, 'attribute')
         self.type = Type(tokens)
-        self.name = tokens.next().text
+        if (Symbol.peek(tokens, 'required')):
+            self.required = Symbol(tokens, 'required')
+            self.name = None
+        else:
+            self.name = tokens.next().text
+            self.required = None
         self._ignore = Ignore(tokens) if (Ignore.peek(tokens)) else None
         self._consumeSemicolon(tokens)
         self._didParse(tokens)
 
     def _unicode(self):
         output = unicode(self.readonly) if (self.readonly) else ''
-        return output + unicode(self._attribute) + unicode(self.type) + self.name + (unicode(self._ignore) if (self._ignore) else '')
+        output += unicode(self._attribute) + unicode(self.type)
+        output += unicode(self.required) if (self.required) else self.name
+        return output + (unicode(self._ignore) if (self._ignore) else '')
     
     def _markup(self, generator):
         if (self.readonly):
             self.readonly.markup(generator)
         self._attribute.markup(generator)
         generator.addType(self.type)
-        generator.addName(self.name)
+        if (self.required):
+            self.required.markup(generator)
+        else:
+            generator.addName(self.name)
         if (self._ignore):
             self._ignore.markup(generator)
         return self
@@ -1106,7 +1116,9 @@ class AttributeRest(Production):   # ["readonly"] "attribute" Type identifier [I
     def __repr__(self):
         output = '[AttributeRest: '
         output += '[readonly] ' if (self.readonly) else ''
-        return output + repr(self.type) + ' [name: ' + self.name + ']]'
+        output += repr(self.type)
+        output += ' [required]' if (self.required) else ' [name: ' + self.name + ']'
+        return output + ']'
 
 
 class ChildProduction(Production):
