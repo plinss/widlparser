@@ -509,7 +509,7 @@ class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [Typ
                                 # "USVString" TypeSuffix |
                                 # identifier [TypeSuffix] | "sequence" "<" Type ">" [Null] | "object" [TypeSuffix] |
                                 # "Date" [TypeSuffix] | "RegExp" [TypeSuffix] | "Error" TypeSuffix | 
-                                # "DOMException" TypeSuffix | "Promise" "<" Type ">" [Null] | BufferRelatedType 
+                                # "DOMException" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType 
                                 
     BufferRelatedTypes = frozenset(['ArrayBuffer', 'DataView', 'Int8Array', 'Int16Array', 'Int32Array', 
                                     'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 
