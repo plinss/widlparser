@@ -144,6 +144,10 @@ The Type Production of the Argument.
 
 The Symbol "variadic" or 'None'.
 
+**Argument.optional**
+
+The Symbol "optional" or 'None'.
+
 **Argument.default**
 
 The Default Production of the Argument or 'None'.
