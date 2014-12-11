@@ -131,6 +131,10 @@ class Const(Construct):    # "const" ConstType identifier "=" ConstValue ";"
         return None
 
     @property
+    def methodNames(self):
+        return []
+
+    @property
     def complexityFactor(self):
         return 0
     
@@ -354,6 +358,10 @@ class InterfaceMember(Construct): # [ExtendedAttributes] Const | Operation | Spe
     @property
     def methodName(self):
         return self.member.methodName
+
+    @property
+    def methodNames(self):
+        return self.member.methodNames
 
     @property
     def normalName(self):

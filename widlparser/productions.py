@@ -13,6 +13,9 @@
 import constructs, tokenizer
 import itertools
 
+def _name(thing):
+    return thing.name if (thing) else ''
+
 
 class Production(object):
     def __init__(self, tokens):
@@ -975,6 +978,21 @@ class ArgumentList(Production):    # Argument ["," Argument]...
     def name(self):
         return self.arguments[0].name
     
+    @property   # get all possible variants of argument names
+    def argumentNames(self):
+        if (self.arguments):
+            args = [argument for argument in self.arguments]
+            names = []
+            name = ', '.join([argument.name for argument in args])
+            if (self.arguments[-1].variadic):
+                names.append(name + '...')
+            names.append(name)
+            while (args and (args[-1].optional)):
+                args.pop()
+                names.append(', '.join([argument.name for argument in args]))
+            return names
+        return ['']
+
     def __len__(self):
         return len(self.arguments)
     
@@ -1164,6 +1182,10 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
     def methodName(self):
         return None
     
+    @property
+    def methodNames(self):
+        return []
+    
     def _unicode(self):
         output = unicode(self.inherit) if (self.inherit) else ''
         return output + unicode(self.attribute)
@@ -1204,6 +1226,10 @@ class OperationRest(ChildProduction):   # [identifier] "(" [ArgumentList] ")" [I
     @property
     def idlType(self):
         return 'method'
+
+    @property
+    def argumentNames(self):
+        return self.arguments.argumentNames if (self.arguments) else ['']
 
     def _unicode(self):
         output = self.name if (self.name) else ''
@@ -1269,7 +1295,7 @@ class Iterable(ChildProduction):     # "iterable" "<" Type ["," Type] ">" ";" | 
 
     @property
     def name(self):
-        return None
+        return '__iterable__'
     
     @property
     def arguments(self):
@@ -1278,6 +1304,10 @@ class Iterable(ChildProduction):     # "iterable" "<" Type ["," Type] ">" ";" | 
     @property
     def methodName(self):
         return None
+    
+    @property
+    def methodNames(self):
+        return []
     
     def _unicode(self):
         output = unicode(self._iterable) + unicode(self._openType)
@@ -1339,7 +1369,7 @@ class Maplike(ChildProduction):      # ["readonly"] "maplike" "<" Type "," Type 
 
     @property
     def name(self):
-        return None
+        return '__maplike__'
     
     @property
     def arguments(self):
@@ -1348,6 +1378,10 @@ class Maplike(ChildProduction):      # ["readonly"] "maplike" "<" Type "," Type 
     @property
     def methodName(self):
         return None
+    
+    @property
+    def methodNames(self):
+        return []
     
     def _unicode(self):
         output = unicode(self.readonly) if (self.readonly) else ''
@@ -1398,7 +1432,7 @@ class Setlike(ChildProduction):      # ["readonly"] "setlike" "<" Type ">" ";"
 
     @property
     def name(self):
-        return None
+        return '__setlike__'
     
     @property
     def arguments(self):
@@ -1407,6 +1441,10 @@ class Setlike(ChildProduction):      # ["readonly"] "setlike" "<" Type ">" ";"
     @property
     def methodName(self):
         return None
+    
+    @property
+    def methodNames(self):
+        return []
     
     def _unicode(self):
         output = unicode(self.readonly) if (self.readonly) else ''
@@ -1452,7 +1490,7 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
 
     @property
     def name(self):
-        return self.operation.name if (self.operation.name) else self.specials[0].name
+        return self.operation.name if (self.operation.name) else ('__' + self.specials[0].name + '__')
 
     @property
     def arguments(self):
@@ -1462,10 +1500,14 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
     def methodName(self):
         name = self.name + '(' if (self.name) else '('
         if (self.arguments):
-            name += ', '.join([argument.name for argument in self.arguments])
-            if (self.arguments[-1].variadic):
-                name += '...'
+            name += self.arguments.argumentNames[0]
         return name + ')'
+
+    @property
+    def methodNames(self):
+        if (self.arguments):
+            return [_name(self) + '(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+        return [self.methodName]
 
     def _unicode(self):
         output = u''.join([unicode(special) for special in self.specials])
@@ -1512,10 +1554,14 @@ class Operation(ChildProduction):   # ReturnType OperationRest
     def methodName(self):
         name = self.name + '(' if (self.name) else '('
         if (self.arguments):
-            name += ', '.join([argument.name for argument in self.arguments])
-            if (self.arguments[-1].variadic):
-                name += '...'
+            name += self.arguments.argumentNames[0]
         return name + ')'
+
+    @property
+    def methodNames(self):
+        if (self.arguments):
+            return [_name(self) + '(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+        return [self.methodName]
 
     def _unicode(self):
         return unicode(self.returnType) + unicode(self.operation)
@@ -1561,8 +1607,8 @@ class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier
     @property
     def name(self):
         if (self.operation):
-            return self.operation.name
-        return self.attribute.name if (self.attribute) else None
+            return self.operation.name if (self.operation.name) else '__stringifier__'
+        return self.attribute.name if (self.attribute and self.attribute.name) else '__stringifier__'
     
     @property
     def arguments(self):
@@ -1573,11 +1619,17 @@ class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier
         if (self.operation):
             name = self.name + '(' if (self.name) else '('
             if (self.arguments):
-                name += ', '.join([argument.name for argument in self.arguments])
-                if (self.arguments[-1].variadic):
-                    name += '...'
+                name += self.arguments.argumentNames[0]
             return name + ')'
         return None
+
+    @property
+    def methodNames(self):
+        if (self.operation):
+            if (self.arguments):
+                return [_name(self) + '(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+            return [self.methodName]
+        return []
 
     def _unicode(self):
         output = unicode(self._stringifier)
@@ -1849,18 +1901,24 @@ class Serializer(ChildProduction):  # "serializer" [OperationRest] ";" | "serial
 
     @property
     def name(self):
-        return self.operation.name if (self.operation) else None
+        return self.operation.name if (self.operation) else '__serializer__'
 
     @property
     def methodName(self):
         if (self.operation):
             name = self.name + '(' if (self.name) else '('
             if (self.arguments):
-                name += ', '.join([argument.name for argument in self.arguments])
-                if (self.arguments[-1].variadic):
-                    name += '...'
+                name += self.arguments.argumentNames[0]
             return name + ')'
         return None
+
+    @property
+    def methodNames(self):
+        if (self.operation):
+            if (self.arguments):
+                return [_name(self) + '(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+            return [self.methodName]
+        return []
 
     @property
     def arguments(self):
@@ -1930,11 +1988,17 @@ class StaticMember(ChildProduction):    # "static" AttributeRest | "static" Retu
         if (self.operation):
             name = self.name + '(' if (self.name) else '('
             if (self.arguments):
-                name += ', '.join([argument.name for argument in self.arguments])
-                if (self.arguments[-1].variadic):
-                    name += '...'
+                name += self.arguments.argumentNames[0]
             return name + ')'
         return None
+
+    @property
+    def methodNames(self):
+        if (self.operation):
+            if (self.arguments):
+                return [_name(self) + '(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+            return [self.methodName]
+        return []
 
     def _unicode(self):
         output = unicode(self._static)
