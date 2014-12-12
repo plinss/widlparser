@@ -1169,7 +1169,11 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
     @property
     def idlType(self):
         return 'attribute'
-    
+
+    @property
+    def stringifier(self):
+        return False
+
     @property
     def name(self):
         return self.attribute.name
@@ -1602,7 +1606,11 @@ class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier
 
     @property
     def idlType(self):
-        return 'stringifier'
+        return 'attribute' if (self.attribute) else 'stringifier'
+
+    @property
+    def stringifier(self):
+        return True
     
     @property
     def name(self):
@@ -1974,7 +1982,11 @@ class StaticMember(ChildProduction):    # "static" AttributeRest | "static" Retu
     @property
     def idlType(self):
         return 'method' if (self.operation) else 'attribute'
-    
+
+    @property
+    def stringifier(self):
+        return False
+
     @property
     def name(self):
         return self.operation.name if (self.operation) else self.attribute.name
