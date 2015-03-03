@@ -211,6 +211,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
 [foo] partial dictionary FooDict:BarDict {
     [one "]" ( tricky ] test)] short bar;
     [two] sequence<(double or Foo)> foo = "hello";
+    required Foo baz;
 }
 
 callback callFoo = short();
