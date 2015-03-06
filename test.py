@@ -220,6 +220,12 @@ callback interface callMe {
     inherit attribute short round setraises (for the heck of it);
 };
 
+dictionary MyDictionary {
+    any value = null;
+    any[] value = null;
+    any [] value = null;
+};
+
 """
 #    idl = idl.replace(' ', '  ')
     print "IDL >>>\n" + idl + "\n<<<"
@@ -227,6 +233,7 @@ callback interface callMe {
     print repr(parser)
 
     testDifference(idl, unicode(parser))
+    assert(unicode(parser) == idl)
 
     print "MARKED UP:"
     marker = NullMarker()
