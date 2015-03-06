@@ -564,7 +564,9 @@ class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] Type iden
         return 'dict-member'
     
     def _unicode(self):
-        output = Construct._unicode(self) + unicode(self.type) + unicode(self.name)
+        output = Construct._unicode(self)
+        output += unicode(self.required) if (self.required) else ''
+        output += unicode(self.type) + unicode(self.name)
         return output + (unicode(self.default) if (self.default) else '')
     
     def _markup(self, generator):
@@ -581,7 +583,7 @@ class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] Type iden
         output += '[required] ' if (self.required) else ''
         output += repr(self.type)
         output += ' [name: ' + self.name.encode('ascii', 'replace') + ']'
-        if (self.default)
+        if (self.default):
             output += ' = [default: ' + repr(self.default) + ']'
         output += ']'
         return output
