@@ -1149,10 +1149,6 @@ class ChildProduction(Production):
         return self.parent.fullName + '/' + self.normalName if (self.parent) else self.normalName
 
     @property
-    def normalName(self):
-        return self.name
-
-    @property
     def methodName(self):
         return None
     
