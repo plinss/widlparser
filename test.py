@@ -145,6 +145,7 @@ interface Multi : One  ,  Two   ,   Three     {
 typedef sequence<Foo[]>? fooType;
 typedef (short or Foo) maybeFoo;
 typedef sequence<(short or Foo)> maybeFoos;
+typedef FrozenArray<(short or Foo)> frozenMaybeFoos;
 interface foo {
   [one] attribute Foo one;
   [two] Foo two()bar;
