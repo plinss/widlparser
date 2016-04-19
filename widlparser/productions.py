@@ -956,10 +956,7 @@ class ArgumentName(Production):   # identifier | ArgumentNameKeyword
         return self.name
 
     def _markup(self, generator):
-        if (self.name in self.ArgumentNameKeywords):
-            generator.addKeyword(self.name)
-        else:
-            generator.addName(self.name)
+        generator.addName(self.name)
         return self
 
     def __repr__(self):
