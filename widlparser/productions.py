@@ -940,7 +940,7 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
 class ArgumentName(Production):   # identifier | ArgumentNameKeyword
     ArgumentNameKeywords = frozenset(['attribute', 'callback', 'const', 'creator', 'deleter', 'dictionary', 'enum',
                                       'getter', 'implements', 'inherit', 'interface', 'iterable', 'legacycaller',
-                                      'legacyiterable', 'maplike', 'partial', 'required', 'serializer', 'setlike',
+                                      'legacyiterable', 'maplike', 'namespace', 'partial', 'required', 'serializer', 'setlike',
                                       'setter', 'static', 'stringifier', 'typedef', 'unrestricted'])
     @classmethod
     def peek(cls, tokens):
@@ -949,18 +949,22 @@ class ArgumentName(Production):   # identifier | ArgumentNameKeyword
 
     def __init__(self, tokens):
         Production.__init__(self, tokens)
-        self.name = tokens.next().text
+        self._name = tokens.next().text
         self._didParse(tokens)
 
+    @property
+    def name(self):
+        return self._name[1:] if ('_' == self._name[0]) else self._name
+
     def _unicode(self):
-        return self.name
+        return self._name
 
     def _markup(self, generator):
-        generator.addName(self.name)
+        generator.addName(self._name)
         return self
 
     def __repr__(self):
-        return '[ArgumentName: ' + repr(self.name) + ']'
+        return '[ArgumentName: ' + repr(self._name) + ']'
 
 
 class ArgumentList(Production):    # Argument ["," Argument]...
@@ -983,7 +987,13 @@ class ArgumentList(Production):    # Argument ["," Argument]...
         token = tokens.sneakPeek()
         while (token and token.isSymbol(',')):
             self._commas.append(Symbol(tokens, ','))
-            self.arguments.append(constructs.Argument(tokens, parent))
+            argument = constructs.Argument(tokens, parent)
+            if (len(self.arguments)):
+                if (self.arguments[-1].variadic):
+                    tokens.error('Argument "', argument.name, '" not allowed to follow variadic argument "', self.arguments[-1].name, '"')
+                elif ((not self.arguments[-1].required) and argument.required):
+                    tokens.error('Required argument "', argument.name, '" cannot follow optional argument "', self.arguments[-1].name, '"')
+            self.arguments.append(argument)
             token = tokens.sneakPeek()
         self._didParse(tokens)
 

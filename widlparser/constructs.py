@@ -292,6 +292,10 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
     def name(self):
         return self._name.name
 
+    @property
+    def required(self):
+        return ((self.optional is None) and (self.variadic is None))
+
     def _unicode(self):
         output = Construct._unicode(self)
         output += unicode(self.optional) if (self.optional) else ''
@@ -844,6 +848,13 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" id
     @property
     def complexityFactor(self):
         return len(self.members) + 1
+
+    @property
+    def required(self):
+        for member in self.members:
+            if (member.required):
+                return True
+        return False
 
     def __len__(self):
         return len(self.members)

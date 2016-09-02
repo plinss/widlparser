@@ -249,6 +249,13 @@ partial namespace Namespace2 {
     [One] unsigned long long method(short x);
     [Two] unsigned long long method(short x, short y);
 };
+
+interface System {
+  object createObject(DOMString _interface);
+  sequence<object> getObjects(DOMString interface);
+  getter DOMString (DOMString keyName);
+  DOMString? lookupPrefix(DOMString? namespace);
+};
 """
 #    idl = idl.replace(' ', '  ')
     print "IDL >>>\n" + idl + "\n<<<"
