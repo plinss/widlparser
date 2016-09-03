@@ -18,8 +18,9 @@ class Construct(ChildProduction):
     def peek(cls, tokens):
         return ExtendedAttributeList.peek(tokens)
 
-    def __init__(self, tokens, parent, parseExtendedAttributes = True):
+    def __init__(self, tokens, parent, parseExtendedAttributes = True, parser = None):
         ChildProduction.__init__(self, tokens, parent)
+        self._parser = parser
         self.extendedAttributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
 
     def _parseExtendedAttributes(self, tokens, parent):
@@ -33,6 +34,10 @@ class Construct(ChildProduction):
     @property
     def constructors(self):
         return [attribute for attribute in self.extendedAttributes if ('constructor' == attribute.idlType)] if (self.extendedAttributes) else []
+
+    @property
+    def parser(self):
+        return self._parser if (self._parser) else self.parent.parser
 
     def __nonzero__(self):
         return True
@@ -121,8 +126,8 @@ class Const(Construct):    # "const" ConstType identifier "=" ConstValue ";"
                         return tokens.popPosition(ConstValue.peek(tokens))
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent, False)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, False, parser = parser)
         self._const = Symbol(tokens, 'const')
         self.type = ConstType(tokens)
         self.name = tokens.next().text
@@ -179,8 +184,8 @@ class Enum(Construct):    # [ExtendedAttributes] "enum" identifier "{" EnumValue
                         return tokens.popPosition(token and token.isSymbol('}'))
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, parser = parser)
         self._enum = Symbol(tokens, 'enum')
         self.name = tokens.next().text
         self._openBrace = Symbol(tokens, '{')
@@ -188,6 +193,7 @@ class Enum(Construct):    # [ExtendedAttributes] "enum" identifier "{" EnumValue
         self._closeBrace = Symbol(tokens, '}')
         self._consumeSemicolon(tokens, False)
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -220,13 +226,14 @@ class Typedef(Construct):    # [ExtendedAttributes] "typedef" Type identifier ";
                 return tokens.popPosition(token and token.isIdentifier())
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, parser = parser)
         self._typedef = Symbol(tokens, 'typedef')
         self.type = Type(tokens)
         self.name = tokens.next().text
         self._consumeSemicolon(tokens)
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -408,8 +415,8 @@ class InterfaceMember(Construct): # [ExtendedAttributes] Const | Operation | Spe
 
 
 class SyntaxError(Construct):   # ... ";" | ... "}"
-    def __init__(self, tokens, parent):
-        Construct.__init__(self, tokens, parent, False)
+    def __init__(self, tokens, parent, parser = None):
+        Construct.__init__(self, tokens, parent, False, parser = parser)
         self.tokens = tokens.syntaxError((';', '}'), False)
         if ((1 < len(self.tokens)) and self.tokens[-1].isSymbol('}')):
             tokens.restore(self.tokens[-1])
@@ -446,8 +453,8 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" id
                 return tokens.popPosition(Symbol.peek(tokens, '{'))
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent, (not parent))
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, (not parent), parser = parser)
         self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
         self._interface = Symbol(tokens, 'interface')
         self.name = tokens.next().text
@@ -465,6 +472,7 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" id
                 self.members.append(SyntaxError(tokens, parent if (parent) else self))
         self._consumeSemicolon(tokens, False)
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -641,8 +649,8 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" id
                 return tokens.popPosition(Symbol.peek(tokens, '{'))
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent, (not parent))
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, (not parent), parser = parser)
         self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
         self._namespace = Symbol(tokens, 'namespace')
         self.name = tokens.next().text
@@ -659,6 +667,7 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" id
                 self.members.append(SyntaxError(tokens, parent if (parent) else self))
         self._consumeSemicolon(tokens, False)
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -821,8 +830,8 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" id
                 return tokens.popPosition(Symbol.peek(tokens, '{'))
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, parser = parser)
         self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
         self._dictionary = Symbol(tokens, 'dictionary')
         self.name = tokens.next().text
@@ -840,6 +849,7 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" id
                 self.members.append(SyntaxError(tokens, self))
         self._consumeSemicolon(tokens, False)
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -943,8 +953,8 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" identifier "=" R
                             return tokens.popPosition(token and token.isSymbol(')'))
         tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, parser = parser)
         self._callback = Symbol(tokens, 'callback')
         token = tokens.sneakPeek()
         if (token.isIdentifier()):
@@ -965,6 +975,7 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" identifier "=" R
             self.interface = Interface(tokens, self)
             self.name = self.interface.name
         self._didParse(tokens)
+        self.parser.addType(self)
 
     @property
     def idlType(self):
@@ -1078,8 +1089,8 @@ class ImplementsStatement(Construct):  # [ExtendedAttributes] identifier "implem
                 return tokens.popPosition(token and token.isIdentifier())
         return tokens.popPosition(False)
 
-    def __init__(self, tokens, parent = None):
-        Construct.__init__(self, tokens, parent)
+    def __init__(self, tokens, parent = None, parser = None):
+        Construct.__init__(self, tokens, parent, parser = parser)
         self.name = tokens.next().text
         self._implements = Symbol(tokens, 'implements')
         self.implements = tokens.next().text

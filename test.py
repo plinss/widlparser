@@ -256,6 +256,13 @@ interface System {
   getter DOMString (DOMString keyName);
   DOMString? lookupPrefix(DOMString? namespace);
 };
+
+interface OptionalTest {
+  long methodWithOptionalDict(long one, (long or MyDictionary or object) optionalDict);    // should error
+  long methodWithOptionalDict(long one, MyDictionary optionalDict, optional long three);    // should error
+  long methodWithRequiredDict(long one, FooDict requiredDict);
+  long methodWithRequiredDict(long one, FooDict requiredDict, long three);
+};
 """
 #    idl = idl.replace(' ', '  ')
     print "IDL >>>\n" + idl + "\n<<<"
