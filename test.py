@@ -248,6 +248,8 @@ interface Int {
 namespace Namespace1 {
     [One] unsigned long long method(short x);
     [Two] unsigned long long method(short x, short y);
+    readonly attribute long? value;
+    attribute long error;   // error, must be readonly
 };
 partial namespace Namespace2 {
     [One] unsigned long long method(short x);

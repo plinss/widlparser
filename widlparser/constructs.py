@@ -576,16 +576,22 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" id
         return output + ']]'
 
 
-class NamespaceMember(Construct): # [ExtendedAttributes] Operation
+class NamespaceMember(Construct): # [ExtendedAttributes] Operation | "readonly" Attribute
     @classmethod
     def peek(cls, tokens):
         tokens.pushPosition(False)
         Construct.peek(tokens)
+        if (Symbol.peek(tokens, 'readonly')):
+            return tokens.popPosition(Attribute.peek(tokens))
         return tokens.popPosition(Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
-        self.member = Operation(tokens, parent)
+        token = tokens.sneakPeek()
+        if (token.isSymbol('readonly')):
+            self.member = Attribute(tokens, parent)
+        else:
+            self.member = Operation(tokens, parent)
         self._didParse(tokens)
 
     @property
