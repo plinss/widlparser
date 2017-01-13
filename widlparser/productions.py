@@ -1090,6 +1090,16 @@ class ArgumentList(Production):    # Argument ["," Argument]...
             return names
         return ['']
 
+    def matchesNames(self, argumentNames):
+        for name, argument in itertools.izip_longest(argumentNames, self.arguments, fillvalue=None):
+            if (name):
+                if ((argument is None) or (argument.name != name)):
+                    return False
+            else:
+                if (argument and argument.required):
+                    return False
+        return True
+
     def __len__(self):
         return len(self.arguments)
 

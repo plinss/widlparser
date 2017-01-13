@@ -337,5 +337,9 @@ interface OptionalTest {
     print parser.normalizedMethodName('bob(xxx)', 'LinkStyle')
     print parser.normalizedMethodName('bob')
     print parser.normalizedMethodName('bob()')
-    print repr(parser.normalizedMethodNames('method', 'Foo'))
+    print ', '.join(parser.normalizedMethodNames('method', 'Foo'))
+    print ', '.join(parser.normalizedMethodNames('method()', 'Foo'))
+    print ', '.join(parser.normalizedMethodNames('method(x)', 'Foo'))
+    print ', '.join(parser.normalizedMethodNames('method(x, y)', 'Foo'))
+    print ', '.join(parser.normalizedMethodNames('method(x, y, bar)', 'Foo'))
 
