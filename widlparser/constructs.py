@@ -332,12 +332,12 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
         return output + ((' [default: ' + repr(self.default) + ']]') if (self.default) else ']')
 
 
-class InterfaceMember(Construct): # [ExtendedAttributes] Const | Operation | SpecialOperation | Serializer | Stringifier | StaticMember | Iterable | Attribute | Maplike | Setlike
+class InterfaceMember(Construct): # [ExtendedAttributes] Const | Operation | SpecialOperation | Stringifier | StaticMember | Iterable | Attribute | Maplike | Setlike
     @classmethod
     def peek(cls, tokens):
         tokens.pushPosition(False)
         Construct.peek(tokens)
-        return tokens.popPosition(Const.peek(tokens) or Serializer.peek(tokens) or
+        return tokens.popPosition(Const.peek(tokens) or 
                                   Stringifier.peek(tokens) or StaticMember.peek(tokens) or
                                   Iterable.peek(tokens) or Maplike.peek(tokens) or
                                   Setlike.peek(tokens) or Attribute.peek(tokens) or
@@ -347,8 +347,6 @@ class InterfaceMember(Construct): # [ExtendedAttributes] Const | Operation | Spe
         Construct.__init__(self, tokens, parent)
         if (Const.peek(tokens)):
             self.member = Const(tokens, parent)
-        elif (Serializer.peek(tokens)):
-            self.member = Serializer(tokens, parent)
         elif (Stringifier.peek(tokens)):
             self.member = Stringifier(tokens, parent)
         elif (StaticMember.peek(tokens)):
