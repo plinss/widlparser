@@ -652,7 +652,7 @@ class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [Typ
         if (self.record):
             self.record.markup(generator)
             generator.addText(self._openType)
-            self.keyType.markup(generator)
+            generator.addStringType(self.keyType)
             generator.addText(self._comma)
             self.type.markup(generator)
             generator.addText(self._closeType)
