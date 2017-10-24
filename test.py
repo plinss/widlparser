@@ -254,7 +254,7 @@ callback interface callMe {
     any [] value = null;
 };
 
-interface Int {
+[] interface Int {
     readonly attribute long? service;
     readonly attribute ArrayBuffer? value;
     readonly attribute ArrayBuffer value2;

@@ -21,7 +21,7 @@ class Construct(ChildProduction):
     def __init__(self, tokens, parent, parseExtendedAttributes = True, parser = None):
         ChildProduction.__init__(self, tokens, parent)
         self._parser = parser
-        self.extendedAttributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
+        self._extendedAttributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
 
     def _parseExtendedAttributes(self, tokens, parent):
         return ExtendedAttributeList(tokens, parent) if (ExtendedAttributeList.peek(tokens)) else None
@@ -33,11 +33,15 @@ class Construct(ChildProduction):
 
     @property
     def constructors(self):
-        return [attribute for attribute in self.extendedAttributes if ('constructor' == attribute.idlType)] if (self.extendedAttributes) else []
+        return [attribute for attribute in self._extendedAttributes if ('constructor' == attribute.idlType)] if (self._extendedAttributes) else []
 
     @property
     def parser(self):
         return self._parser if (self._parser) else self.parent.parser
+
+    @property
+    def extendedAttributes(self):
+        return self._extendedAttributes if (self._extendedAttributes) else {}
 
     def __nonzero__(self):
         return True
@@ -80,10 +84,10 @@ class Construct(ChildProduction):
         return 1
 
     def _unicode(self):
-        return unicode(self.extendedAttributes) if (self.extendedAttributes) else ''
+        return unicode(self._extendedAttributes) if (self._extendedAttributes) else ''
 
     def __repr__(self):
-        return repr(self.extendedAttributes) if (self.extendedAttributes) else ''
+        return repr(self._extendedAttributes) if (self._extendedAttributes) else ''
 
     def markup(self, generator):
         if (not generator):
@@ -97,8 +101,8 @@ class Construct(ChildProduction):
             generator = None
 
         myGenerator = MarkupGenerator(self)
-        if (self.extendedAttributes):
-            self.extendedAttributes.markup(myGenerator)
+        if (self._extendedAttributes):
+            self._extendedAttributes.markup(myGenerator)
         target = self._markup(myGenerator)
         if (target._tail):
             myGenerator.addText(''.join([unicode(token) for token in target._tail]))

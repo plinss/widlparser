@@ -712,7 +712,7 @@ class UnionMemberType(Production):   # [ExtendedAttributeList] NonAnyType | Unio
         self._openBracket = None
         self._closeBracket = None
         self.typeName = None
-        self.extendedAttributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
+        self._extendedAttributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
         if (NonAnyType.peek(tokens)):
             self.type = NonAnyType(tokens)
             self.suffix = None
@@ -728,8 +728,12 @@ class UnionMemberType(Production):   # [ExtendedAttributeList] NonAnyType | Unio
             self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
         self._didParse(tokens, False)
 
+    @property
+    def extendedAttributes(self):
+        return self._extendedAttributes if (self._extendedAttributes) else {}
+
     def _unicode(self):
-        output = unicode(self.extendedAttributes) if (self.extendedAttributes) else ''
+        output = unicode(self._extendedAttributes) if (self._extendedAttributes) else ''
         output += (unicode(self.any) + unicode(self._openBracket) + unicode(self._closeBracket)) if (self.any) else unicode(self.type)
         return output + (unicode(self.suffix) if (self.suffix) else '')
 
@@ -739,8 +743,8 @@ class UnionMemberType(Production):   # [ExtendedAttributeList] NonAnyType | Unio
             generator.addText(self._openBracket)
             generator.addText(self._closeBracket)
         else:
-            if (self.extendedAttributes):
-                self.extendedAttributes.markup(generator)
+            if (self._extendedAttributes):
+                self._extendedAttributes.markup(generator)
             self.type.markup(generator)
         generator.addText(self.suffix)
         return self
@@ -854,7 +858,7 @@ class TypeWithExtendedAttributes(Production):  # [ExtendedAttributeList] SingleT
 
     def __init__(self, tokens):
         Production.__init__(self, tokens)
-        self.extendedAttributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
+        self._extendedAttributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
         if (SingleType.peek(tokens)):
             self.type = SingleType(tokens)
             self.suffix = None
@@ -867,18 +871,22 @@ class TypeWithExtendedAttributes(Production):  # [ExtendedAttributeList] SingleT
     def typeNames(self):
         return self.type.typeNames
 
+    @property
+    def extendedAttributes(self):
+        return self._extendedAttributes if (self._extendedAttributes) else {}
+
     def _unicode(self):
-        return (unicode(self.extendedAttributes) if (self.extendedAttributes) else '') + unicode(self.type) + (self.suffix._unicode() if (self.suffix) else '')
+        return (unicode(self._extendedAttributes) if (self._extendedAttributes) else '') + unicode(self.type) + (self.suffix._unicode() if (self.suffix) else '')
 
     def _markup(self, generator):
-        if (self.extendedAttributes):
-            self.extendedAttributes.markup(generator)
+        if (self._extendedAttributes):
+            self._extendedAttributes.markup(generator)
         self.type.markup(generator)
         generator.addText(self.suffix)
         return self
 
     def __repr__(self):
-        return '[TypeWithExtendedAttributes: ' + (repr(self.extendedAttributes) if (self.extendedAttributes) else '') + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']'
+        return '[TypeWithExtendedAttributes: ' + (repr(self._extendedAttributes) if (self._extendedAttributes) else '') + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
 class IgnoreInOut(Production):  # "in" | "out"
