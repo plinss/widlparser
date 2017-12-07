@@ -1176,11 +1176,14 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" id
 
 class Callback(Construct):    # [ExtendedAttributes] "callback" identifier "=" ReturnType "(" [ArgumentList] ")" ";" |
                               # [ExtendedAttributes] "callback" Interface
+                              # [ExtendedAttributes] "callback" Mixin
     @classmethod
     def peek(cls, tokens):
         tokens.pushPosition(False)
         Construct.peek(tokens)
         if (Symbol.peek(tokens, 'callback')):
+            if (Mixin.peek(tokens, False)):
+                return tokens.popPosition(True)
             if (Interface.peek(tokens, False)):
                 return tokens.popPosition(True)
             token = tokens.peek()
@@ -1212,7 +1215,10 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" identifier "=" R
             self._openParen = None
             self.arguments = None
             self._closeParen = None
-            self.interface = Interface(tokens, self)
+            if (Mixin.peek(tokens, False)):
+                self.interface = Mixin(tokens, self)
+            else:
+                self.interface = Interface(tokens, self)
             self.name = self.interface.name
         self._didParse(tokens)
         self.parser.addType(self)

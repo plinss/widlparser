@@ -247,6 +247,9 @@ callback callFoo2 = unsigned long long(unrestricted double one, DOMString two, F
 callback interface callMe {
     inherit attribute short round setraises (for the heck of it);
 };
+callback interface mixin callMeMixin {
+    long method();
+};
 
 [Exposed=(Window, Worker)] dictionary MyDictionary {
     any value = null;
