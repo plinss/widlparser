@@ -2,11 +2,21 @@
 
 from distutils.core import setup
 
-setup(name='widlparser',
-      version='0.9994',
-      description='WebIDL Parser',
-      author='Peter Linss',
-      author_email='peter@linss.com',
-      url='http://github.com/plinss/widlparser/',
-      packages = ['widlparser']
-     )
+with open('README.md') as f:
+    readme = f.read()
+
+setup(
+    name='widlparser',
+    version=widlparser.__version__,
+    description=widlparser.__doc__,
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    author=widlparser.__author__[0],
+    author_email=widlparser.__email__[0],
+    maintainer=widlparser.__maintainer__,
+    maintainer_email=widlparser.__email__[1],
+    platforms=['any'],
+    url=widlparser.__url__,
+    packages=['widlparser'],
+    zip_safe=False,
+)
