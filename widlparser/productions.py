@@ -526,17 +526,15 @@ class SingleType(Production):    # NonAnyType | "any" [TypeSuffixStartingWithArr
 
 
 class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix] |
-                                # "USVString" TypeSuffix |
-                                # identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null] | "object" [TypeSuffix] |
-                                # "Date" [TypeSuffix] | "RegExp" [TypeSuffix] | "Error" TypeSuffix |
-                                # "DOMException" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null] |
+                                # "USVString" TypeSuffix | identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null] |
+                                # "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null] |
                                 # "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "record" "<" StringType "," TypeWithExtendedAttributes ">"
 
     BufferRelatedTypes = frozenset(['ArrayBuffer', 'DataView', 'Int8Array', 'Int16Array', 'Int32Array',
                                     'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray',
                                     'Float32Array', 'Float64Array'])
     StringTypes = frozenset(['ByteString', 'DOMString', 'USVString'])
-    ObjectTypes = frozenset(['object', 'Date', 'RegExp', 'Error', 'DOMException'])
+    ObjectTypes = frozenset(['object', 'Error'])
 
     @classmethod
     def peek(cls, tokens):
