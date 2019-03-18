@@ -22,4 +22,4 @@ __url__ = 'http://github.com/plinss/widlparser/'
 
 __all__ = ['parser', 'tokenizer', 'constructs', 'productions', 'markup']
 
-import parser
+from . import parser

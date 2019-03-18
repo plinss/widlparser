@@ -21,7 +21,7 @@ class Token(object):
     def isSymbol(self, symbol = None):
         if ('symbol' == self.type):
             if (symbol):
-                if isinstance(symbol, basestring):
+                if isinstance(symbol, str):
                     return (symbol == self.text)
                 return (self.text in symbol)
             return True
@@ -42,11 +42,11 @@ class Token(object):
     def isWhitespace(self):
         return ('whitespace' == self.type)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     def __repr__(self):
-        return '[' + self.type + ':' + self.text.encode('ascii', 'replace') + ']'
+        return '[' + self.type + ':' + self.text + ']'
 
 
 
@@ -108,8 +108,8 @@ class Tokenizer(object):
             self.tokens.append(Token('other', match.group(1)))
             text = match.group(2)
 
-    def __unicode__(self):
-        return u''.join([unicode(token) for token in self.tokens])
+    def __str__(self):
+        return ''.join([str(token) for token in self.tokens])
 
     def __repr__(self):
         return ''.join([repr(token) for token in self.tokens])
@@ -122,7 +122,7 @@ class Tokenizer(object):
             return True
         return False
 
-    def next(self, skipWhitespace = True):
+    def nextToken(self, skipWhitespace = True):
         "Remove and return next available token, optionally skipping whitespace"
         self.resetPeek()
         if (0 < len(self.tokens)):
@@ -143,7 +143,7 @@ class Tokenizer(object):
 
     def whitespace(self):
         "Get next token only if it is whitespace"
-        token = self.next(False)
+        token = self.nextToken(False)
         if (token):
             if (token.isWhitespace()):
                 return token
@@ -202,7 +202,7 @@ class Tokenizer(object):
 
     def seekSymbol(self, symbol):
         "Return all tokens up to and inculding symbol, respect nesting of (), {}, []"
-        token = self.next(False)
+        token = self.nextToken(False)
         skipped = []
         while (token and (not token.isSymbol(symbol))):
             skipped.append(token)
@@ -212,7 +212,7 @@ class Tokenizer(object):
                 skipped += self.seekSymbol('}')
             elif (token.isSymbol('[')):
                 skipped += self.seekSymbol(']')
-            token = self.next(False)
+            token = self.nextToken(False)
         if (token):
             skipped.append(token)
         return skipped
@@ -222,7 +222,7 @@ class Tokenizer(object):
         lineNumber = self.lineNumber
         skipped = self.seekSymbol(symbol) if (symbol) else None
         if (self.ui and hasattr(self.ui, 'warn')):
-            message = u'IDL SYNTAX ERROR LINE: ' + unicode(lineNumber) + u' - '
+            message = 'IDL SYNTAX ERROR LINE: ' + str(lineNumber) + ' - '
             if (ending):
                 message += 'expected ";" '
 
@@ -232,7 +232,7 @@ class Tokenizer(object):
 
             if (symbol):
                 if (0 < len(skip)):
-                    self.ui.warn(message + u'skipped: "' + u''.join([unicode(token) for token in skip]) + '"\n')
+                    self.ui.warn(message + 'skipped: "' + ''.join([str(token) for token in skip]) + '"\n')
             else:
                 self.ui.warn(message + '\n')
         return skipped
@@ -240,12 +240,12 @@ class Tokenizer(object):
     def error(self, *args):
         "Report non-syntax error"
         if (self.ui and hasattr(self.ui, 'warn')):
-            message = u'IDL ERROR LINE: ' + unicode(self.lineNumber) + u' - ' + u''.join([unicode(arg) for arg in args])
+            message = 'IDL ERROR LINE: ' + str(self.lineNumber) + ' - ' + ''.join([str(arg) for arg in args])
             self.ui.warn(message + '\n')
 
     def didIgnore(self, ignored):
         "Report ignored content"
         if (self.ui and hasattr(self.ui, 'note')):
-            message = u'IGNORED LEGACY IDL LINE: ' + unicode(self.lineNumber) + u' - "'
-            ignoreText = u''.join(unicode(ignore) for ignore in ignored) if (hasattr(ignored, '__iter__')) else unicode(ignored)
+            message = 'IGNORED LEGACY IDL LINE: ' + str(self.lineNumber) + ' - "'
+            ignoreText = ''.join(str(ignore) for ignore in ignored) if (hasattr(ignored, '__iter__')) else str(ignored)
             self.ui.note(message + ignoreText + '"\n')

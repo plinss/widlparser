@@ -62,13 +62,13 @@ class MarkupGenerator(object):
     def addText(self, text):
         if (text):
             if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
-                self.children[-1].text += unicode(text)
+                self.children[-1].text += str(text)
             else:
-                self.children.append(MarkupText(unicode(text)))
+                self.children.append(MarkupText(str(text)))
 
     @property
     def text(self):
-        return u''.join([child.text for child in self.children])
+        return ''.join([child.text for child in self.children])
 
     def _markup(self, marker):
         if (self.construct and hasattr(marker, 'markupConstruct')):
@@ -77,9 +77,9 @@ class MarkupGenerator(object):
 
     def markup(self, marker, parent = None):
         head, tail = self._markup(marker)
-        output = unicode(head) if (head) else u''
-        output += u''.join([child.markup(marker, self.construct) for child in self.children])
-        return output + (unicode(tail) if (tail) else u'')
+        output = str(head) if (head) else ''
+        output += ''.join([child.markup(marker, self.construct) for child in self.children])
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupType(MarkupGenerator):
@@ -142,7 +142,7 @@ class MarkupText(object):
         self.text = text
 
     def markup(self, marker, construct):
-        return unicode(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
+        return str(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
 
 
 class MarkupTypeName(MarkupText):
@@ -151,9 +151,9 @@ class MarkupTypeName(MarkupText):
 
     def markup(self, marker, construct):
         head, tail = marker.markupTypeName(self.text, construct) if (hasattr(marker, 'markupTypeName')) else (None, None)
-        output = unicode(head) if (head) else u''
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupName(MarkupText):
@@ -162,9 +162,9 @@ class MarkupName(MarkupText):
 
     def markup(self, marker, construct):
         head, tail = marker.markupName(self.text, construct) if (hasattr(marker, 'markupName')) else (None, None)
-        output = unicode(head) if (head) else u''
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupKeyword(MarkupText):
@@ -173,9 +173,9 @@ class MarkupKeyword(MarkupText):
 
     def markup(self, marker, construct):
         head, tail = marker.markupKeyword(self.text, construct) if (hasattr(marker, 'markupKeyword')) else (None, None)
-        output = unicode(head) if (head) else u''
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupEnumValue(MarkupText):
@@ -184,7 +184,7 @@ class MarkupEnumValue(MarkupText):
 
     def markup(self, marker, construct):
         head, tail = marker.markupEnumValue(self.text, construct) if (hasattr(marker, 'markupEnumValue')) else (None, None)
-        output = unicode(head) if (head) else u''
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 

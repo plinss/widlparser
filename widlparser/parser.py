@@ -13,8 +13,8 @@
 import re
 import itertools
 
-import tokenizer
-from constructs import *
+from . import tokenizer
+from .constructs import *
 
 
 class Parser(object):
@@ -63,10 +63,7 @@ class Parser(object):
                 self.constructs.append(SyntaxError(tokens, None, parser = self))
 
     def __str__(self):
-        return self.__unicode__()
-
-    def __unicode__(self):
-        return u''.join([unicode(construct) for construct in self.constructs])
+        return ''.join([str(construct) for construct in self.constructs])
 
     def __repr__(self):
         return '[Parser: ' + ''.join([(repr(construct) + '\n') for construct in self.constructs]) + ']'
@@ -78,21 +75,21 @@ class Parser(object):
         return [construct.name for construct in self.constructs]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
                     return construct
             return None
         return self.constructs[key]
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def __iter__(self):
         return iter(self.constructs)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
                     return True
@@ -278,6 +275,6 @@ class Parser(object):
             for construct in self.constructs:
                 construct.markup(generator)
             return generator.markup(marker)
-        return unicode(self)
+        return str(self)
 
 

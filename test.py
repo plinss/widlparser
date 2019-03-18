@@ -122,7 +122,7 @@ def test_difference(input, output):
         input_lines = input.split('\n')
         output_lines = output.split('\n')
 
-        for input_line, output_line in itertools.izip_longest(input_lines, output_lines, fillvalue=''):
+        for input_line, output_line in itertools.zip_longest(input_lines, output_lines, fillvalue=''):
             if (input_line != output_line):
                 print("<" + input_line)
                 print(">" + output_line)
@@ -140,7 +140,7 @@ if __name__ == "__main__":      # called from the command line
             parser.reset()
             text = file.read()
             parser.parse(text)
-            assert (text == unicode(parser))
+            assert (text == str(parser))
         quit()
 
 
@@ -331,8 +331,8 @@ interface mixin MixinCanNotIncludeSetlike {
     parser.parse(idl)
     print(repr(parser))
 
-    test_difference(idl, unicode(parser))
-    assert(unicode(parser) == idl)
+    test_difference(idl, str(parser))
+    assert(str(parser) == idl)
 
     print("MARKED UP:")
     marker = NullMarker()
@@ -340,13 +340,13 @@ interface mixin MixinCanNotIncludeSetlike {
     assert(marker.text == idl)
     print(parser.markup(Marker()))
 
-    print("Complexity: " + unicode(parser.complexityFactor))
+    print("Complexity: " + str(parser.complexityFactor))
 
 
     for construct in parser.constructs:
-        print(unicode(construct.idlType) + u': ' + unicode(construct.normalName))
+        print(str(construct.idlType) + u': ' + str(construct.normalName))
         for member in construct:
-            print('    ' + member.idlType + ': ' + unicode(member.normalName) + ' (' + unicode(member.name) + ')')
+            print('    ' + member.idlType + ': ' + str(member.normalName) + ' (' + str(member.name) + ')')
 
     print("FIND:")
     print(parser.find('round').fullName)
