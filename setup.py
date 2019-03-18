@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+import widlparser
+from setuptools import setup
 
 with open('README.md') as f:
     readme = f.read()
