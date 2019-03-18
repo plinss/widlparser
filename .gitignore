@@ -1,7 +1,50 @@
-*.xcodeproj
-*.DS_Store
-local/*
+# Misc.
 *.log
-*.pyc
 *.orig
 .hg/*
+*.DS_Store
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+local
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+MANIFEST
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# IDE Files
+.mr.developer.cfg
+.project
+.pydevproject
+*.xcodeproj
+
+# Virtual environments
+venv
+
+# Documentation
+docs/_build
