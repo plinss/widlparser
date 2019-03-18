@@ -161,7 +161,6 @@ interface Simple{
     idl += u""" // this is a comment éß
 interface Multi : One  ,  Two   ,   Three     {
         attribute short one;
-        attribute DOMString id setraises(DOMException);
 };
 typedef sequence<Foo[]>? fooType;
 typedef (short or Foo) maybeFoo;
@@ -209,7 +208,6 @@ typedef foo [ ] [ ]  barTypes;
 typedef sequence<DOMString[]> sequins;
 typedef sequence<DOMString[]>? sequinses;
 typedef object obj;
-typedef Date? today;
 typedef (short or [Extended] double) union;
 typedef (short or sequence < DOMString [ ] ? [ ] > ? or DOMString[]?[] or unsigned long long or unrestricted double) craziness;
 typedef (short or (long or double)) nestedUnion;
