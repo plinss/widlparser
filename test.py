@@ -216,7 +216,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
 
 [ Constructor , NamedConstructor = MyConstructor, Constructor (Foo one), NamedConstructor = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
     unsigned long long method(short x, unsigned long long y, optional double inf = Infinity, sequence<Foo>... fooArg) raises (hell);
-    unsigned long long method(DOMString string);
+    unsigned long long method(DOMString string, optional Foo foo = {});
     void abort();
     void anotherMethod(short round);
     [ha!] attribute short bar getraises (an, exception);

@@ -1005,7 +1005,7 @@ class Inheritance(Production):   # ":" identifier [IgnoreMultipleInheritance]
         return '[inherits: ' + self.base.encode('ascii', 'replace') + ']'
 
 
-class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
+class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]" | "=" "{" "}"
     @classmethod
     def peek(cls, tokens):
         tokens.pushPosition(False)
@@ -1014,6 +1014,8 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
                 return tokens.popPosition(True)
             if (Symbol.peek(tokens, '[')):
                 return tokens.popPosition(Symbol.peek(tokens, ']'))
+            if (Symbol.peek(tokens, '{')):
+                return tokens.popPosition(Symbol.peek(tokens, '}'))
             token = tokens.peek()
             return tokens.popPosition(token and token.isString())
         return tokens.popPosition(False)
@@ -1021,21 +1023,25 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
     def __init__(self, tokens):
         Production.__init__(self, tokens)
         self._equals = Symbol(tokens, '=')
-        self._openBracket = None
-        self._closeBracket = None
+        self._open = None
+        self._close = None
         token = tokens.sneakPeek()
         if (token.isString()):
             self.value = tokens.next().text
         elif (token.isSymbol('[')):
-            self._openBracket = Symbol(tokens, '[')
-            self._closeBracket = Symbol(tokens, ']', False)
+            self._open = Symbol(tokens, '[')
+            self._close = Symbol(tokens, ']', False)
+            self.value = None
+        elif (token.isSymbol('{')):
+            self._open = Symbol(tokens, '{')
+            self._close = Symbol(tokens, '}', False)
             self.value = None
         else:
             self.value = ConstValue(tokens)
         self._didParse(tokens)
 
     def _unicode(self):
-        return unicode(self._equals) + (unicode(self.value) if (self.value) else unicode(self._openBracket) + unicode(self._closeBracket))
+        return unicode(self._equals) + (unicode(self.value) if (self.value) else unicode(self._open) + unicode(self._close))
 
     def _markup(self, generator):
         self._equals.markup(generator)
@@ -1044,12 +1050,12 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]"
                 generator.addText(self.value)
                 return self
             return self.value._markup(generator)
-        self._openBracket.markup(generator)
-        self._closeBracket.markup(generator)
+        self._open.markup(generator)
+        self._close.markup(generator)
         return self
 
     def __repr__(self):
-        return '[Default: ' + repr(self.value) + ']'
+        return '[Default: ' + (repr(self.value) if (self.value) else unicode(self._open) + unicode(self._close)) + ']'
 
 
 class ArgumentName(Production):   # identifier | ArgumentNameKeyword
