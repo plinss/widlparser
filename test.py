@@ -222,7 +222,9 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     void anotherMethod(short round);
     [ha!] attribute short bar getraises (an, exception);
     const short fortyTwo = 42;
-    long foo(long x, long y);
+    attribute long async;
+    long foo(long x, long y, long async);
+    long includes();
 }
 [ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
     stringifier attribute DOMString mediaText;
