@@ -2061,6 +2061,73 @@ class StaticMember(ChildProduction):    # "static" AttributeRest | "static" Retu
         return output + repr(self.attribute) + ']'
 
 
+class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
+    @classmethod
+    def peek(cls, tokens):
+        tokens.pushPosition(False)
+        if (Symbol.peek(tokens, 'constructor')):
+            if (Symbol.peek(tokens, '(')):
+                ArgumentList.peek(tokens)
+                token = tokens.peek()
+                return tokens.popPosition(token and token.isSymbol(')'))
+        return tokens.popPosition(False)
+
+    def __init__(self, tokens, parent):
+        ChildProduction.__init__(self, tokens, parent)
+        self._constructor = Symbol(tokens, 'constructor')
+        self._openParen = Symbol(tokens, '(')
+        self.arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+        self._closeParen = Symbol(tokens, ')')
+        self._consumeSemicolon(tokens)
+        self._didParse(tokens)
+
+    @property
+    def idlType(self):
+        return 'method'
+
+    @property
+    def name(self):
+        return unicode(self._constructor)
+
+    @property
+    def stringifier(self):
+        return False
+
+    @property
+    def argumentNames(self):
+        return self.arguments.argumentNames if (self.arguments) else ['']
+
+    @property
+    def methodName(self):
+        name = 'constructor('
+        if (self.arguments):
+            name += self.arguments.argumentNames[0]
+        return name + ')'
+
+    @property
+    def methodNames(self):
+        if (self.arguments):
+            return ['constructor(' + argumentName + ')' for argumentName in self.arguments.argumentNames]
+        return [self.methodName]
+
+    def _unicode(self):
+        output = self.name if (self.name) else ''
+        return output + unicode(self._openParen) + (unicode(self.arguments) if (self.arguments) else '') + unicode(self._closeParen)
+
+    def _markup(self, generator):
+        if (self._constructor):
+            self._constructor.markup(generator)
+        generator.addText(self._openParen)
+        if (self.arguments):
+            self.arguments.markup(generator)
+        generator.addText(self._closeParen)
+        return self
+
+    def __repr__(self):
+        output = '[Constructor: '
+        return output + '[argumentlist: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
+
+
 class ExtendedAttributeList(ChildProduction):   # "[" ExtendedAttribute ["," ExtendedAttribute]... "]"
     @classmethod
     def peek(cls, tokens):

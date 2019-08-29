@@ -227,6 +227,8 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     long includes();
 }
 [ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
+    constructor();
+    constructor(int x);
     stringifier attribute DOMString mediaText;
     readonly attribute [Extended] short bar;
     getter object (DOMString name);
