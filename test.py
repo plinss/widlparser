@@ -11,9 +11,10 @@
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
 
-import sys
-import itertools
 import cgi
+import codecs
+import itertools
+import sys
 
 from widlparser import parser
 
@@ -131,6 +132,7 @@ def test_difference(input, output):
 
 if __name__ == "__main__":      # called from the command line
     sys.excepthook = debugHook
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     parser = parser.Parser(ui=ui())
 
     if (1 < len(sys.argv)):
