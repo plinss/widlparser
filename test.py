@@ -349,7 +349,7 @@ interface mixin MixinCanNotIncludeSetlike {
 
 
     for construct in parser.constructs:
-        print(unicode(construct.idlType) + u': ' + unicode(construct.normalName))
+        print(unicode(construct.idlType) + u' : ' + unicode(construct.normalName))
         for member in construct:
             print('    ' + member.idlType + ': ' + unicode(member.normalName) + ' (' + unicode(member.name) + ')')
 
