@@ -84,9 +84,9 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     constructor();
     constructor(int x);
     stringifier attribute DOMString mediaText;
-    readonly attribute [Extended] short bar;
+    readonly attribute [Extended] short bar ;
     getter object (DOMString name);
-    getter setter object bob(DOMString name);
+    getter setter object bob (DOMString name);
     stringifier foo me(int x);
     stringifier foo ();
     stringifier;
@@ -317,7 +317,7 @@ IDL SYNTAX ERROR LINE: 181 - skipped: "readonly setlike<DOMString>"
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: u'method']] [argumentlist: [argument: [type: DOMString ] [name: string]] [argument: [optional] [type: Foo ] [name: foo] [default: [Default: {}]]]]]]]
   [member: [Operation: void [OperationRest: [name: [OperationName: u'abort']] [argumentlist: ]]]]
   [member: [Operation: void [OperationRest: [name: [OperationName: u'anotherMethod']] [argumentlist: [argument: [type: short ] [name: round]]]]]]
-  [member: [Extended Attributes: [ExtendedAttribute: [identifier:ha][other:!]]] [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar ]]]]
+  [member: [Extended Attributes: [ExtendedAttribute: [identifier:ha][other:!]]] [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar]]]]
   [member: [const: [ConstType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]][name: fortyTwo] = [value: 42]]]
   [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [name: async]]]]
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: u'foo']] [argumentlist: [argument: [type: long ] [name: x]] [argument: [type: long ] [name: y]] [argument: [type: long ] [name: async]]]]]]
@@ -345,7 +345,7 @@ IDL SYNTAX ERROR LINE: 181 - skipped: "readonly setlike<DOMString>"
 [callback: [name: callFoo] [returnType: short] [argumentlist: ]]
 [callback: [name: callFoo2] [returnType: unsigned long long] [argumentlist: [argument: [type: unrestricted double ] [name: one]] [argument: [type: DOMString ] [name: two]] [argument: [type: Fubar ][...] [name: three]]]]
 [callback: [interface: [name: callMe] [members: 
-  [member: [attribute: [inherit] [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: round ]]]]
+  [member: [attribute: [inherit] [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: round]]]]
 ]]]
 [callback: [interface: [mixin] [name: callMeMixin] [members: 
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: u'method']] [argumentlist: ]]]]
@@ -497,9 +497,9 @@ typedef   short    shorttype  = error this is;</c>
     <c method><k>constructor</k>();</c>
     <c method><k>constructor</k>(<c argument><t><tn>int</tn></t> <n>x</n></c>);</c>
     <c attribute><k>stringifier</k> <k>attribute</k> <t><s><k>DOMString</k></s></t> <n>mediaText</n>;</c>
-    <c attribute><k>readonly</k> <k>attribute</k> <t>[<c extended-attribute><n>Extended</n></c>] <p><k>short</k></p></t> <n>bar</n>;</c>
+    <c attribute><k>readonly</k> <k>attribute</k> <t>[<c extended-attribute><n>Extended</n></c>] <p><k>short</k></p></t> <n>bar</n> ;</c>
     <c method><k>getter</k> <t><o><k>object</k></o></t> (<c argument><t><s><k>DOMString</k></s></t> <n>name</n></c>);</c>
-    <c method><k>getter</k> <k>setter</k> <t><o><k>object</k></o></t> <n>bob</n>(<c argument><t><s><k>DOMString</k></s></t> <n>name</n></c>);</c>
+    <c method><k>getter</k> <k>setter</k> <t><o><k>object</k></o></t> <n>bob</n> (<c argument><t><s><k>DOMString</k></s></t> <n>name</n></c>);</c>
     <c stringifier><k>stringifier</k> <t><tn>foo</tn></t> <n>me</n>(<c argument><t><tn>int</tn></t> <n>x</n></c>);</c>
     <c stringifier><k>stringifier</k> <t><tn>foo</tn></t> ();</c>
     <c stringifier><k>stringifier</k>;</c>
@@ -667,7 +667,7 @@ interface: Foo
     method: method(string, foo) (method)
     method: abort() (abort)
     method: anotherMethod(round) (anotherMethod)
-    attribute: bar  (bar )
+    attribute: bar (bar)
     const: fortyTwo (fortyTwo)
     attribute: async (async)
     method: foo(x, y, async) (foo)
@@ -691,7 +691,7 @@ dictionary: FooDict
 callback: callFoo
 callback: callFoo2
 callback: callMe
-    attribute: round  (round )
+    attribute: round (round)
 callback: callMeMixin
     method: method() (method)
 dictionary: MyDictionary
@@ -742,7 +742,7 @@ interface: MixinCanNotIncludeMaplike
 interface: MixinCanNotIncludeSetlike
     unknown: None (None)
 FIND:
-Foo/anotherMethod(round)/round
+callMe/round
 Foo/method(x, y, inf, ...fooArg)/y
 Foo/method(string, foo)
 Foo

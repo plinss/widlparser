@@ -9,10 +9,9 @@ Testing
 
 To ensure that there are no unexpected changes, compare the output of `test.py`:
 
-       ./test.py > test-actual.txt
-       diff -u test-expected.txt test-actual.txt
+    	./test.py | diff -u test-expected.txt -
 
 If all changes are expected, include them in your pull request:
 
-       mv test-actual.txt test-expected.txt
-       git add test-expected.txt
+       	./test.py > test-expected.txt
+       	git add test-expected.txt
