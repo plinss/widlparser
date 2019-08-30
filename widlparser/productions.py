@@ -1300,12 +1300,12 @@ class AttributeRest(Production):   # ["readonly"] "attribute" TypeWithExtendedAt
 
     @property
     def name(self):
-        return unicode(self._name)
+        return self._name.name
 
     def _unicode(self):
         output = unicode(self.readonly) if (self.readonly) else ''
         output += unicode(self._attribute) + unicode(self.type)
-        output += self.name
+        output += unicode(self._name)
         return output + (unicode(self._ignore) if (self._ignore) else '')
 
     def _markup(self, generator):
@@ -1489,14 +1489,14 @@ class OperationRest(ChildProduction):   # [OperationName] "(" [ArgumentList] ")"
 
     @property
     def name(self):
-        return unicode(self._name) if (self._name) else None
+        return self._name.name if (self._name) else None
 
     @property
     def argumentNames(self):
         return self.arguments.argumentNames if (self.arguments) else ['']
 
     def _unicode(self):
-        output = self.name if (self.name) else ''
+        output = unicode(self._name) if (self._name) else ''
         output += unicode(self._openParen) + (unicode(self.arguments) if (self.arguments) else '') + unicode(self._closeParen)
         return output + (unicode(self._ignore) if (self._ignore) else '')
 

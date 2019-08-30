@@ -230,9 +230,9 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     constructor();
     constructor(int x);
     stringifier attribute DOMString mediaText;
-    readonly attribute [Extended] short bar;
+    readonly attribute [Extended] short bar ;
     getter object (DOMString name);
-    getter setter object bob(DOMString name);
+    getter setter object bob (DOMString name);
     stringifier foo me(int x);
     stringifier foo ();
     stringifier;
@@ -376,5 +376,5 @@ interface mixin MixinCanNotIncludeSetlike {
     print(', '.join(parser.normalizedMethodNames('method()', 'Foo')))
     print(', '.join(parser.normalizedMethodNames('method(x)', 'Foo')))
     print(', '.join(parser.normalizedMethodNames('method(x, y)', 'Foo')))
-    print(', '.join(parser.normalizedMethodNames('method(x, y, bar)', 'Foo')))
+    print(', '.join(parser.normalizedMethodNames('method (x, y, bar)', 'Foo')))
     print(', '.join(parser.normalizedMethodNames('abort()', 'Foo')))
