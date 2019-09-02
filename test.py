@@ -330,6 +330,11 @@ interface mixin MixinCanNotIncludeSetlike {
   readonly setlike<DOMString>;
 };
 
+interface Underscores {
+  attribute DOMString _or;
+  boolean _includes(DOMString value);
+};
+
 """
 #    idl = idl.replace(' ', '  ')
     print("IDL >>>\n" + idl + "\n<<<")

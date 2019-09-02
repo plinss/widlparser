@@ -182,6 +182,11 @@ interface mixin MixinCanNotIncludeSetlike {
   readonly setlike<DOMString>;
 };
 
+interface Underscores {
+  attribute DOMString _or;
+  boolean _includes(DOMString value);
+};
+
 
 <<<
 IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
@@ -410,6 +415,10 @@ IDL SYNTAX ERROR LINE: 181 - skipped: "readonly setlike<DOMString>"
 [interface: [mixin] [name: MixinCanNotIncludeSetlike] [members: 
   [unknown:  tokens: [symbol:readonly][whitespace: ][symbol:setlike][symbol:<][symbol:DOMString][symbol:>][symbol:;]]
 ]]
+[interface: [name: Underscores] [members: 
+  [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString]]] [name: or]]]]
+  [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: u'boolean']]]] [OperationRest: [name: [OperationName: u'_includes']] [argumentlist: [argument: [type: DOMString ] [name: value]]]]]]
+]]
 ]
 MARKED UP:
 <c dictionary><k>dictionary</k> <n>CSSFontFaceLoadEventInit</n> : <tn>EventInit</tn> { <c dict-member><t><k>sequence</k>&lt;<t><tn>CSSFontFaceRule</tn></t>&gt;</t> <n>fontfaces</n> = [ ];</c> };</c>
@@ -595,8 +604,13 @@ typedef   short    shorttype  = error this is;</c>
   <c unknown>readonly setlike&lt;DOMString&gt;;</c>
 };</c>
 
+<c interface><k>interface</k> <n>Underscores</n> {
+  <c attribute><k>attribute</k> <t><s><k>DOMString</k></s></t> <n>_or</n>;</c>
+  <c method><t><p><k>boolean</k></p></t> <n>_includes</n>(<c argument><t><s><k>DOMString</k></s></t> <n>value</n></c>);</c>
+};</c>
 
-Complexity: 138
+
+Complexity: 141
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -741,6 +755,9 @@ interface: MixinCanNotIncludeMaplike
     unknown: None (None)
 interface: MixinCanNotIncludeSetlike
     unknown: None (None)
+interface: Underscores
+    attribute: or (or)
+    method: includes(value) (includes)
 FIND:
 callMe/round
 Foo/method(x, y, inf, ...fooArg)/y
