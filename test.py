@@ -226,6 +226,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     const short fortyTwo = 42;
     attribute long async;
     long foo(long x, long y, long async);
+    void bar(any constructor);
     long includes();
 }
 [ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {

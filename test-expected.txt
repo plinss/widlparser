@@ -78,6 +78,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     const short fortyTwo = 42;
     attribute long async;
     long foo(long x, long y, long async);
+    void bar(any constructor);
     long includes();
 }
 [ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
@@ -215,32 +216,32 @@ IGNORED LEGACY IDL LINE: 72 - "raises (hell)"
 
 IGNORED LEGACY IDL LINE: 76 - "getraises (an, exception)"
 
-IDL SYNTAX ERROR LINE: 82 - expected ";" 
+IDL SYNTAX ERROR LINE: 83 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 93 - skipped: "this is a syntax error, naturally
+IDL SYNTAX ERROR LINE: 94 - skipped: "this is a syntax error, naturally
 "
 
-IDL SYNTAX ERROR LINE: 101 - expected ";" 
+IDL SYNTAX ERROR LINE: 102 - expected ";" 
 
-IGNORED LEGACY IDL LINE: 104 - "setraises (for the heck of it)"
+IGNORED LEGACY IDL LINE: 105 - "setraises (for the heck of it)"
 
-IDL SYNTAX ERROR LINE: 127 - skipped: "attribute long error"
-
-IDL ERROR LINE: 142 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL SYNTAX ERROR LINE: 128 - skipped: "attribute long error"
 
 IDL ERROR LINE: 143 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 162 - skipped: "[NoInterfaceObject] Interface includes Mixin"
+IDL ERROR LINE: 144 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 165 - skipped: "getter long (unsigned long argument)"
+IDL SYNTAX ERROR LINE: 163 - skipped: "[NoInterfaceObject] Interface includes Mixin"
 
-IDL SYNTAX ERROR LINE: 169 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
+IDL SYNTAX ERROR LINE: 166 - skipped: "getter long (unsigned long argument)"
 
-IDL SYNTAX ERROR LINE: 173 - skipped: "iterable<long>"
+IDL SYNTAX ERROR LINE: 170 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
 
-IDL SYNTAX ERROR LINE: 177 - skipped: "readonly maplike<DOMString, DOMString>"
+IDL SYNTAX ERROR LINE: 174 - skipped: "iterable<long>"
 
-IDL SYNTAX ERROR LINE: 181 - skipped: "readonly setlike<DOMString>"
+IDL SYNTAX ERROR LINE: 178 - skipped: "readonly maplike<DOMString, DOMString>"
+
+IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [dictionary: [name: CSSFontFaceLoadEventInit] [inherits: EventInit][members: 
   [dict-member: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: u'CSSFontFaceRule']]]]]] [name: fontfaces] = [default: [Default: [ ]]]]
@@ -321,6 +322,7 @@ IDL SYNTAX ERROR LINE: 181 - skipped: "readonly setlike<DOMString>"
   [member: [const: [ConstType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]][name: fortyTwo] = [value: 42]]]
   [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [name: async]]]]
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: u'foo']] [argumentlist: [argument: [type: long ] [name: x]] [argument: [type: long ] [name: y]] [argument: [type: long ] [name: async]]]]]]
+  [member: [Operation: void [OperationRest: [name: [OperationName: u'bar']] [argumentlist: [argument: [type: any ] [name: constructor]]]]]]
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: u'includes']] [argumentlist: ]]]]
 ]]
 [interface: [Extended Attributes: [ExtendedAttributeNoArgs: NoInterfaceObject] [ExtendedAttributeTypePair: MapClass [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [Type: [SingleType: [NonAnyType: u'Foo']]]]] [name: LinkStyle] [members: 
@@ -491,6 +493,7 @@ typedef   short    shorttype  = error this is;</c>
     <c const><k>const</k> <t><p><k>short</k></p></t> <n>fortyTwo</n> = 42;</c>
     <c attribute><k>attribute</k> <t><p><k>long</k></p></t> <n>async</n>;</c>
     <c method><t><p><k>long</k></p></t> <n>foo</n>(<c argument><t><p><k>long</k></p></t> <n>x</n></c>, <c argument><t><p><k>long</k></p></t> <n>y</n></c>, <c argument><t><p><k>long</k></p></t> <n>async</n></c>);</c>
+    <c method><k>void</k> <n>bar</n>(<c argument><t><k>any</k></t> <n>constructor</n></c>);</c>
     <c method><t><p><k>long</k></p></t> <n>includes</n>();</c>
 }
 </c><c interface>[ <c extended-attribute><n>NoInterfaceObject</n></c> , <c extended-attribute><n>MapClass</n> (<p><k>short</k></p>, <tn>Foo</tn> )</c>] <k>interface</k> <n>LinkStyle</n> {
@@ -596,7 +599,7 @@ typedef   short    shorttype  = error this is;</c>
 };</c>
 
 
-Complexity: 138
+Complexity: 139
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -671,6 +674,7 @@ interface: Foo
     const: fortyTwo (fortyTwo)
     attribute: async (async)
     method: foo(x, y, async) (foo)
+    method: bar(constructor) (bar)
     method: includes() (includes)
 interface: LinkStyle
     method: constructor() (constructor)
