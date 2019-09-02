@@ -1059,10 +1059,11 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]" | "=" "
 
 
 class ArgumentName(Production):   # identifier | ArgumentNameKeyword
-    ArgumentNameKeywords = frozenset(['async', 'attribute', 'callback', 'const', 'creator', 'deleter', 'dictionary', 'enum',
-                                      'getter', 'implements', 'inherit', 'interface', 'iterable', 'legacycaller',
-                                      'legacyiterable', 'maplike', 'namespace', 'partial', 'required', 'setlike',
-                                      'setter', 'static', 'stringifier', 'typedef', 'unrestricted'])
+    ArgumentNameKeywords = frozenset(['async', 'attribute', 'callback', 'const', 'constructor',
+                                      'deleter', 'dictionary', 'enum', 'getter', 'includes',
+                                      'inherit', 'interface', 'iterable', 'maplike', 'namespace',
+                                      'partial', 'required', 'setlike', 'setter', 'static',
+                                      'stringifier', 'typedef', 'unrestricted'])
     @classmethod
     def peek(cls, tokens):
         token = tokens.pushPosition()
