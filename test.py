@@ -263,7 +263,7 @@ callback interface mixin callMeMixin {
     any [] value = null;
 };
 
-[] interface Int {
+[] interface _interface {
     readonly attribute long? service;
     readonly attribute ArrayBuffer? value;
     readonly attribute ArrayBuffer value2;
