@@ -260,7 +260,7 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
   [member: [AsyncIterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
   [member: [Maplike: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
   [member: [Setlike: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Uint8ClampedArray]]]]]
-  [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: u'boolean']]]] [name: required]]]]
+  [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [name: required]]]]
   [member: [StaticMember: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [name: foo]]]]
   [member: [StaticMember: [Type: [SingleType: [NonAnyType: Foo]]] [OperationRest: [name: [OperationName: foo]] [argumentlist: ]]]]
   [member: [Operation: [Type: [SingleType: [NonAnyType: [Promise] [Type: [SingleType: [NonAnyType: ReallyISwear]]][null]]]] [OperationRest: [name: [OperationName: theCheckIsInTheMail]] [argumentlist: ]]]]
@@ -346,7 +346,7 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 ]]
 [dictionary: [Extended Attributes: [ExtendedAttributeNoArgs: foo]] [partial] [name: FooDict] [inherits: BarDict][members: 
   [dict-member: [Extended Attributes: [ExtendedAttribute: [identifier:one][whitespace: ][string:"]"][whitespace: ][symbol:(][whitespace: ][identifier:tricky][whitespace: ][symbol:]][whitespace: ][identifier:test][symbol:)]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar]]
-  [dict-member: [Extended Attributes: [ExtendedAttributeNoArgs: two]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: foo] = [default: [Default: u'"hello"']]]
+  [dict-member: [Extended Attributes: [ExtendedAttributeNoArgs: two]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: foo] = [default: [Default: "hello"]]]
   [dict-member: [required] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [name: baz]]
 ]]
 [callback: [name: callFoo] [returnType: short] [argumentlist: ]]
@@ -358,9 +358,9 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
   [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: method]] [argumentlist: ]]]]
 ]]]
 [dictionary: [Extended Attributes: [ExtendedAttributeIdentList: Exposed [value: Window] Worker]] [name: MyDictionary] [members: 
-  [dict-member: [TypeWithExtendedAttributes: [SingleType: any]] [name: value] = [default: [Default: [ConstValue: u'null']]]]
-  [dict-member: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: u'null']]]]
-  [dict-member: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: u'null']]]]
+  [dict-member: [TypeWithExtendedAttributes: [SingleType: any]] [name: value] = [default: [Default: [ConstValue: null]]]]
+  [dict-member: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: null]]]]
+  [dict-member: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: null]]]]
 ]]
 [interface: [Extended Attributes: [ExtendedAttribute: ]] [name: _interface] [members: 
   [member: [attribute: [AttributeRest: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]][TypeSuffix: [null] ]]]] [name: service]]]]
@@ -419,7 +419,7 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 ]]
 [interface: [name: Underscores] [members: 
   [member: [attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString]]] [name: or]]]]
-  [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: u'boolean']]]] [OperationRest: [name: [OperationName: _includes]] [argumentlist: [argument: [type: DOMString ] [name: [ArgumentName: value]]]]]]]
+  [member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [OperationRest: [name: [OperationName: _includes]] [argumentlist: [argument: [type: DOMString ] [name: [ArgumentName: value]]]]]]]
 ]]
 ]
 MARKED UP:

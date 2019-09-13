@@ -69,10 +69,31 @@ class Production(object):
             tokens.syntaxError(None)
 
 
+class String(Production):
+    @classmethod
+    def peek(cls, tokens):
+        token = tokens.pushPosition()
+        return tokens.popPosition(token and token.isString())
+
+    def __init__(self, tokens, includeTrailingSpace = True):
+        Production.__init__(self, tokens)
+        self.string = tokens.next().text
+        self._didParse(tokens, includeTrailingSpace)
+
+    def _unicode(self):
+        return self.string
+
+    def _markup(self, generator):
+        generator.addText(self.string)
+        return self
+
+    def __repr__(self):
+        return self.string.encode('ascii', 'replace')
+
 
 class Symbol(Production):
     @classmethod
-    def peek(cls, tokens, symbol):
+    def peek(cls, tokens, symbol=None):
         token = tokens.pushPosition()
         return tokens.popPosition(token and token.isSymbol(symbol))
 
@@ -224,12 +245,7 @@ class UnrestrictedFloatType(Production): # "unrestricted" FloatType | FloatType
 class PrimitiveType(Production): # UnsignedIntegerType | UnrestrictedFloatType | "boolean" | "byte" | "octet"
     @classmethod
     def peek(cls, tokens):
-        if (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens)):
-            return True
-        token = tokens.pushPosition()
-        if (token and token.isSymbol()):
-            return tokens.popPosition(('boolean' == token.text) or ('byte' == token.text) or ('octet' == token.text))
-        return tokens.popPosition(False)
+        return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('boolean', 'byte', 'octet')))
 
     def __init__(self, tokens):
         Production.__init__(self, tokens)
@@ -238,7 +254,7 @@ class PrimitiveType(Production): # UnsignedIntegerType | UnrestrictedFloatType |
         elif (UnrestrictedFloatType.peek(tokens)):
             self.type = UnrestrictedFloatType(tokens)
         else:
-            self.type = tokens.next().text
+            self.type = Symbol(tokens, None, False)
         self._didParse(tokens, False)
 
     @property
@@ -246,14 +262,9 @@ class PrimitiveType(Production): # UnsignedIntegerType | UnrestrictedFloatType |
         return unicode(self.type)
 
     def _unicode(self):
-        if (isinstance(self.type, basestring)):
-            return unicode(self.type)
         return self.type._unicode()
 
     def _markup(self, generator):
-        if (isinstance(self.type, basestring)):
-            generator.addKeyword(self.type)
-            return self
         return self.type._markup(generator)
 
     def __repr__(self):
@@ -393,6 +404,8 @@ class ConstValue(Production):    # "true" | "false" | FloatLiteral | integer | "
         Production.__init__(self, tokens)
         if (FloatLiteral.peek(tokens)):
             self.value = FloatLiteral(tokens)
+        elif (Symbol.peek(tokens)):
+            self.value = Symbol(tokens, None, False)
         else:
             self.value = tokens.next().text
         self._didParse(tokens)
@@ -1091,7 +1104,7 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]" | "=" "
         self._close = None
         token = tokens.sneakPeek()
         if (token.isString()):
-            self.value = tokens.next().text
+            self.value = String(tokens)
         elif (token.isSymbol('[')):
             self._open = Symbol(tokens, '[')
             self._close = Symbol(tokens, ']', False)
