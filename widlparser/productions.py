@@ -2186,7 +2186,7 @@ class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
         ChildProduction.__init__(self, tokens, parent)
         self._constructor = Symbol(tokens, 'constructor')
         self._openParen = Symbol(tokens, '(')
-        self.arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+        self.arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
         self._closeParen = Symbol(tokens, ')')
         self._consumeSemicolon(tokens)
         self._didParse(tokens)
