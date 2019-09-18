@@ -506,8 +506,8 @@ typedef   short    shorttype  = error this is;</c>
     <c method><t><p><k>long</k></p></t> <n>includes</n>();</c>
 }
 </c><c interface>[ <c extended-attribute><n>NoInterfaceObject</n></c> , <c extended-attribute><n>MapClass</n> (<p><k>short</k></p>, <tn>Foo</tn> )</c>] <k>interface</k> <n>LinkStyle</n> {
-    <c method><k>constructor</k>();</c>
-    <c method><k>constructor</k>(<c argument><t><tn>int</tn></t> <n>x</n></c>);</c>
+    <c method><n>constructor</n>();</c>
+    <c method><n>constructor</n>(<c argument><t><tn>int</tn></t> <n>x</n></c>);</c>
     <c attribute><k>stringifier</k> <k>attribute</k> <t><s><k>DOMString</k></s></t> <n>mediaText</n>;</c>
     <c attribute><k>readonly</k> <k>attribute</k> <t>[<c extended-attribute><n>Extended</n></c>] <p><k>short</k></p></t> <n>bar</n> ;</c>
     <c method><k>getter</k> <t><o><k>object</k></o></t> (<c argument><t><s><k>DOMString</k></s></t> <n>name</n></c>);</c>

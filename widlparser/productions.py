@@ -2184,7 +2184,7 @@ class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
 
     def __init__(self, tokens, parent):
         ChildProduction.__init__(self, tokens, parent)
-        self._constructor = Symbol(tokens, 'constructor')
+        self._constructor = Identifier(tokens)  # treat 'constructor' as a name
         self._openParen = Symbol(tokens, '(')
         self.arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
         self._closeParen = Symbol(tokens, ')')
@@ -2197,7 +2197,7 @@ class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
 
     @property
     def name(self):
-        return unicode(self._constructor)
+        return self._constructor.name
 
     @property
     def stringifier(self):
