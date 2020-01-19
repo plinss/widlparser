@@ -17,69 +17,69 @@ class MarkupGenerator(object):
         self.construct = construct
         self.children = []
 
-    def addGenerator(self, generator):
+    def add_generator(self, generator):
         self.children.append(generator)
 
-    def addType(self, type):
+    def add_type(self, type):
         if (type):
-            self.addText(type._leadingSpace)
+            self.add_text(type._leading_space)
             self.children.append(MarkupType(self.construct, type))
-            self.addText(type._semicolon)
-            self.addText(type._trailingSpace)
+            self.add_text(type._semicolon)
+            self.add_text(type._trailing_space)
 
-    def addPrimitiveType(self, type):
+    def add_primitive_type(self, type):
         if (type):
             self.children.append(MarkupPrimitiveType(self.construct, type))
 
-    def addStringType(self, type):
+    def add_string_type(self, type):
         if (type):
             self.children.append(MarkupStringType(self.construct, type))
 
-    def addBufferType(self, type):
+    def add_buffer_type(self, type):
         if (type):
             self.children.append(MarkupBufferType(self.construct, type))
 
-    def addObjectType(self, type):
+    def add_object_type(self, type):
         if (type):
             self.children.append(MarkupObjectType(self.construct, type))
 
-    def addTypeName(self, typeName):
-        if (typeName):
-            self.children.append(MarkupTypeName(typeName))
+    def add_type_name(self, type_name):
+        if (type_name):
+            self.children.append(MarkupTypeName(type_name))
 
-    def addName(self, name):
+    def add_name(self, name):
         if (name):
             self.children.append(MarkupName(name))
 
-    def addKeyword(self, keyword):
+    def add_keyword(self, keyword):
         if (keyword):
             self.children.append(MarkupKeyword(keyword))
 
-    def addEnumValue(self, enumValue):
-        if (enumValue):
-            self.children.append(MarkupEnumValue(enumValue))
+    def add_enum_value(self, enum_value):
+        if (enum_value):
+            self.children.append(MarkupEnumValue(enum_value))
 
-    def addText(self, text):
+    def add_text(self, text):
         if (text):
             if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
-                self.children[-1].text += unicode(text)
+                self.children[-1].text += str(text)
             else:
-                self.children.append(MarkupText(unicode(text)))
+                self.children.append(MarkupText(str(text)))
 
     @property
     def text(self):
-        return u''.join([child.text for child in self.children])
+        return ''.join([child.text for child in self.children])
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupConstruct')):
-            return marker.markupConstruct(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_construct')):
+            return marker.markup_construct(self.text, self.construct)
         return (None, None)
 
     def markup(self, marker, parent = None):
         head, tail = self._markup(marker)
-        output = unicode(head) if (head) else u''
-        output += u''.join([child.markup(marker, self.construct) for child in self.children])
-        return output + (unicode(tail) if (tail) else u'')
+        output = str(head) if (head) else ''
+        output += ''.join([child.markup(marker, self.construct) for child in self.children])
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupType(MarkupGenerator):
@@ -88,8 +88,8 @@ class MarkupType(MarkupGenerator):
         type._markup(self)
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupType')):
-            return marker.markupType(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_type')):
+            return marker.markup_type(self.text, self.construct)
         return (None, None)
 
 
@@ -99,8 +99,8 @@ class MarkupPrimitiveType(MarkupGenerator):
         type._markup(self)
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupPrimitiveType')):
-            return marker.markupPrimitiveType(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_primitive_type')):
+            return marker.markup_primitive_type(self.text, self.construct)
         return (None, None)
 
 
@@ -110,8 +110,8 @@ class MarkupBufferType(MarkupGenerator):
         type._markup(self)
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupBufferType')):
-            return marker.markupBufferType(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_buffer_type')):
+            return marker.markup_buffer_type(self.text, self.construct)
         return (None, None)
 
 
@@ -121,8 +121,8 @@ class MarkupStringType(MarkupGenerator):
         type._markup(self)
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupStringType')):
-            return marker.markupStringType(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_string_type')):
+            return marker.markup_string_type(self.text, self.construct)
         return (None, None)
 
 
@@ -132,8 +132,8 @@ class MarkupObjectType(MarkupGenerator):
         type._markup(self)
 
     def _markup(self, marker):
-        if (self.construct and hasattr(marker, 'markupObjectType')):
-            return marker.markupObjectType(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markup_object_type')):
+            return marker.markup_object_type(self.text, self.construct)
         return (None, None)
 
 
@@ -142,7 +142,7 @@ class MarkupText(object):
         self.text = text
 
     def markup(self, marker, construct):
-        return unicode(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
+        return str(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
 
 
 class MarkupTypeName(MarkupText):
@@ -150,10 +150,10 @@ class MarkupTypeName(MarkupText):
         MarkupText.__init__(self, type)
 
     def markup(self, marker, construct):
-        head, tail = marker.markupTypeName(self.text, construct) if (hasattr(marker, 'markupTypeName')) else (None, None)
-        output = unicode(head) if (head) else u''
+        head, tail = marker.markup_type_name(self.text, construct) if (hasattr(marker, 'markup_type_name')) else (None, None)
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupName(MarkupText):
@@ -161,10 +161,10 @@ class MarkupName(MarkupText):
         MarkupText.__init__(self, name)
 
     def markup(self, marker, construct):
-        head, tail = marker.markupName(self.text, construct) if (hasattr(marker, 'markupName')) else (None, None)
-        output = unicode(head) if (head) else u''
+        head, tail = marker.markup_name(self.text, construct) if (hasattr(marker, 'markup_name')) else (None, None)
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupKeyword(MarkupText):
@@ -172,10 +172,10 @@ class MarkupKeyword(MarkupText):
         MarkupText.__init__(self, keyword)
 
     def markup(self, marker, construct):
-        head, tail = marker.markupKeyword(self.text, construct) if (hasattr(marker, 'markupKeyword')) else (None, None)
-        output = unicode(head) if (head) else u''
+        head, tail = marker.markup_keyword(self.text, construct) if (hasattr(marker, 'markup_keyword')) else (None, None)
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 
 
 class MarkupEnumValue(MarkupText):
@@ -183,8 +183,8 @@ class MarkupEnumValue(MarkupText):
         MarkupText.__init__(self, keyword)
 
     def markup(self, marker, construct):
-        head, tail = marker.markupEnumValue(self.text, construct) if (hasattr(marker, 'markupEnumValue')) else (None, None)
-        output = unicode(head) if (head) else u''
+        head, tail = marker.markup_enum_value(self.text, construct) if (hasattr(marker, 'markup_enum_value')) else (None, None)
+        output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
-        return output + (unicode(tail) if (tail) else u'')
+        return output + (str(tail) if (tail) else '')
 

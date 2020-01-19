@@ -13,14 +13,14 @@
 import re
 import itertools
 
-import tokenizer
-from constructs import *
+from . import tokenizer
+from .constructs import *
 
 
 class Parser(object):
-    def __init__(self, text = None, ui = None, symbolTable = None):
+    def __init__(self, text = None, ui = None, symbol_table = None):
         self.ui = ui
-        self.symbolTable = symbolTable if (symbolTable) else {}
+        self.symbol_table = symbol_table if (symbol_table) else {}
         self.reset()
         if (text):
             self.parse(text)
@@ -29,16 +29,16 @@ class Parser(object):
         self.constructs = []
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         complexity = 0
         for construct in self.constructs:
-            complexity += construct.complexityFactor
+            complexity += construct.complexity_factor
         return complexity
 
     def parse(self, text):
         tokens = tokenizer.Tokenizer(text, self.ui)
 
-        while (tokens.hasTokens()):
+        while (tokens.has_tokens()):
             if (Callback.peek(tokens)):
                 self.constructs.append(Callback(tokens, parser = self))
             elif (Interface.peek(tokens)):
@@ -63,10 +63,7 @@ class Parser(object):
                 self.constructs.append(SyntaxError(tokens, None, parser = self))
 
     def __str__(self):
-        return self.__unicode__()
-
-    def __unicode__(self):
-        return u''.join([unicode(construct) for construct in self.constructs])
+        return ''.join([str(construct) for construct in self.constructs])
 
     def __repr__(self):
         return '[Parser: ' + ''.join([(repr(construct) + '\n') for construct in self.constructs]) + ']'
@@ -78,32 +75,32 @@ class Parser(object):
         return [construct.name for construct in self.constructs]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
                     return construct
             return None
         return self.constructs[key]
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def __iter__(self):
         return iter(self.constructs)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
                     return True
             return False
         return (key in self.constructs)
 
-    def addType(self, type):
-        self.symbolTable[type.name] = type
+    def add_type(self, type):
+        self.symbol_table[type.name] = type
 
-    def getType(self, name):
-        return self.symbolTable.get(name)
+    def get_type(self, name):
+        return self.symbol_table.get(name)
 
     def find(self, name):
         match = re.match('(.*)\(.*\)(.*)', name)    # strip ()'s
@@ -118,24 +115,24 @@ class Parser(object):
             path = name.split('.')
 
         if (path):
-            constructName = path[0]
-            memberName = path[1]
-            argumentName = path[2] if (2 < len(path)) else memberName
+            construct_name = path[0]
+            member_name = path[1]
+            argument_name = path[2] if (2 < len(path)) else member_name
             for construct in reversed(self.constructs):
-                if (constructName == construct.name):
+                if (construct_name == construct.name):
                     if (1 == len(path)):
                         return construct
                     for member in reversed(construct):
-                        if (memberName == member.name):
+                        if (member_name == member.name):
                             if (2 < len(path)):
-                                argument = member.findArgument(argumentName)
+                                argument = member.find_argument(argument_name)
                                 if (argument):
                                     return argument
                             else:
                                 return member
                     else:
                         if (2 == len(path)):
-                            argument = construct.findArgument(argumentName, False)
+                            argument = construct.find_argument(argument_name, False)
                             if (argument):
                                 return argument
             return None
@@ -146,19 +143,19 @@ class Parser(object):
 
         # check inside top level constructs
         for construct in reversed(self.constructs):
-            member = construct.findMember(name)
+            member = construct.find_member(name)
             if (member):
                 return member
 
         # check argument names last
         for construct in reversed(self.constructs):
-            argument = construct.findArgument(name)
+            argument = construct.find_argument(name)
             if (argument):
                 return argument
 
         return None
 
-    def findAll(self, name):
+    def find_all(self, name):
         match = re.match('(.*)\(.*\)(.*)', name)    # strip ()'s
         while (match):
             name = match.group(1) + match.group(2)
@@ -173,25 +170,25 @@ class Parser(object):
         result = []
 
         if (path):
-            constructName = path[0]
-            memberName = path[1]
-            argumentName = path[2] if (2 < len(path)) else memberName
+            construct_name = path[0]
+            member_name = path[1]
+            argument_name = path[2] if (2 < len(path)) else member_name
             for construct in self.constructs:
-                if (constructName == construct.name):
+                if (construct_name == construct.name):
                     if (1 == len(path)):
                         result.append(construct)
                         continue
                     for member in construct:
-                        if (memberName == member.name):
+                        if (member_name == member.name):
                             if (2 < len(path)):
-                                argument = member.findArgument(argumentName)
+                                argument = member.find_argument(argument_name)
                                 if (argument):
                                     result.append(argument)
                             else:
                                 result.append(member)
                     else:
                         if (2 == len(path)):
-                            argument = construct.findArgument(argumentName, False)
+                            argument = construct.find_argument(argument_name, False)
                             if (argument):
                                 result.append(argument)
             return result
@@ -202,75 +199,75 @@ class Parser(object):
 
         # check inside top level constructs
         for construct in self.constructs:
-            result += construct.findMembers(name)
+            result += construct.find_members(name)
 
         # check argument names last
         for construct in self.constructs:
-            result += construct.findArguments(name)
+            result += construct.find_arguments(name)
 
         return result
 
-    def normalizedMethodName(self, methodText, interfaceName = None):
-        match = re.match(r'(.*)\((.*)\)(.*)', methodText)
+    def normalized_method_name(self, method_text, interface_name = None):
+        match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
             if (ArgumentList.peek(tokens)):
                 arguments = ArgumentList(tokens, None)
-                return match.group(1).strip() + '(' + arguments.argumentNames[0] + ')'
+                return match.group(1).strip() + '(' + arguments.argument_names[0] + ')'
             name = match.group(1).strip() + match.group(3)
-            argumentNames = [argument.strip() for argument in match.group(2).split(',')]
+            argument_names = [argument.strip() for argument in match.group(2).split(',')]
         else:
-            name = methodText
-            argumentNames = None
+            name = method_text
+            argument_names = None
 
-        if (interfaceName):
-            interface = self.find(interfaceName)
+        if (interface_name):
+            interface = self.find(interface_name)
             if (interface):
-                method = interface.findMethod(name, argumentNames)
+                method = interface.find_method(name, argument_names)
                 if (method):
-                    return method.methodName
-            return name + '(' + ', '.join(argumentNames or []) + ')'
+                    return method.method_name
+            return name + '(' + ', '.join(argument_names or []) + ')'
 
         for construct in self.constructs:
-            method = construct.findMethod(name, argumentNames)
+            method = construct.find_method(name, argument_names)
             if (method):
-                return method.methodName
+                return method.method_name
 
         construct = self.find(name)
-        if (construct and ('method' == construct.idlType)):
-            return construct.methodName
-        return name + '(' + ', '.join(argumentNames or []) + ')'
+        if (construct and ('method' == construct.idl_type)):
+            return construct.method_name
+        return name + '(' + ', '.join(argument_names or []) + ')'
 
-    def normalizedMethodNames(self, methodText, interfaceName = None):
-        match = re.match(r'(.*)\((.*)\)(.*)', methodText)
+    def normalized_method_names(self, method_text, interface_name = None):
+        match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
             if (ArgumentList.peek(tokens)):
                 arguments = ArgumentList(tokens, None)
-                return [match.group(1).strip() + '(' + argumentName + ')' for argumentName in arguments.argumentNames]
+                return [match.group(1).strip() + '(' + argument_name + ')' for argument_name in arguments.argument_names]
             name = match.group(1).strip() + match.group(3)
-            argumentNames = [argument.strip() for argument in match.group(2).split(',')]
+            argument_names = [argument.strip() for argument in match.group(2).split(',')]
         else:
-            name = methodText
-            argumentNames = None
+            name = method_text
+            argument_names = None
 
-        if (interfaceName):
-            interface = self.find(interfaceName)
+        if (interface_name):
+            interface = self.find(interface_name)
             if (interface):
-                methods = interface.findMethods(name, argumentNames)
+                methods = interface.find_methods(name, argument_names)
                 if (methods):
-                    return list(itertools.chain(*[method.methodNames for method in methods]))
-            return [name + '(' + ', '.join(argumentNames or []) + ')']
+                    return list(itertools.chain(*[method.method_names for method in methods]))
+            return [name + '(' + ', '.join(argument_names or []) + ')']
 
         for construct in self.constructs:
-            methods = construct.findMethods(name, argumentNames)
+            methods = construct.find_methods(name, argument_names)
             if (methods):
-                return list(itertools.chain(*[method.methodNames for method in methods]))
+                return list(itertools.chain(*[method.method_names for method in methods]))
 
         construct = self.find(name)
-        if (construct and ('method' == construct.idlType)):
-            return construct.methodNames
-        return [name + '(' + ', '.join(argumentNames or []) + ')']
+        if (construct and ('method' == construct.idl_type)):
+            return construct.method_names
+        return [name + '(' + ', '.join(argument_names or []) + ')']
 
     def markup(self, marker):
         if (marker):
@@ -278,6 +275,6 @@ class Parser(object):
             for construct in self.constructs:
                 construct.markup(generator)
             return generator.markup(marker)
-        return unicode(self)
+        return str(self)
 
 

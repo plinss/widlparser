@@ -10,8 +10,8 @@
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
 
-from productions import *
-from markup import MarkupGenerator
+from .productions import *
+from .markup import MarkupGenerator
 
 class Construct(ChildProduction):
     @classmethod
@@ -21,29 +21,29 @@ class Construct(ChildProduction):
     def __init__(self, tokens, parent, parseExtendedAttributes = True, parser = None):
         ChildProduction.__init__(self, tokens, parent)
         self._parser = parser
-        self._extendedAttributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
+        self._extended_attributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
 
     def _parseExtendedAttributes(self, tokens, parent):
         return ExtendedAttributeList(tokens, parent) if (ExtendedAttributeList.peek(tokens)) else None
 
     @property
-    def idlType(self):
+    def idl_type(self):
         assert(False)   # subclasses must override
         return None
 
     @property
     def constructors(self):
-        return [attribute for attribute in self._extendedAttributes if ('constructor' == attribute.idlType)] if (self._extendedAttributes) else []
+        return [attribute for attribute in self._extended_attributes if ('constructor' == attribute.idl_type)] if (self._extended_attributes) else []
 
     @property
     def parser(self):
         return self._parser if (self._parser) else self.parent.parser
 
     @property
-    def extendedAttributes(self):
-        return self._extendedAttributes if (self._extendedAttributes) else {}
+    def extended_attributes(self):
+        return self._extended_attributes if (self._extended_attributes) else {}
 
-    def __nonzero__(self):
+    def __bool__(self):
         return True
 
     def __len__(self):
@@ -61,73 +61,73 @@ class Construct(ChildProduction):
     def __contains__(self, key):
         return False
 
-    def findMember(self, name):
+    def find_member(self, name):
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         return []
 
-    def findMethod(self, name, argumentNames=None):
+    def find_method(self, name, argument_names=None):
         return None
 
-    def findMethods(self, name, argumentNames=None):
+    def find_methods(self, name, argument_names=None):
         return []
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         return []
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return 1
 
-    def _unicode(self):
-        return unicode(self._extendedAttributes) if (self._extendedAttributes) else ''
+    def _str(self):
+        return str(self._extended_attributes) if (self._extended_attributes) else ''
 
     def __repr__(self):
-        return repr(self._extendedAttributes) if (self._extendedAttributes) else ''
+        return repr(self._extended_attributes) if (self._extended_attributes) else ''
 
     def markup(self, generator):
         if (not generator):
-            return unicode(self)
+            return str(self)
 
         if (isinstance(generator, MarkupGenerator)):
             marker = None
-            generator.addText(self._leadingSpace)
+            generator.add_text(self._leading_space)
         else:
             marker = generator
             generator = None
 
-        myGenerator = MarkupGenerator(self)
-        if (self._extendedAttributes):
-            self._extendedAttributes.markup(myGenerator)
-        target = self._markup(myGenerator)
+        my_generator = MarkupGenerator(self)
+        if (self._extended_attributes):
+            self._extended_attributes.markup(my_generator)
+        target = self._markup(my_generator)
         if (target._tail):
-            myGenerator.addText(''.join([unicode(token) for token in target._tail]))
-        myGenerator.addText(unicode(target._semicolon))
+            my_generator.add_text(''.join([str(token) for token in target._tail]))
+        my_generator.add_text(str(target._semicolon))
 
         if (generator):
-            generator.addGenerator(myGenerator)
+            generator.add_generator(my_generator)
             if (self != target):
-                generator.addText(target._trailingSpace)
-            generator.addText(self._trailingSpace)
+                generator.add_text(target._trailing_space)
+            generator.add_text(self._trailing_space)
             return self
-        return myGenerator.markup(marker)
+        return my_generator.markup(marker)
 
 
 
 class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Symbol.peek(tokens, 'const')):
             if (ConstType.peek(tokens)):
                 if (Identifier.peek(tokens)):
                     if (Symbol.peek(tokens, '=')):
-                        return tokens.popPosition(ConstValue.peek(tokens))
-        return tokens.popPosition(False)
+                        return tokens.pop_position(ConstValue.peek(tokens))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, False, parser = parser)
@@ -136,11 +136,11 @@ class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
         self._name = Identifier(tokens)
         self._equals = Symbol(tokens, '=')
         self.value = ConstValue(tokens)
-        self._consumeSemicolon(tokens)
-        self._didParse(tokens)
+        self._consume_semicolon(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'const'
 
     @property
@@ -148,122 +148,122 @@ class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
         return self._name.name
 
     @property
-    def methodName(self):
+    def method_name(self):
         return None
 
     @property
-    def methodNames(self):
+    def method_names(self):
         return []
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return 0
 
-    def _unicode(self):
-        return unicode(self._const) + unicode(self.type) + unicode(self._name) + unicode(self._equals) + unicode(self.value)
+    def _str(self):
+        return str(self._const) + str(self.type) + str(self._name) + str(self._equals) + str(self.value)
 
     def _markup(self, generator):
         self._const.markup(generator)
-        generator.addType(self.type)
+        generator.add_type(self.type)
         self._name.markup(generator)
-        generator.addText(self._equals)
+        generator.add_text(self._equals)
         self.value.markup(generator)
         return self
 
     def __repr__(self):
-        return ('[const: ' + repr(self.type) +
-                '[name: ' + repr(self._name) + '] = [value: ' + unicode(self.value) + ']]')
+        return ('[Const: ' + repr(self.type) +
+                '[name: ' + repr(self._name) + '] = [value: ' + str(self.value) + ']]')
 
 
 class Enum(Construct):    # [ExtendedAttributes] "enum" Identifier "{" EnumValueList "}" ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         token = tokens.peek()
-        if (token and token.isSymbol('enum')):
+        if (token and token.is_symbol('enum')):
             if (Identifier.peek(tokens)):
                 token = tokens.peek()
-                if (token and token.isSymbol('{')):
+                if (token and token.is_symbol('{')):
                     if (EnumValueList.peek(tokens)):
                         token = tokens.peek()
-                        return tokens.popPosition(token and token.isSymbol('}'))
-        return tokens.popPosition(False)
+                        return tokens.pop_position(token and token.is_symbol('}'))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
         self._enum = Symbol(tokens, 'enum')
         self._name = Identifier(tokens)
-        self._openBrace = Symbol(tokens, '{')
+        self._open_brace = Symbol(tokens, '{')
         self.values = EnumValueList(tokens)
-        self._closeBrace = Symbol(tokens, '}')
-        self._consumeSemicolon(tokens, False)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._close_brace = Symbol(tokens, '}')
+        self._consume_semicolon(tokens, False)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'enum'
 
     @property
     def name(self):
         return self._name.name
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self._enum) + unicode(self._name) + unicode(self._openBrace) + unicode(self.values) + unicode(self._closeBrace)
+    def _str(self):
+        return Construct._str(self) + str(self._enum) + str(self._name) + str(self._open_brace) + str(self.values) + str(self._close_brace)
 
     def _markup(self, generator):
         self._enum.markup(generator)
         self._name.markup(generator)
-        generator.addText(self._openBrace)
+        generator.add_text(self._open_brace)
         self.values.markup(generator)
-        generator.addText(self._closeBrace)
+        generator.add_text(self._close_brace)
         return self
 
     def __repr__(self):
-        return ('[enum: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] ' +
+        return ('[Enum: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] ' +
                 '[values: ' + repr(self.values) + ']]')
 
 
 class Typedef(Construct):    # [ExtendedAttributes] "typedef" TypeWithExtendedAttributes Identifier ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         if (Symbol.peek(tokens, 'typedef')):
             if (TypeWithExtendedAttributes.peek(tokens)):
-                return tokens.popPosition(Identifier.peek(tokens))
-        return tokens.popPosition(False)
+                return tokens.pop_position(Identifier.peek(tokens))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
         self._typedef = Symbol(tokens, 'typedef')
         self.type = TypeWithExtendedAttributes(tokens)
         self._name = Identifier(tokens)
-        self._consumeSemicolon(tokens)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._consume_semicolon(tokens)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'typedef'
 
     @property
     def name(self):
         return self._name.name
 
-    def _unicode(self):
-        output = Construct._unicode(self) + unicode(self._typedef)
-        return output + unicode(self.type) + unicode(self._name)
+    def _str(self):
+        output = Construct._str(self) + str(self._typedef)
+        return output + str(self.type) + str(self._name)
 
     def _markup(self, generator):
         self._typedef.markup(generator)
-        generator.addType(self.type)
+        generator.add_type(self.type)
         self._name.markup(generator)
         return self
 
     def __repr__(self):
-        output = '[typedef: ' + Construct.__repr__(self)
+        output = '[Typedef: ' + Construct.__repr__(self)
         return output + repr(self.type) + ' [name: ' + self.name + ']]'
 
 
@@ -271,20 +271,20 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
                               # [ExtendedAttributeList] [IgnoreInOut] Type ["..."] ArgumentName
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         IgnoreInOut.peek(tokens)
         if (Type.peek(tokens)):
             Symbol.peek(tokens, '...')
-            return tokens.popPosition(ArgumentName.peek(tokens))
+            return tokens.pop_position(ArgumentName.peek(tokens))
         else:
             if (Symbol.peek(tokens, 'optional')):
                 IgnoreInOut.peek(tokens)
                 if (TypeWithExtendedAttributes.peek(tokens)):
                     if (ArgumentName.peek(tokens)):
                         Default.peek(tokens)
-                        return tokens.popPosition(True)
-        return tokens.popPosition(False)
+                        return tokens.pop_position(True)
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
@@ -302,10 +302,10 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
             self.variadic = Symbol(tokens, '...') if (Symbol.peek(tokens, '...')) else None
             self._name = ArgumentName(tokens)
             self.default = None
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'argument'
 
     @property
@@ -316,30 +316,30 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
     def required(self):
         return ((self.optional is None) and (self.variadic is None))
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.optional) if (self.optional) else ''
-        output += unicode(self._ignore) if (self._ignore) else ''
-        output += unicode(self.type)
-        output += unicode(self.variadic) if (self.variadic) else ''
-        return output + unicode(self._name) + (unicode(self.default) if (self.default) else '')
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.optional) if (self.optional) else ''
+        output += str(self._ignore) if (self._ignore) else ''
+        output += str(self.type)
+        output += str(self.variadic) if (self.variadic) else ''
+        return output + str(self._name) + (str(self.default) if (self.default) else '')
 
     def _markup(self, generator):
         if (self.optional):
             self.optional.markup(generator)
         if (self._ignore):
             self._ignore.markup(generator)
-        generator.addType(self.type)
-        generator.addText(self.variadic)
+        generator.add_type(self.type)
+        generator.add_text(self.variadic)
         self._name.markup(generator)
         if (self.default):
             self.default.markup(generator)
         return self
 
     def __repr__(self):
-        output = '[argument: ' + Construct.__repr__(self)
+        output = '[Argument: ' + Construct.__repr__(self)
         output += '[optional] ' if (self.optional) else ''
-        output += '[type: ' + unicode(self.type) + ']'
+        output += '[type: ' + str(self.type) + ']'
         output += '[...] ' if (self.variadic) else ' '
         output += '[name: ' + repr(self._name) + ']'
         return output + ((' [default: ' + repr(self.default) + ']]') if (self.default) else ']')
@@ -348,14 +348,14 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
 class InterfaceMember(Construct):  # [ExtendedAttributes] Constructor | Const | Operation | SpecialOperation | Stringifier | StaticMember | AsyncIterable | Iterable | Attribute | Maplike | Setlike
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
-        return tokens.popPosition(Constructor.peek(tokens) or Const.peek(tokens) or
-                                  Stringifier.peek(tokens) or StaticMember.peek(tokens) or
-                                  AsyncIterable.peek(tokens) or Iterable.peek(tokens) or
-                                  Maplike.peek(tokens) or Setlike.peek(tokens) or
-                                  Attribute.peek(tokens) or
-                                  SpecialOperation.peek(tokens) or Operation.peek(tokens))
+        return tokens.pop_position(Constructor.peek(tokens) or Const.peek(tokens) or
+                                   Stringifier.peek(tokens) or StaticMember.peek(tokens) or
+                                   AsyncIterable.peek(tokens) or Iterable.peek(tokens) or
+                                   Maplike.peek(tokens) or Setlike.peek(tokens) or
+                                   Attribute.peek(tokens) or
+                                   SpecialOperation.peek(tokens) or Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
@@ -381,67 +381,67 @@ class InterfaceMember(Construct):  # [ExtendedAttributes] Constructor | Const | 
             self.member = SpecialOperation(tokens, parent)
         else:
             self.member = Operation(tokens, parent)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
-        return self.member.idlType
+    def idl_type(self):
+        return self.member.idl_type
 
     @property
     def name(self):
         return self.member.name
 
     @property
-    def methodName(self):
-        return self.member.methodName
+    def method_name(self):
+        return self.member.method_name
 
     @property
-    def methodNames(self):
-        return self.member.methodNames
+    def method_names(self):
+        return self.member.method_names
 
     @property
-    def normalName(self):
-        return self.methodName if (self.methodName) else self.name
+    def normal_name(self):
+        return self.method_name if (self.method_name) else self.name
 
     @property
     def arguments(self):
         return self.member.arguments
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             for argument in self.member.arguments:
                 if (name == argument.name):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             return [argument for argument in self.member.arguments if (name == argument.name)]
         return []
 
-    def matchesArgumentNames(self, argumentNames):
+    def matches_argument_names(self, argument_names):
         if (self.arguments):
-            return self.arguments.matchesNames(argumentNames)
-        return (not argumentNames)
+            return self.arguments.matches_names(argument_names)
+        return (not argument_names)
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self.member)
+    def _str(self):
+        return Construct._str(self) + str(self.member)
 
     def _markup(self, generator):
         return self.member._markup(generator)
 
     def __repr__(self):
-        output = '[member: ' + Construct.__repr__(self)
+        output = '[Member: ' + Construct.__repr__(self)
         return output + repr(self.member) + ']'
 
 
 class MixinMember(Construct): # [ExtendedAttributes] Const | Operation | Stringifier | ReadOnly AttributeRest
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
-        return tokens.popPosition(Const.peek(tokens) or Stringifier.peek(tokens) or
-                                  MixinAttribute.peek(tokens) or Operation.peek(tokens))
+        return tokens.pop_position(Const.peek(tokens) or Stringifier.peek(tokens) or
+                                   MixinAttribute.peek(tokens) or Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
@@ -453,71 +453,71 @@ class MixinMember(Construct): # [ExtendedAttributes] Const | Operation | Stringi
             self.member = MixinAttribute(tokens, parent)
         else:
             self.member = Operation(tokens, parent)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
-        return self.member.idlType
+    def idl_type(self):
+        return self.member.idl_type
 
     @property
     def name(self):
         return self.member.name
 
     @property
-    def methodName(self):
-        return self.member.methodName
+    def method_name(self):
+        return self.member.method_name
 
     @property
-    def methodNames(self):
-        return self.member.methodNames
+    def method_names(self):
+        return self.member.method_names
 
     @property
-    def normalName(self):
-        return self.methodName if (self.methodName) else self.name
+    def normal_name(self):
+        return self.method_name if (self.method_name) else self.name
 
     @property
     def arguments(self):
         return self.member.arguments
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             for argument in self.member.arguments:
                 if (name == argument.name):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             return [argument for argument in self.member.arguments if (name == argument.name)]
         return []
 
-    def matchesArgumentNames(self, argumentNames):
+    def matches_argument_names(self, argument_names):
         if (self.arguments):
-            return self.arguments.matchesNames(argumentNames)
-        return (not argumentNames)
+            return self.arguments.matches_names(argument_names)
+        return (not argument_names)
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self.member)
+    def _str(self):
+        return Construct._str(self) + str(self.member)
 
     def _markup(self, generator):
         return self.member._markup(generator)
 
     def __repr__(self):
-        output = '[member: ' + Construct.__repr__(self)
+        output = '[Member: ' + Construct.__repr__(self)
         return output + repr(self.member) + ']'
 
 
 class SyntaxError(Construct):   # ... ";" | ... "}"
     def __init__(self, tokens, parent, parser = None):
         Construct.__init__(self, tokens, parent, False, parser = parser)
-        self.tokens = tokens.syntaxError((';', '}'), False)
-        if ((1 < len(self.tokens)) and self.tokens[-1].isSymbol('}')):
+        self.tokens = tokens.syntax_error((';', '}'), False)
+        if ((1 < len(self.tokens)) and self.tokens[-1].is_symbol('}')):
             tokens.restore(self.tokens[-1])
             self.tokens = self.tokens[:-1]
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'unknown'
 
     @property
@@ -528,26 +528,26 @@ class SyntaxError(Construct):   # ... ";" | ... "}"
     def required(self):
         return False
 
-    def _unicode(self):
-        return ''.join([unicode(token) for token in self.tokens])
+    def _str(self):
+        return ''.join([str(token) for token in self.tokens])
 
     def __repr__(self):
-        output = '[unknown: ' + Construct.__repr__(self) + ' tokens: '
+        output = '[Unknown: ' + Construct.__repr__(self) + ' tokens: '
         return output + ''.join([repr(token) for token in self.tokens]) + ']'
 
 
 class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Identifier [Inheritance] "{" [InterfaceMember]... "}" ";"
     @classmethod
-    def peek(cls, tokens, acceptExtendedAttributes = True):
-        tokens.pushPosition(False)
-        if (acceptExtendedAttributes):
+    def peek(cls, tokens, accept_extended_attributes = True):
+        tokens.push_position(False)
+        if (accept_extended_attributes):
             Construct.peek(tokens)
         Symbol.peek(tokens, 'partial')
         if (Symbol.peek(tokens, 'interface')):
             if (Identifier.peek(tokens)):
                 Inheritance.peek(tokens)
-                return tokens.popPosition(Symbol.peek(tokens, '{'))
-        return tokens.popPosition(False)
+                return tokens.pop_position(Symbol.peek(tokens, '{'))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, (not parent), parser = parser)
@@ -555,23 +555,23 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         self._interface = Symbol(tokens, 'interface')
         self._name = Identifier(tokens)
         self.inheritance = Inheritance(tokens) if (Inheritance.peek(tokens)) else None
-        self._openBrace = Symbol(tokens, '{')
+        self._open_brace = Symbol(tokens, '{')
         self.members = self.constructors
-        self._closeBrace = None
-        while (tokens.hasTokens()):
+        self._close_brace = None
+        while (tokens.has_tokens()):
             if (Symbol.peek(tokens, '}')):
-                self._closeBrace = Symbol(tokens, '}')
+                self._close_brace = Symbol(tokens, '}')
                 break
             if (InterfaceMember.peek(tokens)):
                 self.members.append(InterfaceMember(tokens, parent if (parent) else self))
             else:
                 self.members.append(SyntaxError(tokens, parent if (parent) else self))
-        self._consumeSemicolon(tokens, False)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._consume_semicolon(tokens, False)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'interface'
 
     @property
@@ -579,7 +579,7 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         return self._name.name
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return len(self.members) + 1
 
     def __len__(self):
@@ -589,7 +589,7 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         return [member.name for member in self.members]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return member
@@ -600,58 +600,58 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         return iter(self.members)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return True
             return False
         return (key in self.members)
 
-    def findMember(self, name):
+    def find_member(self, name):
         for member in reversed(self.members):
             if (name == member.name):
                 return member
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         return [member for member in self.members if (name == member.name)]
 
-    def findMethod(self, name, argumentNames=None):
+    def find_method(self, name, argument_names=None):
         for member in reversed(self.members):
-            if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames))):
+            if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names))):
                 return member
         return None
 
-    def findMethods(self, name, argumentNames=None):
-        return [member for member in self.members if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames)))]
+    def find_methods(self, name, argument_names=None):
+        return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-    def findArgument(self, name, searchMembers = True):
-        if (searchMembers):
+    def find_argument(self, name, search_members = True):
+        if (search_members):
             for member in reversed(self.members):
-                argument = member.findArgument(name)
+                argument = member.find_argument(name)
                 if (argument):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         result = []
-        if (searchMembers):
+        if (search_members):
             for member in self.members:
-                result += member.findArguments(name)
+                result += member.find_arguments(name)
         return result
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.partial) if (self.partial) else ''
-        output += unicode(self._interface) + unicode(self._name)
-        output += unicode(self.inheritance) if (self.inheritance) else ''
-        output += unicode(self._openBrace)
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.partial) if (self.partial) else ''
+        output += str(self._interface) + str(self._name)
+        output += str(self.inheritance) if (self.inheritance) else ''
+        output += str(self._open_brace)
         for member in self.members:
-            if ('constructor' != member.idlType):
-                output += unicode(member)
-        return output + unicode(self._closeBrace) if (self._closeBrace) else output
+            if ('constructor' != member.idl_type):
+                output += str(member)
+        return output + str(self._close_brace) if (self._close_brace) else output
 
     def _markup(self, generator):
         if (self.partial):
@@ -660,15 +660,15 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         self._name.markup(generator)
         if (self.inheritance):
             self.inheritance.markup(generator)
-        generator.addText(self._openBrace)
+        generator.add_text(self._open_brace)
         for member in self.members:
-            if ('constructor' != member.idlType):
+            if ('constructor' != member.idl_type):
                 member.markup(generator)
-        generator.addText(self._closeBrace)
+        generator.add_text(self._close_brace)
         return self
 
     def __repr__(self):
-        output = '[interface: ' + Construct.__repr__(self)
+        output = '[Interface: ' + Construct.__repr__(self)
         output += '[partial] ' if (self.partial) else ''
         output += '[name: ' + repr(self._name) + '] '
         output += repr(self.inheritance) if (self.inheritance) else ''
@@ -680,16 +680,16 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
 
 class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin" Identifier [Inheritance] "{" [MixinMember]... "}" ";"
     @classmethod
-    def peek(cls, tokens, acceptExtendedAttributes = True):
-        tokens.pushPosition(False)
-        if (acceptExtendedAttributes):
+    def peek(cls, tokens, accept_extended_attributes = True):
+        tokens.push_position(False)
+        if (accept_extended_attributes):
             Construct.peek(tokens)
         Symbol.peek(tokens, 'partial')
         if (Symbol.peek(tokens, 'interface') and Symbol.peek(tokens, 'mixin')):
             if (Identifier.peek(tokens)):
                 Inheritance.peek(tokens)
-                return tokens.popPosition(Symbol.peek(tokens, '{'))
-        return tokens.popPosition(False)
+                return tokens.pop_position(Symbol.peek(tokens, '{'))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, (not parent), parser = parser)
@@ -698,23 +698,23 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         self._mixin = Symbol(tokens, 'mixin')
         self._name = Identifier(tokens)
         self.inheritance = Inheritance(tokens) if (Inheritance.peek(tokens)) else None
-        self._openBrace = Symbol(tokens, '{')
+        self._open_brace = Symbol(tokens, '{')
         self.members = self.constructors
-        self._closeBrace = None
-        while (tokens.hasTokens()):
+        self._close_brace = None
+        while (tokens.has_tokens()):
             if (Symbol.peek(tokens, '}')):
-                self._closeBrace = Symbol(tokens, '}')
+                self._close_brace = Symbol(tokens, '}')
                 break
             if (MixinMember.peek(tokens)):
                 self.members.append(MixinMember(tokens, parent if (parent) else self))
             else:
                 self.members.append(SyntaxError(tokens, parent if (parent) else self))
-        self._consumeSemicolon(tokens, False)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._consume_semicolon(tokens, False)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'interface'
 
     @property
@@ -722,7 +722,7 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         return self._name.name
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return len(self.members) + 1
 
     def __len__(self):
@@ -732,7 +732,7 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         return [member.name for member in self.members]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return member
@@ -743,58 +743,58 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         return iter(self.members)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return True
             return False
         return (key in self.members)
 
-    def findMember(self, name):
+    def find_member(self, name):
         for member in reversed(self.members):
             if (name == member.name):
                 return member
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         return [member for member in self.members if (name == member.name)]
 
-    def findMethod(self, name, argumentNames=None):
+    def find_method(self, name, argument_names=None):
         for member in reversed(self.members):
-            if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames))):
+            if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names))):
                 return member
         return None
 
-    def findMethods(self, name, argumentNames=None):
-        return [member for member in self.members if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames)))]
+    def find_methods(self, name, argument_names=None):
+        return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-    def findArgument(self, name, searchMembers = True):
-        if (searchMembers):
+    def find_argument(self, name, search_members = True):
+        if (search_members):
             for member in reversed(self.members):
-                argument = member.findArgument(name)
+                argument = member.find_argument(name)
                 if (argument):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         result = []
-        if (searchMembers):
+        if (search_members):
             for member in self.members:
-                result += member.findArguments(name)
+                result += member.find_arguments(name)
         return result
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.partial) if (self.partial) else ''
-        output += unicode(self._interface) + unicode(self._mixin) + unicode(self._name)
-        output += unicode(self.inheritance) if (self.inheritance) else ''
-        output += unicode(self._openBrace)
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.partial) if (self.partial) else ''
+        output += str(self._interface) + str(self._mixin) + str(self._name)
+        output += str(self.inheritance) if (self.inheritance) else ''
+        output += str(self._open_brace)
         for member in self.members:
-            if ('constructor' != member.idlType):
-                output += unicode(member)
-        return output + unicode(self._closeBrace) if (self._closeBrace) else output
+            if ('constructor' != member.idl_type):
+                output += str(member)
+        return output + str(self._close_brace) if (self._close_brace) else output
 
     def _markup(self, generator):
         if (self.partial):
@@ -804,15 +804,15 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         self._name.markup(generator)
         if (self.inheritance):
             self.inheritance.markup(generator)
-        generator.addText(self._openBrace)
+        generator.add_text(self._open_brace)
         for member in self.members:
-            if ('constructor' != member.idlType):
+            if ('constructor' != member.idl_type):
                 member.markup(generator)
-        generator.addText(self._closeBrace)
+        generator.add_text(self._close_brace)
         return self
 
     def __repr__(self):
-        output = '[interface: ' + Construct.__repr__(self)
+        output = '[Interface: ' + Construct.__repr__(self)
         output += '[partial] ' if (self.partial) else ''
         output += '[mixin] '
         output += '[name: ' + repr(self._name) + '] '
@@ -826,108 +826,108 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
 class NamespaceMember(Construct): # [ExtendedAttributes] Operation | "readonly" Attribute
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         if (Symbol.peek(tokens, 'readonly')):
-            return tokens.popPosition(Attribute.peek(tokens))
-        return tokens.popPosition(Operation.peek(tokens))
+            return tokens.pop_position(Attribute.peek(tokens))
+        return tokens.pop_position(Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
-        token = tokens.sneakPeek()
-        if (token.isSymbol('readonly')):
+        token = tokens.sneak_peek()
+        if (token.is_symbol('readonly')):
             self.member = Attribute(tokens, parent)
         else:
             self.member = Operation(tokens, parent)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
-        return self.member.idlType
+    def idl_type(self):
+        return self.member.idl_type
 
     @property
     def name(self):
         return self.member.name
 
     @property
-    def methodName(self):
-        return self.member.methodName
+    def method_name(self):
+        return self.member.method_name
 
     @property
-    def methodNames(self):
-        return self.member.methodNames
+    def method_names(self):
+        return self.member.method_names
 
     @property
-    def normalName(self):
-        return self.methodName if (self.methodName) else self.name
+    def normal_name(self):
+        return self.method_name if (self.method_name) else self.name
 
     @property
     def arguments(self):
         return self.member.arguments
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             for argument in self.member.arguments:
                 if (name == argument.name):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         if (hasattr(self.member, 'arguments') and self.member.arguments):
             return [argument for argument in self.member.arguments if (name == argument.name)]
         return []
 
-    def matchesArgumentNames(self, argumentNames):
+    def matches_argument_names(self, argument_names):
         if (self.arguments):
-            return self.arguments.matchesNames(argumentNames)
-        return (not argumentNames)
+            return self.arguments.matches_names(argument_names)
+        return (not argument_names)
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self.member)
+    def _str(self):
+        return Construct._str(self) + str(self.member)
 
     def _markup(self, generator):
         return self.member._markup(generator)
 
     def __repr__(self):
-        output = '[member: ' + Construct.__repr__(self)
+        output = '[Member: ' + Construct.__repr__(self)
         return output + repr(self.member) + ']'
 
 
 
 class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Identifier "{" [NamespaceMember]... "}" ";"
     @classmethod
-    def peek(cls, tokens, acceptExtendedAttributes = True):
-        tokens.pushPosition(False)
-        if (acceptExtendedAttributes):
+    def peek(cls, tokens, accept_extended_attributes = True):
+        tokens.push_position(False)
+        if (accept_extended_attributes):
             Construct.peek(tokens)
         Symbol.peek(tokens, 'partial')
         if (Symbol.peek(tokens, 'namespace')):
             if (Identifier.peek(tokens)):
-                return tokens.popPosition(Symbol.peek(tokens, '{'))
-        return tokens.popPosition(False)
+                return tokens.pop_position(Symbol.peek(tokens, '{'))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, (not parent), parser = parser)
         self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
         self._namespace = Symbol(tokens, 'namespace')
         self._name = Identifier(tokens)
-        self._openBrace = Symbol(tokens, '{')
+        self._open_brace = Symbol(tokens, '{')
         self.members = []
-        self._closeBrace = None
-        while (tokens.hasTokens()):
+        self._close_brace = None
+        while (tokens.has_tokens()):
             if (Symbol.peek(tokens, '}')):
-                self._closeBrace = Symbol(tokens, '}')
+                self._close_brace = Symbol(tokens, '}')
                 break
             if (NamespaceMember.peek(tokens)):
                 self.members.append(NamespaceMember(tokens, parent if (parent) else self))
             else:
                 self.members.append(SyntaxError(tokens, parent if (parent) else self))
-        self._consumeSemicolon(tokens, False)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._consume_semicolon(tokens, False)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'namespace'
 
     @property
@@ -935,7 +935,7 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
         return self._name.name
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return len(self.members) + 1
 
     def __len__(self):
@@ -945,7 +945,7 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
         return [member.name for member in self.members]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return member
@@ -956,70 +956,70 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
         return iter(self.members)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return True
             return False
         return (key in self.members)
 
-    def findMember(self, name):
+    def find_member(self, name):
         for member in reversed(self.members):
             if (name == member.name):
                 return member
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         return [member for member in self.members if (name == member.name)]
 
-    def findMethod(self, name, argumentNames=None):
+    def find_method(self, name, argument_names=None):
         for member in reversed(self.members):
-            if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames))):
+            if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names))):
                 return member
         return None
 
-    def findMethods(self, name, argumentNames=None):
-        return [member for member in self.members if (('method' == member.idlType) and (name == member.name)
-                    and ((argumentNames is None) or member.matchesArgumentNames(argumentNames)))]
+    def find_methods(self, name, argument_names=None):
+        return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-    def findArgument(self, name, searchMembers = True):
-        if (searchMembers):
+    def find_argument(self, name, search_members = True):
+        if (search_members):
             for member in reversed(self.members):
-                argument = member.findArgument(name)
+                argument = member.find_argument(name)
                 if (argument):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         result = []
-        if (searchMembers):
+        if (search_members):
             for member in self.members:
-                result += member.findArguments(name)
+                result += member.find_arguments(name)
         return result
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.partial) if (self.partial) else ''
-        output += unicode(self._namespace) + unicode(self._name)
-        output += unicode(self._openBrace)
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.partial) if (self.partial) else ''
+        output += str(self._namespace) + str(self._name)
+        output += str(self._open_brace)
         for member in self.members:
-            output += unicode(member)
-        return output + unicode(self._closeBrace) if (self._closeBrace) else output
+            output += str(member)
+        return output + str(self._close_brace) if (self._close_brace) else output
 
     def _markup(self, generator):
         if (self.partial):
             self.partial.markup(generator)
         self._namespace.markup(generator)
         self._name.markup(generator)
-        generator.addText(self._openBrace)
+        generator.add_text(self._open_brace)
         for member in self.members:
             member.markup(generator)
-        generator.addText(self._closeBrace)
+        generator.add_text(self._close_brace)
         return self
 
     def __repr__(self):
-        output = '[namespace: ' + Construct.__repr__(self)
+        output = '[Namespace: ' + Construct.__repr__(self)
         output += '[partial] ' if (self.partial) else ''
         output += '[name: ' + repr(self._name) + '] '
         output += '[members: \n'
@@ -1031,14 +1031,14 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
 class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] TypeWithExtendedAttributes Identifier [Default] ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         Symbol.peek(tokens, 'required')
         if (TypeWithExtendedAttributes.peek(tokens)):
             if (Identifier.peek(tokens)):
                 Default.peek(tokens)
-                return tokens.popPosition(True)
-        tokens.popPosition(False)
+                return tokens.pop_position(True)
+        tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None):
         Construct.__init__(self, tokens, parent)
@@ -1046,34 +1046,34 @@ class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] TypeWithE
         self.type = TypeWithExtendedAttributes(tokens)
         self._name = Identifier(tokens)
         self.default = Default(tokens) if (Default.peek(tokens)) else None
-        self._consumeSemicolon(tokens)
-        self._didParse(tokens)
+        self._consume_semicolon(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'dict-member'
 
     @property
     def name(self):
         return self._name.name
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.required) if (self.required) else ''
-        output += unicode(self.type) + unicode(self._name)
-        return output + (unicode(self.default) if (self.default) else '')
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.required) if (self.required) else ''
+        output += str(self.type) + str(self._name)
+        return output + (str(self.default) if (self.default) else '')
 
     def _markup(self, generator):
         if (self.required):
             self.required.markup(generator)
-        generator.addType(self.type)
+        generator.add_type(self.type)
         self._name.markup(generator)
         if (self.default):
             self.default.markup(generator)
         return self
 
     def __repr__(self):
-        output = '[dict-member: ' + Construct.__repr__(self)
+        output = '[DictionaryMember: ' + Construct.__repr__(self)
         output += '[required] ' if (self.required) else ''
         output += repr(self.type)
         output += ' [name: ' + repr(self._name) + ']'
@@ -1086,14 +1086,14 @@ class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] TypeWithE
 class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Identifier [Inheritance] "{" [DictionaryMember]... "}" ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         Symbol.peek(tokens, 'partial')
         if (Symbol.peek(tokens, 'dictionary')):
             if (Identifier.peek(tokens)):
                 Inheritance.peek(tokens)
-                return tokens.popPosition(Symbol.peek(tokens, '{'))
-        return tokens.popPosition(False)
+                return tokens.pop_position(Symbol.peek(tokens, '{'))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
@@ -1101,23 +1101,23 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         self._dictionary = Symbol(tokens, 'dictionary')
         self._name = Identifier(tokens)
         self.inheritance = Inheritance(tokens) if (Inheritance.peek(tokens)) else None
-        self._openBrace = Symbol(tokens, '{')
+        self._open_brace = Symbol(tokens, '{')
         self.members = []
-        self._closeBrace = None
-        while (tokens.hasTokens()):
+        self._close_brace = None
+        while (tokens.has_tokens()):
             if (Symbol.peek(tokens, '}')):
-                self._closeBrace = Symbol(tokens, '}')
+                self._close_brace = Symbol(tokens, '}')
                 break
             if (DictionaryMember.peek(tokens)):
                 self.members.append(DictionaryMember(tokens, self))
             else:
                 self.members.append(SyntaxError(tokens, self))
-        self._consumeSemicolon(tokens, False)
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._consume_semicolon(tokens, False)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'dictionary'
 
     @property
@@ -1125,7 +1125,7 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         return self._name.name
 
     @property
-    def complexityFactor(self):
+    def complexity_factor(self):
         return len(self.members) + 1
 
     @property
@@ -1142,7 +1142,7 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         return [member.name for member in self.members]
 
     def __getitem__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return member
@@ -1153,31 +1153,31 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         return iter(self.members)
 
     def __contains__(self, key):
-        if (isinstance(key, basestring)):
+        if (isinstance(key, str)):
             for member in self.members:
                 if (key == member.name):
                     return True
             return False
         return (key in self.members)
 
-    def findMember(self, name):
+    def find_member(self, name):
         for member in reversed(self.members):
             if (name == member.name):
                 return member
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         return [member for member in self.members if (name == member.name)]
 
-    def _unicode(self):
-        output = Construct._unicode(self)
-        output += unicode(self.partial) if (self.partial) else ''
-        output += unicode(self._dictionary) + unicode(self._name)
-        output += unicode(self.inheritance) if (self.inheritance) else ''
-        output += unicode(self._openBrace)
+    def _str(self):
+        output = Construct._str(self)
+        output += str(self.partial) if (self.partial) else ''
+        output += str(self._dictionary) + str(self._name)
+        output += str(self.inheritance) if (self.inheritance) else ''
+        output += str(self._open_brace)
         for member in self.members:
-            output += unicode(member)
-        return output + unicode(self._closeBrace) if (self._closeBrace) else output
+            output += str(member)
+        return output + str(self._close_brace) if (self._close_brace) else output
 
     def _markup(self, generator):
         if (self.partial):
@@ -1186,14 +1186,14 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         self._name.markup(generator)
         if (self.inheritance):
             self.inheritance.markup(generator)
-        generator.addText(self._openBrace)
+        generator.add_text(self._open_brace)
         for member in self.members:
             member.markup(generator)
-        generator.addText(self._closeBrace)
+        generator.add_text(self._close_brace)
         return self
 
     def __repr__(self):
-        output = '[dictionary: ' + Construct.__repr__(self)
+        output = '[Dictionary: ' + Construct.__repr__(self)
         output += '[partial] ' if (self.partial) else ''
         output += '[name: ' + repr(self._name) + '] '
         output += repr(self.inheritance) if (self.inheritance) else ''
@@ -1208,51 +1208,51 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
                               # [ExtendedAttributes] "callback" Mixin
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         if (Symbol.peek(tokens, 'callback')):
             if (Mixin.peek(tokens, False)):
-                return tokens.popPosition(True)
+                return tokens.pop_position(True)
             if (Interface.peek(tokens, False)):
-                return tokens.popPosition(True)
+                return tokens.pop_position(True)
             if (Identifier.peek(tokens)):
                 if (Symbol.peek(tokens, '=')):
                     if (ReturnType.peek(tokens)):
                         if (Symbol.peek(tokens, '(')):
                             ArgumentList.peek(tokens)
                             token = tokens.peek()
-                            return tokens.popPosition(token and token.isSymbol(')'))
-        tokens.popPosition(False)
+                            return tokens.pop_position(token and token.is_symbol(')'))
+        tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
         self._callback = Symbol(tokens, 'callback')
-        token = tokens.sneakPeek()
-        if (token.isIdentifier()):
+        token = tokens.sneak_peek()
+        if (token.is_identifier()):
             self._name = Identifier(tokens)
             self._equals = Symbol(tokens, '=')
-            self.returnType = ReturnType(tokens)
-            self._openParen = Symbol(tokens, '(')
+            self.return_type = ReturnType(tokens)
+            self._open_paren = Symbol(tokens, '(')
             self.arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
-            self._closeParen = Symbol(tokens, ')')
+            self._close_paren = Symbol(tokens, ')')
             self.interface = None
-            self._consumeSemicolon(tokens)
+            self._consume_semicolon(tokens)
         else:
             self._equals = None
-            self.returnType = None
-            self._openParen = None
+            self.return_type = None
+            self._open_paren = None
             self.arguments = None
-            self._closeParen = None
+            self._close_paren = None
             if (Mixin.peek(tokens, False)):
                 self.interface = Mixin(tokens, self)
             else:
                 self.interface = Interface(tokens, self)
             self._name = self.interface._name
-        self._didParse(tokens)
-        self.parser.addType(self)
+        self._did_parse(tokens)
+        self.parser.add_type(self)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'callback'
 
     @property
@@ -1260,8 +1260,8 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
         return self._name.name
 
     @property
-    def complexityFactor(self):
-        return self.interface.complexityFactor if (self.interface) else 1
+    def complexity_factor(self):
+        return self.interface.complexity_factor if (self.interface) else 1
 
     def __len__(self):
         return len(self.interface.members) if (self.interface) else 0
@@ -1271,7 +1271,7 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
 
     def __getitem__(self, key):
         if (self.interface):
-            if (isinstance(key, basestring)):
+            if (isinstance(key, str)):
                 for member in self.interface.members:
                     if (key == member.name):
                         return member
@@ -1286,7 +1286,7 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
 
     def __contains__(self, key):
         if (self.interface):
-            if (isinstance(key, basestring)):
+            if (isinstance(key, str)):
                 for member in self.interface.members:
                     if (key == member.name):
                         return True
@@ -1294,87 +1294,87 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
             return (key in self.interface.members)
         return False
 
-    def findMember(self, name):
+    def find_member(self, name):
         if (self.interface):
             for member in reversed(self.interface.members):
                 if (name == member.name):
                     return member
         return None
 
-    def findMembers(self, name):
+    def find_members(self, name):
         if (self.interface):
             return [member for member in self.interface.members if (name == member.name)]
         return []
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         if (self.arguments):
             for argument in self.arguments:
                 if (name == argument.name):
                     return argument
-        if (self.interface and searchMembers):
+        if (self.interface and search_members):
             for member in reversed(self.interface.members):
-                argument = member.findArgument(name)
+                argument = member.find_argument(name)
                 if (argument):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         result = []
         if (self.arguments):
             result = [argument for argument in self.arguments if (name == argument.name)]
-        if (self.interface and searchMembers):
+        if (self.interface and search_members):
             for member in self.interface.members:
-                result += member.findArguments(name)
+                result += member.find_arguments(name)
         return result
 
-    def _unicode(self):
-        output = Construct._unicode(self) + unicode(self._callback)
+    def _str(self):
+        output = Construct._str(self) + str(self._callback)
         if (self.interface):
-            return output + unicode(self.interface)
-        output += unicode(self._name) + unicode(self._equals) + unicode(self.returnType)
-        return output + unicode(self._openParen) + (unicode(self.arguments) if (self.arguments) else '') + unicode(self._closeParen)
+            return output + str(self.interface)
+        output += str(self._name) + str(self._equals) + str(self.return_type)
+        return output + str(self._open_paren) + (str(self.arguments) if (self.arguments) else '') + str(self._close_paren)
 
     def _markup(self, generator):
         self._callback.markup(generator)
         if (self.interface):
             return self.interface._markup(generator)
         self._name.markup(generator)
-        generator.addText(self._equals)
-        self.returnType.markup(generator)
-        generator.addText(self._openParen)
+        generator.add_text(self._equals)
+        self.return_type.markup(generator)
+        generator.add_text(self._open_paren)
         if (self.arguments):
             self.arguments.markup(generator)
-        generator.addText(self._closeParen)
+        generator.add_text(self._close_paren)
         return self
 
     def __repr__(self):
-        output = '[callback: ' + Construct.__repr__(self)
+        output = '[Callback: ' + Construct.__repr__(self)
         if (self.interface):
             return output + repr(self.interface) + ']'
-        output += '[name: ' + self.name.encode('ascii', 'replace') + '] [returnType: ' + unicode(self.returnType) + '] '
-        return output + '[argumentlist: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
+        output += '[name: ' + self.name + '] [return_type: ' + str(self.return_type) + '] '
+        return output + '[ArgumentList: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
 
 
 class ImplementsStatement(Construct):  # [ExtendedAttributes] Identifier "implements" Identifier ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         Construct.peek(tokens)
         if (TypeIdentifier.peek(tokens)):
             if (Symbol.peek(tokens, 'implements')):
-                return tokens.popPosition(TypeIdentifier.peek(tokens))
-        return tokens.popPosition(False)
+                return tokens.pop_position(TypeIdentifier.peek(tokens))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
         self._name = TypeIdentifier(tokens)
-        self._implementsSymbol = Symbol(tokens, 'implements')
+        self._implements_symbol = Symbol(tokens, 'implements')
         self._implements = TypeIdentifier(tokens)
-        self._consumeSemicolon(tokens)
-        self._didParse(tokens)
+        self._consume_semicolon(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'implements'
 
     @property
@@ -1385,38 +1385,38 @@ class ImplementsStatement(Construct):  # [ExtendedAttributes] Identifier "implem
     def implements(self):
         return self._implements.name
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self._name) + unicode(self._implementsSymbol) + unicode(self._implements)
+    def _str(self):
+        return Construct._str(self) + str(self._name) + str(self._implements_symbol) + str(self._implements)
 
     def _markup(self, generator):
         self._name.markup(generator)
-        self._implementsSymbol.markup(generator)
+        self._implements_symbol.markup(generator)
         self._implements.markup(generator)
         return self
 
     def __repr__(self):
-        return '[implements: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [implements: ' + repr(self._implements) + ']]'
+        return '[Implements: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [Implements: ' + repr(self._implements) + ']]'
 
 
 class IncludesStatement(Construct):  # Identifier "includes" Identifier ";"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (TypeIdentifier.peek(tokens)):
             if (Symbol.peek(tokens, 'includes')):
-                return tokens.popPosition(TypeIdentifier.peek(tokens))
-        return tokens.popPosition(False)
+                return tokens.pop_position(TypeIdentifier.peek(tokens))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent = None, parser = None):
         Construct.__init__(self, tokens, parent, parser = parser)
         self._name = TypeIdentifier(tokens)
-        self._includesSymbol = Symbol(tokens, 'includes')
+        self._includes_symbol = Symbol(tokens, 'includes')
         self._includes = TypeIdentifier(tokens)
-        self._consumeSemicolon(tokens)
-        self._didParse(tokens)
+        self._consume_semicolon(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'includes'
 
     @property
@@ -1427,37 +1427,37 @@ class IncludesStatement(Construct):  # Identifier "includes" Identifier ";"
     def includes(self):
         return self._includes.name
 
-    def _unicode(self):
-        return Construct._unicode(self) + unicode(self._name) + unicode(self._includesSymbol) + unicode(self._includes)
+    def _str(self):
+        return Construct._str(self) + str(self._name) + str(self._includes_symbol) + str(self._includes)
 
     def _markup(self, generator):
         self._name.markup(generator)
-        self._includesSymbol.markup(generator)
+        self._includes_symbol.markup(generator)
         self._includes.markup(generator)
         return self
 
     def __repr__(self):
-        return '[includes: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [includes: ' + repr(self._includes) + ']]'
+        return '[Includes: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [Includes: ' + repr(self._includes) + ']]'
 
 
 class ExtendedAttributeUnknown(Construct): # list of tokens
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
-        skipped = tokens.seekSymbol((',', ']'))
+        skipped = tokens.seek_symbol((',', ']'))
         self.tokens = skipped[:-1]
         tokens.restore(skipped[-1])
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'extended-attribute'
 
     @property
     def name(self):
         return None
 
-    def _unicode(self):
-        return ''.join([unicode(token) for token in self.tokens])
+    def _str(self):
+        return ''.join([str(token) for token in self.tokens])
 
     def __repr__(self):
         return '[ExtendedAttribute: ' + ''.join([repr(token) for token in self.tokens]) + ']'
@@ -1466,19 +1466,19 @@ class ExtendedAttributeUnknown(Construct): # list of tokens
 class ExtendedAttributeNoArgs(Construct):   # Identifier
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
-            token = tokens.sneakPeek()
-            return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+            token = tokens.sneak_peek()
+            return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'constructor' if ('Constructor' == self.attribute) else 'extended-attribute'
 
     @property
@@ -1487,14 +1487,14 @@ class ExtendedAttributeNoArgs(Construct):   # Identifier
 
     @property
     def name(self):
-        return self.parent.name if ('constructor' == self.idlType) else self.attribute
+        return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
     @property
-    def normalName(self):
-        return (self.parent.name + '()') if ('constructor' == self.idlType) else self.attribute
+    def normal_name(self):
+        return (self.parent.name + '()') if ('constructor' == self.idl_type) else self.attribute
 
-    def _unicode(self):
-        return unicode(self._attribute)
+    def _str(self):
+        return str(self._attribute)
 
     def _markup(self, generator):
         self._attribute.markup(generator)
@@ -1507,25 +1507,25 @@ class ExtendedAttributeNoArgs(Construct):   # Identifier
 class ExtendedAttributeArgList(Construct):  # Identifier "(" [ArgumentList] ")"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
             if (Symbol.peek(tokens, '(')):
                 ArgumentList.peek(tokens)
                 if (Symbol.peek(tokens, ')')):
-                    token = tokens.sneakPeek()
-                    return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+                    token = tokens.sneak_peek()
+                    return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
-        self._openParen = Symbol(tokens, '(')
+        self._open_paren = Symbol(tokens, '(')
         self.arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
-        self._closeParen = Symbol(tokens, ')')
-        self._didParse(tokens)
+        self._close_paren = Symbol(tokens, ')')
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'constructor' if ('Constructor' == self.attribute) else 'extended-attribute'
 
     @property
@@ -1534,23 +1534,23 @@ class ExtendedAttributeArgList(Construct):  # Identifier "(" [ArgumentList] ")"
 
     @property
     def name(self):
-        return self.parent.name if ('constructor' == self.idlType) else self.attribute
+        return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
     @property
-    def normalName(self):
-        if ('constructor' == self.idlType):
+    def normal_name(self):
+        if ('constructor' == self.idl_type):
             return self.parent.name + '(' + (', '.join(argument.name for argument in self.arguments) if (self.arguments) else '') + ')'
         return self.attribute
 
-    def _unicode(self):
-        return unicode(self._attribute) + unicode(self._openParen) + (unicode(self.arguments) if (self.arguments) else '') + unicode(self._closeParen)
+    def _str(self):
+        return str(self._attribute) + str(self._open_paren) + (str(self.arguments) if (self.arguments) else '') + str(self._close_paren)
 
     def _markup(self, generator):
         self._attribute.markup(generator)
-        generator.addText(self._openParen)
+        generator.add_text(self._open_paren)
         if (self.arguments):
             self.arguments.markup(generator)
-        generator.addText(self._closeParen)
+        generator.add_text(self._close_paren)
         return self
 
     def __repr__(self):
@@ -1561,23 +1561,23 @@ class ExtendedAttributeArgList(Construct):  # Identifier "(" [ArgumentList] ")"
 class ExtendedAttributeIdent(Construct):    # Identifier "=" Identifier
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
             if (Symbol.peek(tokens, '=')):
                 if (Identifier.peek(tokens)):
-                    token = tokens.sneakPeek()
-                    return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+                    token = tokens.sneak_peek()
+                    return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
         self._equals = Symbol(tokens, '=')
         self._value = TypeIdentifier(tokens)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
 
     @property
@@ -1590,51 +1590,51 @@ class ExtendedAttributeIdent(Construct):    # Identifier "=" Identifier
 
     @property
     def name(self):
-        return self.value if ('constructor' == self.idlType) else self.attribute
+        return self.value if ('constructor' == self.idl_type) else self.attribute
 
     @property
-    def normalName(self):
-        return (self.value + '()') if ('constructor' == self.idlType) else self.attribute
+    def normal_name(self):
+        return (self.value + '()') if ('constructor' == self.idl_type) else self.attribute
 
-    def _unicode(self):
-        return unicode(self._attribute) + unicode(self._equals) + unicode(self._value)
+    def _str(self):
+        return str(self._attribute) + str(self._equals) + str(self._value)
 
     def _markup(self, generator):
         self._attribute.markup(generator)
-        generator.addText(self._equals)
+        generator.add_text(self._equals)
         self._value.markup(generator)
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeIdent: ' + self.attribute.encode('ascii', 'replace') + ' [value: ' + repr(self._value) + ']]')
+        return ('[ExtendedAttributeIdent: ' + self.attribute + ' [value: ' + repr(self._value) + ']]')
 
 
 class ExtendedAttributeIdentList(Construct):    # Identifier "=" "(" Identifier [Identifiers] ")"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
             if (Symbol.peek(tokens, '=')):
                 if (Symbol.peek(tokens, '(')):
                     if (TypeIdentifier.peek(tokens)):
                         TypeIdentifiers.peek(tokens)
                         if (Symbol.peek(tokens, ')')):
-                            token = tokens.sneakPeek()
-                            return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+                            token = tokens.sneak_peek()
+                            return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
         self._equals = Symbol(tokens, '=')
-        self._openParen = Symbol(tokens, '(')
+        self._open_paren = Symbol(tokens, '(')
         self._value = TypeIdentifier(tokens)
         self.next = TypeIdentifiers(tokens) if (TypeIdentifiers.peek(tokens)) else None
-        self._closeParen = Symbol(tokens, ')')
-        self._didParse(tokens)
+        self._close_paren = Symbol(tokens, ')')
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
 
     @property
@@ -1647,60 +1647,60 @@ class ExtendedAttributeIdentList(Construct):    # Identifier "=" "(" Identifier 
 
     @property
     def name(self):
-        return self.value if ('constructor' == self.idlType) else self.attribute
+        return self.value if ('constructor' == self.idl_type) else self.attribute
 
     @property
-    def normalName(self):
-        return (self.value + '()') if ('constructor' == self.idlType) else self.attribute
+    def normal_name(self):
+        return (self.value + '()') if ('constructor' == self.idl_type) else self.attribute
 
-    def _unicode(self):
-        return (unicode(self._attribute) + unicode(self._equals) + unicode(self._openParen) + unicode(self._value) +
-                (unicode(self.next) if (self.next) else '') + unicode(self._closeParen))
+    def _str(self):
+        return (str(self._attribute) + str(self._equals) + str(self._open_paren) + str(self._value) +
+                (str(self.next) if (self.next) else '') + str(self._close_paren))
 
     def _markup(self, generator):
         self._attribute.markup(generator)
-        generator.addText(self._equals)
-        generator.addText(self._openParen)
+        generator.add_text(self._equals)
+        generator.add_text(self._open_paren)
         self._value.markup(generator)
         next = self.next
         while (next):
-            generator.addText(next._comma)
+            generator.add_text(next._comma)
             next._name.markup(generator)
             next = next.next
-        generator.addText(self._closeParen)
+        generator.add_text(self._close_paren)
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeIdentList: ' + self.attribute.encode('ascii', 'replace') + ' [value: ' + repr(self._value) + ']' +
+        return ('[ExtendedAttributeIdentList: ' + self.attribute + ' [value: ' + repr(self._value) + ']' +
                 (repr(self.next) if (self.next) else '') + ']')
 
 
 class ExtendedAttributeNamedArgList(Construct): # Identifier "=" Identifier "(" [ArgumentList] ")"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
             if (Symbol.peek(tokens, '=')):
                 if (TypeIdentifier.peek(tokens)):
                     if (Symbol.peek(tokens, '(')):
                         ArgumentList.peek(tokens)
                         if (Symbol.peek(tokens, ')')):
-                            token = tokens.sneakPeek()
-                            return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+                            token = tokens.sneak_peek()
+                            return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
         self._equals = Symbol(tokens, '=')
         self._value = TypeIdentifier(tokens)
-        self._openParen = Symbol(tokens, '(')
+        self._open_paren = Symbol(tokens, '(')
         self.arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
-        self._closeParen = Symbol(tokens, ')')
-        self._didParse(tokens)
+        self._close_paren = Symbol(tokens, ')')
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
 
     @property
@@ -1713,26 +1713,26 @@ class ExtendedAttributeNamedArgList(Construct): # Identifier "=" Identifier "(" 
 
     @property
     def name(self):
-        return self.value if ('constructor' == self.idlType) else self.attribute
+        return self.value if ('constructor' == self.idl_type) else self.attribute
 
     @property
-    def normalName(self):
-        if ('constructor' == self.idlType):
+    def normal_name(self):
+        if ('constructor' == self.idl_type):
             return self.value + '(' + (', '.join(argument.name for argument in self.arguments) if (self.arguments) else '') + ')'
         return self.attribute
 
-    def _unicode(self):
-        output = unicode(self._attribute) + unicode(self._equals) + unicode(self._value)
-        return output + unicode(self._openParen) + (unicode(self.arguments) if (self.arguments) else '') + unicode(self._closeParen)
+    def _str(self):
+        output = str(self._attribute) + str(self._equals) + str(self._value)
+        return output + str(self._open_paren) + (str(self.arguments) if (self.arguments) else '') + str(self._close_paren)
 
     def _markup(self, generator):
         self._attribute.markup(generator)
-        generator.addText(self._equals)
+        generator.add_text(self._equals)
         self._value.markup(generator)
-        generator.addText(self._openParen)
+        generator.add_text(self._open_paren)
         if (self.arguments):
             self.arguments.markup(generator)
-        generator.addText(self._closeParen)
+        generator.add_text(self._close_paren)
         return self
 
     def __repr__(self):
@@ -1743,29 +1743,29 @@ class ExtendedAttributeNamedArgList(Construct): # Identifier "=" Identifier "(" 
 class ExtendedAttributeTypePair(Construct): # Identifier "(" Type "," Type ")"
     @classmethod
     def peek(cls, tokens):
-        tokens.pushPosition(False)
+        tokens.push_position(False)
         if (Identifier.peek(tokens)):
             if (Symbol.peek(tokens, '(')):
                 if (Type.peek(tokens)):
                     if (Symbol.peek(tokens, ',')):
                         if (Type.peek(tokens)):
                             if (Symbol.peek(tokens, ')')):
-                                token = tokens.sneakPeek()
-                                return tokens.popPosition((not token) or token.isSymbol((',', ']')))
-        return tokens.popPosition(False)
+                                token = tokens.sneak_peek()
+                                return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+        return tokens.pop_position(False)
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         self._attribute = Identifier(tokens)
-        self._openParen = Symbol(tokens, '(')
-        self.keyType = Type(tokens)
+        self._open_paren = Symbol(tokens, '(')
+        self.key_type = Type(tokens)
         self._comma = Symbol(tokens, ',')
-        self.valueType = Type(tokens)
-        self._closeParen = Symbol(tokens, ')')
-        self._didParse(tokens)
+        self.value_type = Type(tokens)
+        self._close_paren = Symbol(tokens, ')')
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
+    def idl_type(self):
         return 'extended-attribute'
 
     @property
@@ -1776,22 +1776,22 @@ class ExtendedAttributeTypePair(Construct): # Identifier "(" Type "," Type ")"
     def name(self):
         return self.attribute
 
-    def _unicode(self):
-        output = unicode(self._attribute) + unicode(self._openParen) + unicode(self.keyType) + unicode(self._comma)
-        return output + unicode(self.valueType) + unicode(self._closeParen)
+    def _str(self):
+        output = str(self._attribute) + str(self._open_paren) + str(self.key_type) + str(self._comma)
+        return output + str(self.value_type) + str(self._close_paren)
 
     def _markup(self, generator):
         self._attribute.markup(generator)
-        generator.addText(self._openParen)
-        self.keyType.markup(generator)
-        generator.addText(self._comma)
-        self.valueType.markup(generator)
-        generator.addText(self._closeParen)
+        generator.add_text(self._open_paren)
+        self.key_type.markup(generator)
+        generator.add_text(self._comma)
+        self.value_type.markup(generator)
+        generator.add_text(self._close_paren)
         return self
 
     def __repr__(self):
         return ('[ExtendedAttributeTypePair: ' + repr(self._attribute) + ' ' +
-                repr(self.keyType) + ' ' + repr(self.valueType) + ']')
+                repr(self.key_type) + ' ' + repr(self.value_type) + ']')
 
 
 class ExtendedAttribute(Construct): # ExtendedAttributeNoArgs | ExtendedAttributeArgList |
@@ -1822,19 +1822,19 @@ class ExtendedAttribute(Construct): # ExtendedAttributeNoArgs | ExtendedAttribut
             self.attribute = ExtendedAttributeIdent(tokens, parent)
         else:
             self.attribute = ExtendedAttributeUnknown(tokens, parent)
-        self._didParse(tokens)
+        self._did_parse(tokens)
 
     @property
-    def idlType(self):
-        return self.attribute.idlType
+    def idl_type(self):
+        return self.attribute.idl_type
 
     @property
     def name(self):
         return self.attribute.name
 
     @property
-    def normalName(self):
-        return self.attribute.normalName
+    def normal_name(self):
+        return self.attribute.normal_name
 
     @property
     def arguments(self):
@@ -1842,25 +1842,25 @@ class ExtendedAttribute(Construct): # ExtendedAttributeNoArgs | ExtendedAttribut
             return self.attribute.arguments
         return None
 
-    def findArgument(self, name, searchMembers = True):
+    def find_argument(self, name, search_members = True):
         if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
             for argument in self.attribute.arguments:
                 if (name == argument.name):
                     return argument
         return None
 
-    def findArguments(self, name, searchMembers = True):
+    def find_arguments(self, name, search_members = True):
         if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
             return [argument for argument in self.attribute.arguments if (name == argument.name)]
         return []
 
-    def matchesArgumentNames(self, argumentNames):
+    def matches_argument_names(self, argument_names):
         if (self.arguments):
-            return self.arguments.matchesNames(argumentNames)
-        return (not argumentNames)
+            return self.arguments.matches_names(argument_names)
+        return (not argument_names)
 
-    def _unicode(self):
-        return unicode(self.attribute)
+    def _str(self):
+        return str(self.attribute)
 
     def _markup(self, generator):
         return self.attribute._markup(generator)
