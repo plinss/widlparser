@@ -9,6 +9,7 @@
 #
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
+"""WebIDL parser."""
 
 from .parser import Parser
 

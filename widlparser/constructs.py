@@ -9,98 +9,126 @@
 #
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
+"""High-level WebIDL constructs."""
 
-from .productions import *
-from .markup import MarkupGenerator
+from . import markup
+from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ChildProduction, ConstType, ConstValue, Constructor, Default, EnumValueList,
+                          ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Iterable,
+                          Maplike, MixinAttribute, Operation, ReturnType, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
+                          Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
+
 
 class Construct(ChildProduction):
+    """Base class for high-level language constructs."""
+
     @classmethod
     def peek(cls, tokens):
+        """Check if construct is next in token stream."""
         return ExtendedAttributeList.peek(tokens)
 
-    def __init__(self, tokens, parent, parseExtendedAttributes = True, parser = None):
+    def __init__(self, tokens, parent, parse_extended_attributes = True, parser = None):
         ChildProduction.__init__(self, tokens, parent)
         self._parser = parser
-        self._extended_attributes = self._parseExtendedAttributes(tokens, self) if (parseExtendedAttributes) else None
+        self._extended_attributes = self._parse_extended_attributes(tokens, self) if (parse_extended_attributes) else None
 
-    def _parseExtendedAttributes(self, tokens, parent):
+    def _parse_extended_attributes(self, tokens, parent):
         return ExtendedAttributeList(tokens, parent) if (ExtendedAttributeList.peek(tokens)) else None
 
     @property
     def idl_type(self):
+        """Get construct type."""
         assert(False)   # subclasses must override
         return None
 
     @property
     def constructors(self):
+        """Get constructors."""
         return [attribute for attribute in self._extended_attributes if ('constructor' == attribute.idl_type)] if (self._extended_attributes) else []
 
     @property
     def parser(self):
-        return self._parser if (self._parser) else self.parent.parser
+        """Get parser."""
+        return self._parser if (self._parser is not None) else self.parent.parser
 
     @property
     def extended_attributes(self):
+        """Get extended attributes."""
         return self._extended_attributes if (self._extended_attributes) else {}
 
     def __bool__(self):
+        """Presence detection."""
         return True
 
     def __len__(self):
+        """Number of children."""
         return 0
 
     def keys(self):
+        """Names of children."""
         return []
 
     def __getitem__(self, key):
+        """Access child by index."""
         return None
 
     def __iter__(self):
+        """Iterate over children."""
         return iter(())
 
     def __contains__(self, key):
+        """Test if child is present."""
         return False
 
     def find_member(self, name):
+        """Search for child member of a given name."""
         return None
 
     def find_members(self, name):
+        """Search for all child members of a given name."""
         return []
 
     def find_method(self, name, argument_names=None):
+        """Search for a method of a given name."""
         return None
 
     def find_methods(self, name, argument_names=None):
+        """Search for all methods of a given name."""
         return []
 
     def find_argument(self, name, search_members = True):
+        """Search for an argument of a given name."""
         return None
 
     def find_arguments(self, name, search_members = True):
+        """Search for all argument of a given name."""
         return []
 
     @property
     def complexity_factor(self):
+        """Get complexity factor."""
         return 1
 
     def _str(self):
+        """Convert to string."""
         return str(self._extended_attributes) if (self._extended_attributes) else ''
 
     def __repr__(self):
+        """Debug info."""
         return repr(self._extended_attributes) if (self._extended_attributes) else ''
 
     def markup(self, generator):
+        """Generate marked up version of self."""
         if (not generator):
             return str(self)
 
-        if (isinstance(generator, MarkupGenerator)):
+        if (isinstance(generator, markup.MarkupGenerator)):
             marker = None
             generator.add_text(self._leading_space)
         else:
             marker = generator
             generator = None
 
-        my_generator = MarkupGenerator(self)
+        my_generator = markup.MarkupGenerator(self)
         if (self._extended_attributes):
             self._extended_attributes.markup(my_generator)
         target = self._markup(my_generator)
@@ -117,10 +145,17 @@ class Construct(ChildProduction):
         return my_generator.markup(marker)
 
 
+class Const(Construct):
+    """
+    WebIDL "const".
 
-class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
+    Syntax:
+    "const" ConstType Identifier "=" ConstValue ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
+        """Check if Const is next in token stream."""
         tokens.push_position(False)
         if (Symbol.peek(tokens, 'const')):
             if (ConstType.peek(tokens)):
@@ -141,25 +176,31 @@ class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
 
     @property
     def idl_type(self):
+        """Get construct type."""
         return 'const'
 
     @property
     def name(self):
+        """Get name."""
         return self._name.name
 
     @property
     def method_name(self):
+        """Get method name."""
         return None
 
     @property
     def method_names(self):
+        """Get method names."""
         return []
 
     @property
     def complexity_factor(self):
+        """Get complexity factor."""
         return 0
 
     def _str(self):
+        """Convert to string."""
         return str(self._const) + str(self.type) + str(self._name) + str(self._equals) + str(self.value)
 
     def _markup(self, generator):
@@ -171,11 +212,19 @@ class Const(Construct):    # "const" ConstType Identifier "=" ConstValue ";"
         return self
 
     def __repr__(self):
-        return ('[Const: ' + repr(self.type) +
-                '[name: ' + repr(self._name) + '] = [value: ' + str(self.value) + ']]')
+        """Debug info."""
+        return ('[Const: ' + repr(self.type)
+                + '[name: ' + repr(self._name) + '] = [value: ' + str(self.value) + ']]')
 
 
-class Enum(Construct):    # [ExtendedAttributes] "enum" Identifier "{" EnumValueList "}" ";"
+class Enum(Construct):
+    """
+    WebIDL "enum".
+
+    Syntax:
+    [ExtendedAttributes] "enum" Identifier "{" EnumValueList "}" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -221,11 +270,18 @@ class Enum(Construct):    # [ExtendedAttributes] "enum" Identifier "{" EnumValue
         return self
 
     def __repr__(self):
-        return ('[Enum: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] ' +
-                '[values: ' + repr(self.values) + ']]')
+        return ('[Enum: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] '
+                + '[values: ' + repr(self.values) + ']]')
 
 
-class Typedef(Construct):    # [ExtendedAttributes] "typedef" TypeWithExtendedAttributes Identifier ";"
+class Typedef(Construct):
+    """
+    WebIDL "typedef".
+
+    Syntax:
+    [ExtendedAttributes] "typedef" TypeWithExtendedAttributes Identifier ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -267,8 +323,15 @@ class Typedef(Construct):    # [ExtendedAttributes] "typedef" TypeWithExtendedAt
         return output + repr(self.type) + ' [name: ' + self.name + ']]'
 
 
-class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut] TypeWithExtendedAttributes ArgumentName [Default] |
-                              # [ExtendedAttributeList] [IgnoreInOut] Type ["..."] ArgumentName
+class Argument(Construct):
+    """
+    WebIDL method argument.
+
+    Syntax:
+    [ExtendedAttributeList] "optional" [IgnoreInOut] TypeWithExtendedAttributes ArgumentName [Default]
+    | [ExtendedAttributeList] [IgnoreInOut] Type ["..."] ArgumentName
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -345,17 +408,25 @@ class Argument(Construct):    # [ExtendedAttributeList] "optional" [IgnoreInOut]
         return output + ((' [default: ' + repr(self.default) + ']]') if (self.default) else ']')
 
 
-class InterfaceMember(Construct):  # [ExtendedAttributes] Constructor | Const | Operation | SpecialOperation | Stringifier | StaticMember | AsyncIterable | Iterable | Attribute | Maplike | Setlike
+class InterfaceMember(Construct):
+    """
+    WebIDL interface member.
+
+    Syntax:
+    [ExtendedAttributes] Constructor | Const | Operation | SpecialOperation | Stringifier | StaticMember | AsyncIterable
+    | Iterable | Attribute | Maplike | Setlike
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
         Construct.peek(tokens)
-        return tokens.pop_position(Constructor.peek(tokens) or Const.peek(tokens) or
-                                   Stringifier.peek(tokens) or StaticMember.peek(tokens) or
-                                   AsyncIterable.peek(tokens) or Iterable.peek(tokens) or
-                                   Maplike.peek(tokens) or Setlike.peek(tokens) or
-                                   Attribute.peek(tokens) or
-                                   SpecialOperation.peek(tokens) or Operation.peek(tokens))
+        return tokens.pop_position(Constructor.peek(tokens) or Const.peek(tokens)
+                                   or Stringifier.peek(tokens) or StaticMember.peek(tokens)
+                                   or AsyncIterable.peek(tokens) or Iterable.peek(tokens)
+                                   or Maplike.peek(tokens) or Setlike.peek(tokens)
+                                   or Attribute.peek(tokens)
+                                   or SpecialOperation.peek(tokens) or Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
@@ -435,13 +506,20 @@ class InterfaceMember(Construct):  # [ExtendedAttributes] Constructor | Const | 
         return output + repr(self.member) + ']'
 
 
-class MixinMember(Construct): # [ExtendedAttributes] Const | Operation | Stringifier | ReadOnly AttributeRest
+class MixinMember(Construct):
+    """
+    WebIDL mixin member.
+
+    Syntax:
+    [ExtendedAttributes] Const | Operation | Stringifier | ReadOnly AttributeRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
         Construct.peek(tokens)
-        return tokens.pop_position(Const.peek(tokens) or Stringifier.peek(tokens) or
-                                   MixinAttribute.peek(tokens) or Operation.peek(tokens))
+        return tokens.pop_position(Const.peek(tokens) or Stringifier.peek(tokens)
+                                   or MixinAttribute.peek(tokens) or Operation.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent)
@@ -507,7 +585,14 @@ class MixinMember(Construct): # [ExtendedAttributes] Const | Operation | Stringi
         return output + repr(self.member) + ']'
 
 
-class SyntaxError(Construct):   # ... ";" | ... "}"
+class SyntaxError(Construct):
+    """
+    Capture invalid syntax.
+
+    Syntax:
+    ... ";" | ... "}"
+    """
+
     def __init__(self, tokens, parent, parser = None):
         Construct.__init__(self, tokens, parent, False, parser = parser)
         self.tokens = tokens.syntax_error((';', '}'), False)
@@ -536,7 +621,14 @@ class SyntaxError(Construct):   # ... ";" | ... "}"
         return output + ''.join([repr(token) for token in self.tokens]) + ']'
 
 
-class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Identifier [Inheritance] "{" [InterfaceMember]... "}" ";"
+class Interface(Construct):
+    """
+    WebIDL "interface".
+
+    Syntax:
+    [ExtendedAttributes] ["partial"] "interface" Identifier [Inheritance] "{" [InterfaceMember]... "}" ";"
+    """
+
     @classmethod
     def peek(cls, tokens, accept_extended_attributes = True):
         tokens.push_position(False)
@@ -625,7 +717,7 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
 
     def find_methods(self, name, argument_names=None):
         return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
-                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
+                                                      and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
     def find_argument(self, name, search_members = True):
         if (search_members):
@@ -678,7 +770,14 @@ class Interface(Construct):    # [ExtendedAttributes] ["partial"] "interface" Id
         return output + ']]'
 
 
-class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin" Identifier [Inheritance] "{" [MixinMember]... "}" ";"
+class Mixin(Construct):
+    """
+    WebIDL "interface mixin".
+
+    Syntax:
+    [ExtendedAttributes] ["partial"] "interface" "mixin" Identifier [Inheritance] "{" [MixinMember]... "}" ";"
+    """
+
     @classmethod
     def peek(cls, tokens, accept_extended_attributes = True):
         tokens.push_position(False)
@@ -768,7 +867,7 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
 
     def find_methods(self, name, argument_names=None):
         return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
-                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
+                                                      and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
     def find_argument(self, name, search_members = True):
         if (search_members):
@@ -823,7 +922,14 @@ class Mixin(Construct):    # [ExtendedAttributes] ["partial"] "interface" "mixin
         return output + ']]'
 
 
-class NamespaceMember(Construct): # [ExtendedAttributes] Operation | "readonly" Attribute
+class NamespaceMember(Construct):
+    """
+    WebIDL namespace member.
+
+    Syntax:
+    [ExtendedAttributes] Operation | "readonly" Attribute
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -893,8 +999,14 @@ class NamespaceMember(Construct): # [ExtendedAttributes] Operation | "readonly" 
         return output + repr(self.member) + ']'
 
 
+class Namespace(Construct):
+    """
+    WebIDL "namespace".
 
-class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Identifier "{" [NamespaceMember]... "}" ";"
+    Syntax:
+    [ExtendedAttributes] ["partial"] "namespace" Identifier "{" [NamespaceMember]... "}" ";"
+    """
+
     @classmethod
     def peek(cls, tokens, accept_extended_attributes = True):
         tokens.push_position(False)
@@ -981,7 +1093,7 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
 
     def find_methods(self, name, argument_names=None):
         return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
-                    and ((argument_names is None) or member.matches_argument_names(argument_names)))]
+                                                      and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
     def find_argument(self, name, search_members = True):
         if (search_members):
@@ -1028,7 +1140,14 @@ class Namespace(Construct):    # [ExtendedAttributes] ["partial"] "namespace" Id
         return output + ']]'
 
 
-class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] TypeWithExtendedAttributes Identifier [Default] ";"
+class DictionaryMember(Construct):
+    """
+    WebIDL dictionary member.
+
+    Syntax:
+    [ExtendedAttributes] ["required"] TypeWithExtendedAttributes Identifier [Default] ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1083,7 +1202,14 @@ class DictionaryMember(Construct): # [ExtendedAttributes] ["required"] TypeWithE
         return output
 
 
-class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Identifier [Inheritance] "{" [DictionaryMember]... "}" ";"
+class Dictionary(Construct):
+    """
+    WebIDL "dictionary".
+
+    Syntax:
+    [ExtendedAttributes] ["partial"] "dictionary" Identifier [Inheritance] "{" [DictionaryMember]... "}" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1203,9 +1329,16 @@ class Dictionary(Construct):  # [ExtendedAttributes] ["partial"] "dictionary" Id
         return output + ']]'
 
 
-class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" ReturnType "(" [ArgumentList] ")" ";" |
-                              # [ExtendedAttributes] "callback" Interface
-                              # [ExtendedAttributes] "callback" Mixin
+class Callback(Construct):
+    """
+    WebIDL "callback".
+
+    Syntax:
+    [ExtendedAttributes] "callback" Identifier "=" ReturnType "(" [ArgumentList] ")" ";"
+    | [ExtendedAttributes] "callback" Interface
+    | [ExtendedAttributes] "callback" Mixin
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1355,7 +1488,14 @@ class Callback(Construct):    # [ExtendedAttributes] "callback" Identifier "=" R
         return output + '[ArgumentList: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
 
 
-class ImplementsStatement(Construct):  # [ExtendedAttributes] Identifier "implements" Identifier ";"
+class ImplementsStatement(Construct):
+    """
+    WebIDL "implements".
+
+    Syntax:
+    [ExtendedAttributes] Identifier "implements" Identifier ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1398,7 +1538,14 @@ class ImplementsStatement(Construct):  # [ExtendedAttributes] Identifier "implem
         return '[Implements: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [Implements: ' + repr(self._implements) + ']]'
 
 
-class IncludesStatement(Construct):  # Identifier "includes" Identifier ";"
+class IncludesStatement(Construct):
+    """
+    WebIDL "includes".
+
+    Syntax:
+    Identifier "includes" Identifier ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1440,7 +1587,14 @@ class IncludesStatement(Construct):  # Identifier "includes" Identifier ";"
         return '[Includes: ' + Construct.__repr__(self) + '[name: ' + repr(self._name) + '] [Includes: ' + repr(self._includes) + ']]'
 
 
-class ExtendedAttributeUnknown(Construct): # list of tokens
+class ExtendedAttributeUnknown(Construct):
+    """
+    WebIDL unknown extended attribute.
+
+    Syntax:
+    list of tokens
+    """
+
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
         skipped = tokens.seek_symbol((',', ']'))
@@ -1463,7 +1617,14 @@ class ExtendedAttributeUnknown(Construct): # list of tokens
         return '[ExtendedAttribute: ' + ''.join([repr(token) for token in self.tokens]) + ']'
 
 
-class ExtendedAttributeNoArgs(Construct):   # Identifier
+class ExtendedAttributeNoArgs(Construct):
+    """
+    WebIDL extended attribute without arguments.
+
+    Syntax:
+    Identifier
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1504,7 +1665,14 @@ class ExtendedAttributeNoArgs(Construct):   # Identifier
         return '[ExtendedAttributeNoArgs: ' + repr(self._attribute) + ']'
 
 
-class ExtendedAttributeArgList(Construct):  # Identifier "(" [ArgumentList] ")"
+class ExtendedAttributeArgList(Construct):
+    """
+    WebIDL extended attribute with argument list.
+
+    Syntax:
+    Identifier "(" [ArgumentList] ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1554,11 +1722,18 @@ class ExtendedAttributeArgList(Construct):  # Identifier "(" [ArgumentList] ")"
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeArgList: ' + repr(self._attribute) +
-                ' [arguments: ' + (repr(self.arguments) if (self.arguments) else '') + ']]')
+        return ('[ExtendedAttributeArgList: ' + repr(self._attribute)
+                + ' [arguments: ' + (repr(self.arguments) if (self.arguments) else '') + ']]')
 
 
-class ExtendedAttributeIdent(Construct):    # Identifier "=" Identifier
+class ExtendedAttributeIdent(Construct):
+    """
+    WebIDL extended attribute with identifier.
+
+    Syntax:
+    Identifier "=" Identifier
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1609,7 +1784,14 @@ class ExtendedAttributeIdent(Construct):    # Identifier "=" Identifier
         return ('[ExtendedAttributeIdent: ' + self.attribute + ' [value: ' + repr(self._value) + ']]')
 
 
-class ExtendedAttributeIdentList(Construct):    # Identifier "=" "(" Identifier [Identifiers] ")"
+class ExtendedAttributeIdentList(Construct):
+    """
+    WebIDL extended attribute with list of identifiers.
+
+    Syntax:
+    Identifier "=" "(" Identifier [Identifiers] ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1654,8 +1836,8 @@ class ExtendedAttributeIdentList(Construct):    # Identifier "=" "(" Identifier 
         return (self.value + '()') if ('constructor' == self.idl_type) else self.attribute
 
     def _str(self):
-        return (str(self._attribute) + str(self._equals) + str(self._open_paren) + str(self._value) +
-                (str(self.next) if (self.next) else '') + str(self._close_paren))
+        return (str(self._attribute) + str(self._equals) + str(self._open_paren) + str(self._value)
+                + (str(self.next) if (self.next) else '') + str(self._close_paren))
 
     def _markup(self, generator):
         self._attribute.markup(generator)
@@ -1671,11 +1853,18 @@ class ExtendedAttributeIdentList(Construct):    # Identifier "=" "(" Identifier 
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeIdentList: ' + self.attribute + ' [value: ' + repr(self._value) + ']' +
-                (repr(self.next) if (self.next) else '') + ']')
+        return ('[ExtendedAttributeIdentList: ' + self.attribute + ' [value: ' + repr(self._value) + ']'
+                + (repr(self.next) if (self.next) else '') + ']')
 
 
-class ExtendedAttributeNamedArgList(Construct): # Identifier "=" Identifier "(" [ArgumentList] ")"
+class ExtendedAttributeNamedArgList(Construct):
+    """
+    WebIDL extended attribute with named argument list.
+
+    Syntax:
+    Identifier "=" Identifier "(" [ArgumentList] ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1736,11 +1925,18 @@ class ExtendedAttributeNamedArgList(Construct): # Identifier "=" Identifier "(" 
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeNamedArgList: ' + repr(self._attribute) + ' [value: ' + repr(self._value) + ']' +
-                ' [arguments: ' + (repr(self.arguments) if (self.arguments) else '') + ']]')
+        return ('[ExtendedAttributeNamedArgList: ' + repr(self._attribute) + ' [value: ' + repr(self._value) + ']'
+                + ' [arguments: ' + (repr(self.arguments) if (self.arguments) else '') + ']]')
 
 
-class ExtendedAttributeTypePair(Construct): # Identifier "(" Type "," Type ")"
+class ExtendedAttributeTypePair(Construct):
+    """
+    WebIDL extended attribute with type pair.
+
+    Syntax:
+    Identifier "(" Type "," Type ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1790,21 +1986,28 @@ class ExtendedAttributeTypePair(Construct): # Identifier "(" Type "," Type ")"
         return self
 
     def __repr__(self):
-        return ('[ExtendedAttributeTypePair: ' + repr(self._attribute) + ' ' +
-                repr(self.key_type) + ' ' + repr(self.value_type) + ']')
+        return ('[ExtendedAttributeTypePair: ' + repr(self._attribute) + ' '
+                + repr(self.key_type) + ' ' + repr(self.value_type) + ']')
 
 
-class ExtendedAttribute(Construct): # ExtendedAttributeNoArgs | ExtendedAttributeArgList |
-                                    # ExtendedAttributeIdent | ExtendedAttributeNamedArgList |
-                                    # ExtendedAttributeIdentList | ExtendedAttributeTypePair
+class ExtendedAttribute(Construct):
+    """
+    WebIDL extended attribute.
+
+    Syntax:
+    ExtendedAttributeNoArgs | ExtendedAttributeArgList
+    | ExtendedAttributeIdent | ExtendedAttributeNamedArgList
+    | ExtendedAttributeIdentList | ExtendedAttributeTypePair
+    """
+
     @classmethod
     def peek(cls, tokens):
-        return (ExtendedAttributeNamedArgList.peek(tokens) or
-                ExtendedAttributeArgList.peek(tokens) or
-                ExtendedAttributeNoArgs.peek(tokens) or
-                ExtendedAttributeTypePair.peek(tokens) or
-                ExtendedAttributeIdentList(tokens) or
-                ExtendedAttributeIdent.peek(tokens))
+        return (ExtendedAttributeNamedArgList.peek(tokens)
+                or ExtendedAttributeArgList.peek(tokens)
+                or ExtendedAttributeNoArgs.peek(tokens)
+                or ExtendedAttributeTypePair.peek(tokens)
+                or ExtendedAttributeIdentList(tokens)
+                or ExtendedAttributeIdent.peek(tokens))
 
     def __init__(self, tokens, parent):
         Construct.__init__(self, tokens, parent, False)
@@ -1867,7 +2070,3 @@ class ExtendedAttribute(Construct): # ExtendedAttributeNoArgs | ExtendedAttribut
 
     def __repr__(self):
         return repr(self.attribute)
-
-
-
-

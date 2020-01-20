@@ -9,8 +9,11 @@
 #
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
+"""Basic language productions for WebIDL."""
+
 
 import itertools
+
 from . import constructs, tokenizer
 
 
@@ -19,6 +22,13 @@ def _name(thing):
 
 
 class Production(object):
+    """
+    Base class for all productions.
+
+    Consumes leading and optionally trailing whitespace,
+    also may consume following semicolon.
+    """
+
     def __init__(self, tokens):
         self._leading_space = self._whitespace(tokens)
         self._tail = None
@@ -50,7 +60,6 @@ class Production(object):
             generator.add_text(target._trailing_space)
         generator.add_text(self._trailing_space)
 
-
     def _consume_semicolon(self, tokens, consume_tail = True):
         if (Symbol.peek(tokens, ';')):
             self._semicolon = Symbol(tokens, ';', False)
@@ -68,6 +77,13 @@ class Production(object):
 
 
 class String(Production):
+    """
+    String production.
+
+    Syntax:
+    <string-token>
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -90,6 +106,13 @@ class String(Production):
 
 
 class Symbol(Production):
+    """
+    String production.
+
+    Syntax:
+    <symbol-token>
+    """
+
     @classmethod
     def peek(cls, tokens, symbol=None):
         token = tokens.push_position()
@@ -116,7 +139,14 @@ class Symbol(Production):
         return self.symbol
 
 
-class IntegerType(Production):   # "short" | "long" ["long"]
+class IntegerType(Production):
+    """
+    Integer type production.
+
+    Syntax:
+    "short" | "long" ["long"]
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -161,7 +191,14 @@ class IntegerType(Production):   # "short" | "long" ["long"]
         return '[IntegerType: ' + self.type + ']'
 
 
-class UnsignedIntegerType(Production):   # "unsigned" IntegerType | IntegerType
+class UnsignedIntegerType(Production):
+    """
+    Unsigned integer type production.
+
+    Syntax:
+    "unsigned" IntegerType | IntegerType
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (IntegerType.peek(tokens)):
@@ -171,7 +208,7 @@ class UnsignedIntegerType(Production):   # "unsigned" IntegerType | IntegerType
             return tokens.pop_position(IntegerType.peek(tokens))
         return tokens.pop_position(False)
 
-    def __init__(self, tokens): #
+    def __init__(self, tokens):
         Production.__init__(self, tokens)
         self.unsigned = Symbol(tokens, 'unsigned') if (Symbol.peek(tokens, 'unsigned')) else None
         self.type = IntegerType(tokens)
@@ -189,7 +226,14 @@ class UnsignedIntegerType(Production):   # "unsigned" IntegerType | IntegerType
         return '[UnsignedIntegerType: ' + ('[unsigned]' if (self.unsigned) else '') + repr(self.type) + ']'
 
 
-class FloatType(Production):   # "float" | "double"
+class FloatType(Production):
+    """
+    Float type production.
+
+    Syntax:
+    "float" | "double"
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -212,7 +256,14 @@ class FloatType(Production):   # "float" | "double"
         return '[FloatType: ' + self.type + ']'
 
 
-class UnrestrictedFloatType(Production): # "unrestricted" FloatType | FloatType
+class UnrestrictedFloatType(Production):
+    """
+    Unrestricted float type production.
+
+    Syntax:
+    "unrestricted" FloatType | FloatType
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (FloatType.peek(tokens)):
@@ -222,7 +273,7 @@ class UnrestrictedFloatType(Production): # "unrestricted" FloatType | FloatType
             return tokens.pop_position(FloatType.peek(tokens))
         return tokens.pop_position(False)
 
-    def __init__(self, tokens): #
+    def __init__(self, tokens):
         Production.__init__(self, tokens)
         self.unrestricted = Symbol(tokens, 'unrestricted') if (Symbol.peek(tokens, 'unrestricted')) else None
         self.type = FloatType(tokens)
@@ -240,7 +291,14 @@ class UnrestrictedFloatType(Production): # "unrestricted" FloatType | FloatType
         return '[UnrestrictedFloatType: ' + ('[unrestricted]' if (self.unrestricted) else '') + repr(self.type) + ']'
 
 
-class PrimitiveType(Production): # UnsignedIntegerType | UnrestrictedFloatType | "boolean" | "byte" | "octet"
+class PrimitiveType(Production):
+    """
+    Primitive type production.
+
+    Syntax:
+    UnsignedIntegerType | UnrestrictedFloatType | "boolean" | "byte" | "octet"
+    """
+
     @classmethod
     def peek(cls, tokens):
         return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('boolean', 'byte', 'octet')))
@@ -269,7 +327,14 @@ class PrimitiveType(Production): # UnsignedIntegerType | UnrestrictedFloatType |
         return '[PrimitiveType: ' + repr(self.type) + ']'
 
 
-class Identifier(Production):  # identifier
+class Identifier(Production):
+    """
+    Identifier production.
+
+    Syntax:
+    <identifier-token>
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position(True)
@@ -295,7 +360,14 @@ class Identifier(Production):  # identifier
         return self._name
 
 
-class TypeIdentifier(Production):  # identifier
+class TypeIdentifier(Production):
+    """
+    Type identifier production.
+
+    Syntax:
+    <identifier-token>
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position(True)
@@ -321,7 +393,14 @@ class TypeIdentifier(Production):  # identifier
         return self._name
 
 
-class ConstType(Production): # PrimitiveType [Null] | Identifier [Null]
+class ConstType(Production):
+    """
+    Const type production.
+
+    Syntax:
+    PrimitiveType [Null] | Identifier [Null]
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (PrimitiveType.peek(tokens)):
@@ -363,7 +442,14 @@ class ConstType(Production): # PrimitiveType [Null] | Identifier [Null]
         return '[ConstType: ' + repr(self.type) + (' [null]' if (self.null) else '') + ']'
 
 
-class FloatLiteral(Production):  # float | "-Infinity" | "Infinity" | "NaN"
+class FloatLiteral(Production):
+    """
+    Float literal production.
+
+    Syntax:
+    <float-token> | "-Infinity" | "Infinity" | "NaN"
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -371,7 +457,7 @@ class FloatLiteral(Production):  # float | "-Infinity" | "Infinity" | "NaN"
             return tokens.pop_position(True)
         return tokens.pop_position(token and token.is_symbol(('-Infinity', 'Infinity', 'NaN')))
 
-    def __init__(self, tokens): #
+    def __init__(self, tokens):
         Production.__init__(self, tokens)
         self.value = tokens.next().text
         self._did_parse(tokens)
@@ -390,7 +476,14 @@ class FloatLiteral(Production):  # float | "-Infinity" | "Infinity" | "NaN"
         return '[FloatLiteral: ' + self.value + ']'
 
 
-class ConstValue(Production):    # "true" | "false" | FloatLiteral | integer | "null"
+class ConstValue(Production):
+    """
+    Const value production.
+
+    Syntax:
+    "true" | "false" | FloatLiteral | <integer-token> | "null"
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (FloatLiteral.peek(tokens)):
@@ -398,7 +491,7 @@ class ConstValue(Production):    # "true" | "false" | FloatLiteral | integer | "
         token = tokens.push_position()
         return tokens.pop_position(token and (token.is_symbol(('true', 'false', 'null')) or token.is_integer()))
 
-    def __init__(self, tokens): #
+    def __init__(self, tokens):
         Production.__init__(self, tokens)
         if (FloatLiteral.peek(tokens)):
             self.value = FloatLiteral(tokens)
@@ -424,7 +517,14 @@ class ConstValue(Production):    # "true" | "false" | FloatLiteral | integer | "
         return '[ConstValue: ' + repr(self.value) + ']'
 
 
-class EnumValue(Production): # string
+class EnumValue(Production):
+    """
+    Enum value production.
+
+    Syntax:
+    <string-token>
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -446,7 +546,14 @@ class EnumValue(Production): # string
         return '[EnumValue: ' + self.value + ']'
 
 
-class EnumValueList(Production): # EnumValue ["," EnumValue]... [","]
+class EnumValueList(Production):
+    """
+    Enum value list production.
+
+    Syntax:
+    EnumValue ["," EnumValue]... [","]
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -491,7 +598,14 @@ class EnumValueList(Production): # EnumValue ["," EnumValue]... [","]
         return '[EnumValueList: ' + ''.join([repr(value) for value in self.values]) + ']'
 
 
-class TypeSuffix(Production):    # "[" "]" [TypeSuffix] | "?" [TypeSuffixStartingWithArray]
+class TypeSuffix(Production):
+    """
+    Type suffix production.
+
+    Syntax:
+    "[" "]" [TypeSuffix] | "?" [TypeSuffixStartingWithArray]
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -530,7 +644,14 @@ class TypeSuffix(Production):    # "[" "]" [TypeSuffix] | "?" [TypeSuffixStartin
         return output + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class TypeSuffixStartingWithArray(Production):   # "[" "]" [TypeSuffix]
+class TypeSuffixStartingWithArray(Production):
+    """
+    Type suffix starting with array production.
+
+    Syntax:
+    "[" "]" [TypeSuffix]
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -554,7 +675,14 @@ class TypeSuffixStartingWithArray(Production):   # "[" "]" [TypeSuffix]
         return '[TypeSuffixStartingWithArray: ' + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class SingleType(Production):    # NonAnyType | "any" [TypeSuffixStartingWithArray]
+class SingleType(Production):
+    """
+    Single type production.
+
+    Syntax:
+    NonAnyType | "any" [TypeSuffixStartingWithArray]
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (NonAnyType.peek(tokens)):
@@ -594,10 +722,16 @@ class SingleType(Production):    # NonAnyType | "any" [TypeSuffixStartingWithArr
         return '[SingleType: ' + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix] |
-                                # "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null] |
-                                # "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null] |
-                                # "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "record" "<" StringType "," TypeWithExtendedAttributes ">"
+class NonAnyType(Production):
+    """
+    Non-any type production.
+
+    Syntax:
+    PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix]
+    | "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null]
+    | "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null]
+    | "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "record" "<" StringType "," TypeWithExtendedAttributes ">"
+    """
 
     BUFFER_RELATED_TYPES = frozenset(['ArrayBuffer', 'DataView', 'Int8Array', 'Int16Array', 'Int32Array',
                                       'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray',
@@ -750,12 +884,20 @@ class NonAnyType(Production):   # PrimitiveType [TypeSuffix] | "ByteString" [Typ
         return self
 
     def __repr__(self):
-        output = '[NonAnyType: ' + ('[sequence] ' if (self.sequence) else '') + ('[Promise] ' if (self.promise) else '') + ('[record] [StringType: ' + repr(self.key_type) + '] ' if (self.record) else '')
+        output = ('[NonAnyType: ' + ('[sequence] ' if (self.sequence) else '') + ('[Promise] ' if (self.promise) else '')
+                  + ('[record] [StringType: ' + repr(self.key_type) + '] ' if (self.record) else ''))
         output += repr(self.type) + ('[null]' if (self.null) else '')
         return output + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class UnionMemberType(Production):   # [ExtendedAttributeList] NonAnyType | UnionType [TypeSuffix] | "any" "[" "]" [TypeSuffix]
+class UnionMemberType(Production):
+    """
+    Union member type production.
+
+    Syntax:
+    [ExtendedAttributeList] NonAnyType | UnionType [TypeSuffix] | "any" "[" "]" [TypeSuffix]
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (ExtendedAttributeList.peek(tokens)):
@@ -822,7 +964,14 @@ class UnionMemberType(Production):   # [ExtendedAttributeList] NonAnyType | Unio
         return output + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class UnionType(Production): # "(" UnionMemberType ["or" UnionMemberType]... ")"
+class UnionType(Production):
+    """
+    Union member type production.
+
+    Syntax:
+    "(" UnionMemberType ["or" UnionMemberType]... ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -877,7 +1026,14 @@ class UnionType(Production): # "(" UnionMemberType ["or" UnionMemberType]... ")"
         return '[UnionType: ' + ''.join([repr(type) for type in self.types]) + ']'
 
 
-class Type(Production):  # SingleType | UnionType [TypeSuffix]
+class Type(Production):
+    """
+    Type production.
+
+    Syntax:
+    SingleType | UnionType [TypeSuffix]
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (SingleType.peek(tokens)):
@@ -913,7 +1069,14 @@ class Type(Production):  # SingleType | UnionType [TypeSuffix]
         return '[Type: ' + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']'
 
 
-class TypeWithExtendedAttributes(Production):  # [ExtendedAttributeList] SingleType | UnionType [TypeSuffix]
+class TypeWithExtendedAttributes(Production):
+    """
+    Type with extended attributes production.
+
+    Syntax:
+    [ExtendedAttributeList] SingleType | UnionType [TypeSuffix]
+    """
+
     @classmethod
     def peek(cls, tokens):
         ExtendedAttributeList.peek(tokens)
@@ -954,10 +1117,18 @@ class TypeWithExtendedAttributes(Production):  # [ExtendedAttributeList] SingleT
         return self
 
     def __repr__(self):
-        return '[TypeWithExtendedAttributes: ' + (repr(self._extended_attributes) if (self._extended_attributes) else '') + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']'
+        return ('[TypeWithExtendedAttributes: ' + (repr(self._extended_attributes) if (self._extended_attributes) else '')
+                + repr(self.type) + (repr(self.suffix) if (self.suffix) else '') + ']')
 
 
-class IgnoreInOut(Production):  # "in" | "out"
+class IgnoreInOut(Production):
+    """
+    Consume an 'in' or 'out' token to ignore for backwards compat.
+
+    Syntax:
+    "in" | "out"
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -975,15 +1146,22 @@ class IgnoreInOut(Production):  # "in" | "out"
         return self.text
 
 
-class Ignore(Production):    # "inherits" "getter" | "getraises" "(" ... ")" | "setraises" "(" ... ")" | "raises" "(" ... ")"
+class Ignore(Production):
+    """
+    Consume deprecated syntax for backwards compat.
+
+    Syntax:
+    "inherits" "getter" | "getraises" "(" ... ")" | "setraises" "(" ... ")" | "raises" "(" ... ")"
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
         if (token and token.is_identifier() and ('inherits' == token.text)):
             token = tokens.peek()
             return tokens.pop_position(token and token.is_symbol('getter'))
-        if (token and token.is_identifier() and
-            (('getraises' == token.text) or ('setraises' == token.text) or ('raises' == token.text))):
+        if (token and token.is_identifier()
+                and (('getraises' == token.text) or ('setraises' == token.text) or ('raises' == token.text))):
             token = tokens.peek()
             if (token and token.is_symbol('(')):
                 return tokens.pop_position(tokens.peek_symbol(')'))
@@ -1012,7 +1190,14 @@ class Ignore(Production):    # "inherits" "getter" | "getraises" "(" ... ")" | "
         return ''.join([str(token) for token in self.tokens])
 
 
-class IgnoreMultipleInheritance(Production):    # [, Identifier]...
+class IgnoreMultipleInheritance(Production):
+    """
+    Consume deprecated multiple inheritance syntax for backwards compat.
+
+    Syntax:
+    [, Identifier]...
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1046,7 +1231,14 @@ class IgnoreMultipleInheritance(Production):    # [, Identifier]...
         return self
 
 
-class Inheritance(Production):   # ":" Identifier [IgnoreMultipleInheritance]
+class Inheritance(Production):
+    """
+    Inheritance production.
+
+    Syntax:
+    ":" Identifier [IgnoreMultipleInheritance]
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1081,7 +1273,14 @@ class Inheritance(Production):   # ":" Identifier [IgnoreMultipleInheritance]
         return '[Inheritance: ' + repr(self._base) + ']'
 
 
-class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]" | "=" "{" "}"
+class Default(Production):
+    """
+    Default value production.
+
+    Syntax:
+    "=" ConstValue | "=" string | "=" "[" "]" | "=" "{" "}"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1134,12 +1333,20 @@ class Default(Production):   # "=" ConstValue | "=" string | "=" "[" "]" | "=" "
         return '[Default: ' + (repr(self.value) if (self.value) else str(self._open) + str(self._close)) + ']'
 
 
-class ArgumentName(Production):   # Identifier | ArgumentNameKeyword
+class ArgumentName(Production):
+    """
+    Argument name production.
+
+    Syntax:
+    Identifier | ArgumentNameKeyword
+    """
+
     ARGUMENT_NAME_KEYWORDS = frozenset(['async', 'attribute', 'callback', 'const', 'constructor',
                                         'deleter', 'dictionary', 'enum', 'getter', 'includes',
                                         'inherit', 'interface', 'iterable', 'maplike', 'namespace',
                                         'partial', 'required', 'setlike', 'setter', 'static',
                                         'stringifier', 'typedef', 'unrestricted'])
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -1165,7 +1372,14 @@ class ArgumentName(Production):   # Identifier | ArgumentNameKeyword
         return '[ArgumentName: ' + repr(self._name) + ']'
 
 
-class ArgumentList(Production):    # Argument ["," Argument]...
+class ArgumentList(Production):
+    """
+    Argument list production.
+
+    Syntax:
+    Argument ["," Argument]...
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1272,7 +1486,14 @@ class ArgumentList(Production):    # Argument ["," Argument]...
         return ' '.join([repr(argument) for argument in self.arguments])
 
 
-class ReturnType(Production):    # Type | "void"
+class ReturnType(Production):
+    """
+    Return type production.
+
+    Syntax:
+    Type | "void"
+    """
+
     @classmethod
     def peek(cls, tokens):
         if (Type.peek(tokens)):
@@ -1303,7 +1524,14 @@ class ReturnType(Production):    # Type | "void"
         return repr(self.type)
 
 
-class Special(Production):   # "getter" | "setter" | "creator" | "deleter" | "legacycaller"
+class Special(Production):
+    """
+    Special production.
+
+    Syntax:
+    "getter" | "setter" | "creator" | "deleter" | "legacycaller"
+    """
+
     SPECIAL_SYMBOLS = frozenset(['getter', 'setter', 'creator', 'deleter', 'legacycaller'])
     @classmethod
     def peek(cls, tokens):
@@ -1326,7 +1554,14 @@ class Special(Production):   # "getter" | "setter" | "creator" | "deleter" | "le
         return '[Special: ' + self.name + ']'
 
 
-class AttributeName(Production):    # (Identifier | AttributeNameKeyword)
+class AttributeName(Production):
+    """
+    Atttribute name production.
+
+    Syntax:
+    Identifier | AttributeNameKeyword
+    """
+
     ATTRIBUTE_NAME_KEYWORDS = frozenset(['async', 'required'])
 
     @classmethod
@@ -1354,7 +1589,14 @@ class AttributeName(Production):    # (Identifier | AttributeNameKeyword)
         return '[OperationName: ' + repr(self._name) + ']'
 
 
-class AttributeRest(Production):   # ["readonly"] "attribute" TypeWithExtendedAttributes AttributeName [Ignore] ";"
+class AttributeRest(Production):
+    """
+    Atttribute rest production.
+
+    Syntax:
+    ["readonly"] "attribute" TypeWithExtendedAttributes AttributeName [Ignore] ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         token = tokens.push_position()
@@ -1404,6 +1646,8 @@ class AttributeRest(Production):   # ["readonly"] "attribute" TypeWithExtendedAt
 
 
 class ChildProduction(Production):
+    """Base class for productions that have parents."""
+
     def __init__(self, tokens, parent):
         Production.__init__(self, tokens)
         self.parent = parent
@@ -1429,7 +1673,14 @@ class ChildProduction(Production):
         return self.parent.parser
 
 
-class MixinAttribute(ChildProduction):   # ReadOnly AttributeRest
+class MixinAttribute(ChildProduction):
+    """
+    Mixin atttribute production.
+
+    Syntax:
+    AttributeRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         return AttributeRest.peek(tokens)
@@ -1466,7 +1717,14 @@ class MixinAttribute(ChildProduction):   # ReadOnly AttributeRest
         return output + repr(self.attribute) + ']'
 
 
-class Attribute(ChildProduction):   # ["inherit"] AttributeRest
+class Attribute(ChildProduction):
+    """
+    Atttribute production.
+
+    Syntax:
+    ["inherit"] AttributeRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1510,7 +1768,14 @@ class Attribute(ChildProduction):   # ["inherit"] AttributeRest
         return output + repr(self.attribute) + ']'
 
 
-class OperationName(Production):    # (Identifier | OperationNameKeyword)
+class OperationName(Production):
+    """
+    Operation name production.
+
+    Syntax:
+    Identifier | OperationNameKeyword
+    """
+
     OPERATION_NAME_KEYWORDS = frozenset(['includes'])
 
     @classmethod
@@ -1538,7 +1803,14 @@ class OperationName(Production):    # (Identifier | OperationNameKeyword)
         return '[OperationName: ' + repr(self._name) + ']'
 
 
-class OperationRest(ChildProduction):   # [OperationName] "(" [ArgumentList] ")" [Ignore] ";"
+class OperationRest(ChildProduction):
+    """
+    Operation rest production.
+
+    Syntax:
+    [OperationName] "(" [ArgumentList] ")" [Ignore] ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1594,7 +1866,14 @@ class OperationRest(ChildProduction):   # [OperationName] "(" [ArgumentList] ")"
         return output + '[ArgumentList: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
 
 
-class Iterable(ChildProduction):     # "iterable" "<" TypeWithExtendedAttributes ["," TypeWithExtendedAttributes] ">" ";" | "legacyiterable" "<" Type ">" ";"
+class Iterable(ChildProduction):
+    """
+    Iterable production.
+
+    Syntax:
+    "iterable" "<" TypeWithExtendedAttributes ["," TypeWithExtendedAttributes] ">" ";" | "legacyiterable" "<" Type ">" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1672,7 +1951,14 @@ class Iterable(ChildProduction):     # "iterable" "<" TypeWithExtendedAttributes
         return output + ']'
 
 
-class AsyncIterable(ChildProduction):     # "async iterable" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
+class AsyncIterable(ChildProduction):
+    """
+    Async iterable production.
+
+    Syntax:
+    "async" "iterable" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1731,7 +2017,14 @@ class AsyncIterable(ChildProduction):     # "async iterable" "<" TypeWithExtende
         return output + ']'
 
 
-class Maplike(ChildProduction):      # ["readonly"] "maplike" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
+class Maplike(ChildProduction):
+    """
+    Maplike production.
+
+    Syntax:
+    ["readonly"] "maplike" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1790,7 +2083,14 @@ class Maplike(ChildProduction):      # ["readonly"] "maplike" "<" TypeWithExtend
         return output + ']'
 
 
-class Setlike(ChildProduction):      # ["readonly"] "setlike" "<" TypeWithExtendedAttributes ">" ";"
+class Setlike(ChildProduction):
+    """
+    Setlike production.
+
+    Syntax:
+    ["readonly"] "setlike" "<" TypeWithExtendedAttributes ">" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1841,7 +2141,14 @@ class Setlike(ChildProduction):      # ["readonly"] "setlike" "<" TypeWithExtend
         return output + repr(self.type) + ']'
 
 
-class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType OperationRest
+class SpecialOperation(ChildProduction):
+    """
+    Special operation production.
+
+    Syntax:
+    Special [Special]... ReturnType OperationRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1901,7 +2208,14 @@ class SpecialOperation(ChildProduction):    # Special [Special]... ReturnType Op
         return output + ' ' + repr(self.return_type) + ' ' + repr(self.operation) + ']'
 
 
-class Operation(ChildProduction):   # ReturnType OperationRest
+class Operation(ChildProduction):
+    """
+    Operation production.
+
+    Syntax:
+    ReturnType OperationRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -1951,7 +2265,14 @@ class Operation(ChildProduction):   # ReturnType OperationRest
         return '[Operation: ' + repr(self.return_type) + ' ' + repr(self.operation) + ']'
 
 
-class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier" ReturnType OperationRest | "stringifier" ";"
+class Stringifier(ChildProduction):
+    """
+    Stringifier production.
+
+    Syntax:
+    "stringifier" AttributeRest | "stringifier" ReturnType OperationRest | "stringifier" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2035,7 +2356,14 @@ class Stringifier(ChildProduction): # "stringifier" AttributeRest | "stringifier
         return output + ']'
 
 
-class Identifiers(Production):  # "," Identifier ["," Identifier]...
+class Identifiers(Production):
+    """
+    Identifiers production.
+
+    Syntax:
+    "," Identifier ["," Identifier]...
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2064,7 +2392,14 @@ class Identifiers(Production):  # "," Identifier ["," Identifier]...
         return ' ' + repr(self._name) + (repr(self.next) if (self.next) else '')
 
 
-class TypeIdentifiers(Production):  # "," Identifier ["," Identifier]...
+class TypeIdentifiers(Production):
+    """
+    Type identifiers production.
+
+    Syntax:
+    "," Identifier ["," Identifier]...
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2093,7 +2428,14 @@ class TypeIdentifiers(Production):  # "," Identifier ["," Identifier]...
         return ' ' + repr(self._name) + (repr(self.next) if (self.next) else '')
 
 
-class StaticMember(ChildProduction):    # "static" AttributeRest | "static" ReturnType OperationRest
+class StaticMember(ChildProduction):
+    """
+    Static member production.
+
+    Syntax:
+    "static" AttributeRest | "static" ReturnType OperationRest
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2170,7 +2512,14 @@ class StaticMember(ChildProduction):    # "static" AttributeRest | "static" Retu
         return output + repr(self.attribute) + ']'
 
 
-class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
+class Constructor(ChildProduction):
+    """
+    Constructor production.
+
+    Syntax:
+    "constructor" "(" ArgumentList ")" ";"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2237,7 +2586,14 @@ class Constructor(ChildProduction):    # "constructor" "(" ArgumentList ")" ";"
         return output + '[ArgumentList: ' + (repr(self.arguments) if (self.arguments) else '') + ']]'
 
 
-class ExtendedAttributeList(ChildProduction):   # "[" ExtendedAttribute ["," ExtendedAttribute]... "]"
+class ExtendedAttributeList(ChildProduction):
+    """
+    Extended attribute list production.
+
+    Syntax:
+    "[" ExtendedAttribute ["," ExtendedAttribute]... "]"
+    """
+
     @classmethod
     def peek(cls, tokens):
         tokens.push_position(False)
@@ -2301,4 +2657,3 @@ class ExtendedAttributeList(ChildProduction):   # "[" ExtendedAttribute ["," Ext
 
     def __repr__(self):
         return '[ExtendedAttributes: ' + ' '.join([repr(attribute) for attribute in self.attributes]) + '] '
-

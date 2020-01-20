@@ -9,6 +9,7 @@
 #
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
+"""Classes to convert input strings into tokens."""
 
 import collections
 import enum
@@ -17,6 +18,8 @@ from typing import Any, Deque, List, Optional, Tuple, Union
 
 
 class TokenType(enum.Enum):
+    """Enum for token types."""
+
     SYMBOL = 'symbol'
     IDENTIFIER = 'identifier'
     FLOAT = 'float'
@@ -27,6 +30,8 @@ class TokenType(enum.Enum):
 
 
 class Token(object):
+    """WebIDL token."""
+
     type: TokenType
     text: str
     # XXX add line and column numbers
@@ -36,6 +41,7 @@ class Token(object):
         self.text = text
 
     def is_symbol(self, symbol: Union[str, Tuple[str]] = None) -> bool:
+        """Check if token is a symbol, and optionally one of a given symbol."""
         if (TokenType.SYMBOL == self.type):
             if (symbol):
                 if isinstance(symbol, str):
@@ -45,28 +51,37 @@ class Token(object):
         return False
 
     def is_identifier(self) -> bool:
+        """Check if token is an identifier."""
         return (TokenType.IDENTIFIER == self.type)
 
     def is_float(self) -> bool:
+        """Check if token is a float."""
         return (TokenType.FLOAT == self.type)
 
     def is_integer(self) -> bool:
+        """Check if token is an integer."""
         return (TokenType.INTEGER == self.type)
 
     def is_string(self) -> bool:
+        """Check if token is a string."""
         return (TokenType.STRING == self.type)
 
     def is_whitespace(self) -> bool:
+        """Check if token is whitespace."""
         return (TokenType.WHITESPACE == self.type)
 
     def __str__(self) -> str:
+        """Convert to string."""
         return self.text
 
     def __repr__(self) -> str:
+        """Debug info."""
         return '[' + self.type.value + ':' + self.text + ']'
 
 
 class Tokenizer(object):
+    """Consume a string and convert to tokens."""
+
     SYMBOL_IDENTS = frozenset((
         'any', 'async', 'attribute', 'ArrayBuffer', 'boolean', 'byte', 'ByteString', 'callback', 'const', 'constructor', 'creator', 'DataView',
         'deleter', 'dictionary', 'DOMString', 'double', 'enum', 'Error', 'exception', 'false', 'float',
@@ -134,9 +149,11 @@ class Tokenizer(object):
             text = match.group(2)
 
     def __str__(self) -> str:
+        """Convert all tokens to string."""
         return ''.join([str(token) for token in self.tokens])
 
     def __repr__(self) -> str:
+        """Debug info."""
         return ''.join([repr(token) for token in self.tokens])
 
     def has_tokens(self, skip_whitespace: bool = True) -> bool:

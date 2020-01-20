@@ -9,15 +9,19 @@
 #
 #  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
 #
+"""Parser class to parse WebIDL."""
 
-import re
 import itertools
+import re
 
+from . import constructs
+from . import markup
 from . import tokenizer
-from .constructs import *
 
 
 class Parser(object):
+    """Class to parse WebIDL."""
+
     def __init__(self, text = None, ui = None, symbol_table = None):
         self.ui = ui
         self.symbol_table = symbol_table if (symbol_table) else {}
@@ -26,55 +30,67 @@ class Parser(object):
             self.parse(text)
 
     def reset(self):
+        """Clear all parsed data."""
         self.constructs = []
 
     @property
     def complexity_factor(self):
+        """Return measure of overall complexity."""
         complexity = 0
         for construct in self.constructs:
             complexity += construct.complexity_factor
         return complexity
 
     def parse(self, text):
+        """Parse input text, appending to existing content."""
         tokens = tokenizer.Tokenizer(text, self.ui)
 
         while (tokens.has_tokens()):
-            if (Callback.peek(tokens)):
-                self.constructs.append(Callback(tokens, parser = self))
-            elif (Interface.peek(tokens)):
-                self.constructs.append(Interface(tokens, parser = self))
-            elif (Mixin.peek(tokens)):
-                self.constructs.append(Mixin(tokens, parser = self))
-            elif (Namespace.peek(tokens)):
-                self.constructs.append(Namespace(tokens, parser = self))
-            elif (Dictionary.peek(tokens)):
-                self.constructs.append(Dictionary(tokens, parser = self))
-            elif (Enum.peek(tokens)):
-                self.constructs.append(Enum(tokens, parser = self))
-            elif (Typedef.peek(tokens)):
-                self.constructs.append(Typedef(tokens, parser = self))
-            elif (Const.peek(tokens)):   # Legacy support (SVG spec)
-                self.constructs.append(Const(tokens, parser = self))
-            elif (ImplementsStatement.peek(tokens)):
-                self.constructs.append(ImplementsStatement(tokens, parser = self))
-            elif (IncludesStatement.peek(tokens)):
-                self.constructs.append(IncludesStatement(tokens, parser = self))
+            if (constructs.Callback.peek(tokens)):
+                self.constructs.append(constructs.Callback(tokens, parser = self))
+            elif (constructs.Interface.peek(tokens)):
+                self.constructs.append(constructs.Interface(tokens, parser = self))
+            elif (constructs.Mixin.peek(tokens)):
+                self.constructs.append(constructs.Mixin(tokens, parser = self))
+            elif (constructs.Namespace.peek(tokens)):
+                self.constructs.append(constructs.Namespace(tokens, parser = self))
+            elif (constructs.Dictionary.peek(tokens)):
+                self.constructs.append(constructs.Dictionary(tokens, parser = self))
+            elif (constructs.Enum.peek(tokens)):
+                self.constructs.append(constructs.Enum(tokens, parser = self))
+            elif (constructs.Typedef.peek(tokens)):
+                self.constructs.append(constructs.Typedef(tokens, parser = self))
+            elif (constructs.Const.peek(tokens)):   # Legacy support (SVG spec)
+                self.constructs.append(constructs.Const(tokens, parser = self))
+            elif (constructs.ImplementsStatement.peek(tokens)):
+                self.constructs.append(constructs.ImplementsStatement(tokens, parser = self))
+            elif (constructs.IncludesStatement.peek(tokens)):
+                self.constructs.append(constructs.IncludesStatement(tokens, parser = self))
             else:
-                self.constructs.append(SyntaxError(tokens, None, parser = self))
+                self.constructs.append(constructs.SyntaxError(tokens, None, parser = self))
 
     def __str__(self):
+        """
+        Convert parsed WebIDL back in to a string.
+
+        The parser is nullipotent, so output will match input unless contents have been modified.
+        """
         return ''.join([str(construct) for construct in self.constructs])
 
     def __repr__(self):
+        """Debug info."""
         return '[Parser: ' + ''.join([(repr(construct) + '\n') for construct in self.constructs]) + ']'
 
     def __len__(self):
+        """Number of parsed constucts."""
         return len(self.constructs)
 
     def keys(self):
+        """Names of all constructs."""
         return [construct.name for construct in self.constructs]
 
     def __getitem__(self, key):
+        """Access a construct by name or index."""
         if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
@@ -83,12 +99,15 @@ class Parser(object):
         return self.constructs[key]
 
     def __bool__(self):
-        return True
+        """True if non-empty."""
+        return (0 < len(self.constructs))
 
     def __iter__(self):
+        """Get an iterator for the constructs."""
         return iter(self.constructs)
 
     def __contains__(self, key):
+        """Test is construct is present by name or index."""
         if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
@@ -97,16 +116,23 @@ class Parser(object):
         return (key in self.constructs)
 
     def add_type(self, type):
+        """Add a type to the symbol table."""
         self.symbol_table[type.name] = type
 
     def get_type(self, name):
+        """Lookup a type in the symbol table."""
         return self.symbol_table.get(name)
 
     def find(self, name):
-        match = re.match('(.*)\(.*\)(.*)', name)    # strip ()'s
+        """
+        Find a construct by name.
+
+        Searches entire tree in reverse order.
+        """
+        match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
         while (match):
             name = match.group(1) + match.group(2)
-            match = re.match('(.*)\(.*\)(.*)', name)
+            match = re.match(r'(.*)\(.*\)(.*)', name)
 
         path = None
         if ('/' in name):
@@ -156,10 +182,15 @@ class Parser(object):
         return None
 
     def find_all(self, name):
-        match = re.match('(.*)\(.*\)(.*)', name)    # strip ()'s
+        """
+        Find all constructs with a given name.
+
+        Searches entire tree.
+        """
+        match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
         while (match):
             name = match.group(1) + match.group(2)
-            match = re.match('(.*)\(.*\)(.*)', name)
+            match = re.match(r'(.*)\(.*\)(.*)', name)
 
         path = None
         if ('/' in name):
@@ -208,11 +239,12 @@ class Parser(object):
         return result
 
     def normalized_method_name(self, method_text, interface_name = None):
+        """Return normalized name for a method description."""
         match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
-            if (ArgumentList.peek(tokens)):
-                arguments = ArgumentList(tokens, None)
+            if (constructs.ArgumentList.peek(tokens)):
+                arguments = constructs.ArgumentList(tokens, None)
                 return match.group(1).strip() + '(' + arguments.argument_names[0] + ')'
             name = match.group(1).strip() + match.group(3)
             argument_names = [argument.strip() for argument in match.group(2).split(',')]
@@ -239,11 +271,12 @@ class Parser(object):
         return name + '(' + ', '.join(argument_names or []) + ')'
 
     def normalized_method_names(self, method_text, interface_name = None):
+        """Return all possible normalized names for a method description."""
         match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
-            if (ArgumentList.peek(tokens)):
-                arguments = ArgumentList(tokens, None)
+            if (constructs.ArgumentList.peek(tokens)):
+                arguments = constructs.ArgumentList(tokens, None)
                 return [match.group(1).strip() + '(' + argument_name + ')' for argument_name in arguments.argument_names]
             name = match.group(1).strip() + match.group(3)
             argument_names = [argument.strip() for argument in match.group(2).split(',')]
@@ -270,11 +303,10 @@ class Parser(object):
         return [name + '(' + ', '.join(argument_names or []) + ')']
 
     def markup(self, marker):
+        """Generate marked up version of parsed content."""
         if (marker):
-            generator = MarkupGenerator(None)
+            generator = markup.MarkupGenerator(None)
             for construct in self.constructs:
                 construct.markup(generator)
             return generator.markup(marker)
         return str(self)
-
-
