@@ -1278,7 +1278,7 @@ class Default(Production):
     Default value production.
 
     Syntax:
-    "=" ConstValue | "=" string | "=" "[" "]" | "=" "{" "}"
+    "=" ConstValue | "=" String | "=" "[" "]" | "=" "{" "}"
     """
 
     @classmethod
@@ -1300,31 +1300,31 @@ class Default(Production):
         self._equals = Symbol(tokens, '=')
         self._open = None
         self._close = None
+        self._value = None
         token = tokens.sneak_peek()
         if (token.is_string()):
-            self.value = String(tokens)
+            self._value = String(tokens)
         elif (token.is_symbol('[')):
             self._open = Symbol(tokens, '[')
             self._close = Symbol(tokens, ']', False)
-            self.value = None
         elif (token.is_symbol('{')):
             self._open = Symbol(tokens, '{')
             self._close = Symbol(tokens, '}', False)
-            self.value = None
         else:
-            self.value = ConstValue(tokens)
+            self._value = ConstValue(tokens)
         self._did_parse(tokens)
 
-    def _str(self):
-        return str(self._equals) + (str(self.value) if (self.value) else str(self._open) + str(self._close))
+    @property
+    def value(self) -> str:
+        return str(self._value) if (self._value) else (self._open._str() + self._close._str())
+
+    def _str(self) -> str:
+        return str(self._equals) + (str(self._value) if (self._value) else str(self._open) + str(self._close))
 
     def _markup(self, generator):
         self._equals.markup(generator)
-        if (self.value):
-            if (isinstance(self.value, str)):
-                generator.add_text(self.value)
-                return self
-            return self.value._markup(generator)
+        if (self._value):
+            return self._value._markup(generator)
         self._open.markup(generator)
         self._close.markup(generator)
         return self
