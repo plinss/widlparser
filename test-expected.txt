@@ -249,7 +249,7 @@ IDL SYNTAX ERROR LINE: 178 - skipped: "readonly maplike<DOMString, DOMString>"
 IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [Dictionary: [name: CSSFontFaceLoadEventInit] [Inheritance: EventInit][members: 
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: [ ]]]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: '[]']]]
 ]]
 [Interface: [name: Simple] [members: 
   [Unknown:  tokens: [identifier:serializer][symbol:;]]
@@ -319,8 +319,8 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
   [ExtendedAttributeIdent: NamedConstructor [value: MyConstructor]]
   [ExtendedAttributeArgList: Constructor [arguments: [Argument: [type: Foo ] [name: [ArgumentName: one]]]]]
   [ExtendedAttributeNamedArgList: NamedConstructor [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]
-  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]] [Argument: [type: unsigned long long ] [name: [ArgumentName: y]]] [Argument: [optional] [type: double ] [name: [ArgumentName: inf]] [default: [Default: [ConstValue: [FloatLiteral: Infinity]]]]] [Argument: [type: sequence<Foo>][...] [name: [ArgumentName: fooArg]]]]]]]
-  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: string]]] [Argument: [optional] [type: Foo ] [name: [ArgumentName: foo]] [default: [Default: {}]]]]]]]
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]] [Argument: [type: unsigned long long ] [name: [ArgumentName: y]]] [Argument: [optional] [type: double ] [name: [ArgumentName: inf]] [default: [Default: 'Infinity']]] [Argument: [type: sequence<Foo>][...] [name: [ArgumentName: fooArg]]]]]]]
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: string]]] [Argument: [optional] [type: Foo ] [name: [ArgumentName: foo]] [default: [Default: '{}']]]]]]]
   [Member: [Operation: void [OperationRest: [name: [OperationName: abort]] [ArgumentList: ]]]]
   [Member: [Operation: void [OperationRest: [name: [OperationName: anotherMethod]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: round]]]]]]]
   [Member: [ExtendedAttributes: [ExtendedAttribute: [identifier:ha][other:!]]] [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar]]]]
@@ -346,7 +346,7 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 ]]
 [Dictionary: [ExtendedAttributes: [ExtendedAttributeNoArgs: foo]] [partial] [name: FooDict] [Inheritance: BarDict][members: 
   [DictionaryMember: [ExtendedAttributes: [ExtendedAttribute: [identifier:one][whitespace: ][string:"]"][whitespace: ][symbol:(][whitespace: ][identifier:tricky][whitespace: ][symbol:]][whitespace: ][identifier:test][symbol:)]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar]]
-  [DictionaryMember: [ExtendedAttributes: [ExtendedAttributeNoArgs: two]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: foo] = [default: [Default: "hello"]]]
+  [DictionaryMember: [ExtendedAttributes: [ExtendedAttributeNoArgs: two]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: foo] = [default: [Default: '"hello"']]]
   [DictionaryMember: [required] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [name: baz]]
 ]]
 [Callback: [name: callFoo] [return_type: short] [ArgumentList: ]]
@@ -358,9 +358,9 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: ]]]]
 ]]]
 [Dictionary: [ExtendedAttributes: [ExtendedAttributeIdentList: Exposed [value: Window] Worker]] [name: MyDictionary] [members: 
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any]] [name: value] = [default: [Default: [ConstValue: null]]]]
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: null]]]]
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: [ConstValue: null]]]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any]] [name: value] = [default: [Default: 'null']]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: 'null']]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: 'null']]]
 ]]
 [Interface: [ExtendedAttributes: [ExtendedAttribute: ]] [name: _interface] [members: 
   [Member: [Attribute: [AttributeRest: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]][TypeSuffix: [null] ]]]] [name: service]]]]
