@@ -13,63 +13,69 @@
 
 import itertools
 import re
+from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Union, cast
 
 from . import constructs
 from . import markup
+from . import protocols
 from . import tokenizer
 
 
 class Parser(object):
     """Class to parse WebIDL."""
 
-    def __init__(self, text = None, ui = None, symbol_table = None):
+    ui: Optional[tokenizer.UserInterface]
+    symbol_table: Dict[str, protocols.Construct]
+    constructs: List[protocols.Construct]
+
+    def __init__(self, text: str = None, ui: tokenizer.UserInterface = None, symbol_table: dict = None) -> None:
         self.ui = ui
         self.symbol_table = symbol_table if (symbol_table) else {}
         self.reset()
         if (text):
             self.parse(text)
 
-    def reset(self):
+    def reset(self) -> None:
         """Clear all parsed data."""
         self.constructs = []
 
     @property
-    def complexity_factor(self):
+    def complexity_factor(self) -> int:
         """Return measure of overall complexity."""
         complexity = 0
         for construct in self.constructs:
             complexity += construct.complexity_factor
         return complexity
 
-    def parse(self, text):
+    def parse(self, text: str) -> None:
         """Parse input text, appending to existing content."""
         tokens = tokenizer.Tokenizer(text, self.ui)
 
         while (tokens.has_tokens()):
             if (constructs.Callback.peek(tokens)):
-                self.constructs.append(constructs.Callback(tokens, parser = self))
+                self.constructs.append(constructs.Callback(tokens, symbol_table=self))
             elif (constructs.Interface.peek(tokens)):
-                self.constructs.append(constructs.Interface(tokens, parser = self))
+                self.constructs.append(constructs.Interface(tokens, symbol_table=self))
             elif (constructs.Mixin.peek(tokens)):
-                self.constructs.append(constructs.Mixin(tokens, parser = self))
+                self.constructs.append(constructs.Mixin(tokens, symbol_table=self))
             elif (constructs.Namespace.peek(tokens)):
-                self.constructs.append(constructs.Namespace(tokens, parser = self))
+                self.constructs.append(constructs.Namespace(tokens, symbol_table=self))
             elif (constructs.Dictionary.peek(tokens)):
-                self.constructs.append(constructs.Dictionary(tokens, parser = self))
+                self.constructs.append(constructs.Dictionary(tokens, symbol_table=self))
             elif (constructs.Enum.peek(tokens)):
-                self.constructs.append(constructs.Enum(tokens, parser = self))
+                self.constructs.append(constructs.Enum(tokens, symbol_table=self))
             elif (constructs.Typedef.peek(tokens)):
-                self.constructs.append(constructs.Typedef(tokens, parser = self))
+                self.constructs.append(constructs.Typedef(tokens, symbol_table=self))
             elif (constructs.Const.peek(tokens)):   # Legacy support (SVG spec)
-                self.constructs.append(constructs.Const(tokens, parser = self))
+                self.constructs.append(constructs.Const(tokens, symbol_table=self))
             elif (constructs.ImplementsStatement.peek(tokens)):
-                self.constructs.append(constructs.ImplementsStatement(tokens, parser = self))
+                self.constructs.append(constructs.ImplementsStatement(tokens, symbol_table=self))
             elif (constructs.IncludesStatement.peek(tokens)):
-                self.constructs.append(constructs.IncludesStatement(tokens, parser = self))
+                self.constructs.append(constructs.IncludesStatement(tokens, symbol_table=self))
             else:
-                self.constructs.append(constructs.SyntaxError(tokens, None, parser = self))
+                self.constructs.append(constructs.SyntaxError(tokens, None, symbol_table=self))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Convert parsed WebIDL back in to a string.
 
@@ -77,36 +83,28 @@ class Parser(object):
         """
         return ''.join([str(construct) for construct in self.constructs])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Debug info."""
         return '[Parser: ' + ''.join([(repr(construct) + '\n') for construct in self.constructs]) + ']'
 
-    def __len__(self):
+    def __bool__(self) -> bool:
+        """True if non-empty."""
+        return (0 < len(self.constructs))
+
+    def __len__(self) -> int:
         """Number of parsed constucts."""
         return len(self.constructs)
 
-    def keys(self):
-        """Names of all constructs."""
-        return [construct.name for construct in self.constructs]
-
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
         """Access a construct by name or index."""
         if (isinstance(key, str)):
             for construct in self.constructs:
                 if (key == construct.name):
                     return construct
-            return None
+            raise IndexError
         return self.constructs[key]
 
-    def __bool__(self):
-        """True if non-empty."""
-        return (0 < len(self.constructs))
-
-    def __iter__(self):
-        """Get an iterator for the constructs."""
-        return iter(self.constructs)
-
-    def __contains__(self, key):
+    def __contains__(self, key: Union[str, int]) -> bool:
         """Test is construct is present by name or index."""
         if (isinstance(key, str)):
             for construct in self.constructs:
@@ -115,15 +113,36 @@ class Parser(object):
             return False
         return (key in self.constructs)
 
-    def add_type(self, type):
-        """Add a type to the symbol table."""
-        self.symbol_table[type.name] = type
+    def __iter__(self) -> Iterator[protocols.Construct]:
+        """Get an iterator for the constructs."""
+        return iter(self.constructs)
 
-    def get_type(self, name):
+    def keys(self) -> Sequence[str]:
+        """Names of all constructs."""
+        return [construct.name for construct in self.constructs if (construct.name)]
+
+    def values(self) -> Sequence[protocols.Construct]:
+        return [construct for construct in self.constructs if (construct.name)]
+
+    def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+        return [(construct.name, construct) for construct in self.constructs if (construct.name)]
+
+    def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+        try:
+            return self[key]
+        except IndexError:
+            return None
+
+    def add_type(self, type: protocols.Construct) -> None:
+        """Add a type to the symbol table."""
+        if (type.name):
+            self.symbol_table[type.name] = type
+
+    def get_type(self, name: str) -> Optional[protocols.Construct]:
         """Lookup a type in the symbol table."""
         return self.symbol_table.get(name)
 
-    def find(self, name):
+    def find(self, name: str) -> Optional[protocols.Construct]:
         """
         Find a construct by name.
 
@@ -140,6 +159,8 @@ class Parser(object):
         elif ('.' in name):
             path = name.split('.')
 
+        construct: Optional[protocols.Construct]
+        member: Optional[protocols.Construct]
         if (path):
             construct_name = path[0]
             member_name = path[1]
@@ -181,7 +202,7 @@ class Parser(object):
 
         return None
 
-    def find_all(self, name):
+    def find_all(self, name: str) -> List[protocols.Construct]:
         """
         Find all constructs with a given name.
 
@@ -238,8 +259,9 @@ class Parser(object):
 
         return result
 
-    def normalized_method_name(self, method_text, interface_name = None):
+    def normalized_method_name(self, method_text: str, interface_name: str = None) -> str:
         """Return normalized name for a method description."""
+        argument_names: Optional[List[str]]
         match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
@@ -257,21 +279,23 @@ class Parser(object):
             if (interface):
                 method = interface.find_method(name, argument_names)
                 if (method):
-                    return method.method_name
+                    return cast(str, method.method_name)
             return name + '(' + ', '.join(argument_names or []) + ')'
 
+        construct: Optional[protocols.Construct]
         for construct in self.constructs:
             method = construct.find_method(name, argument_names)
             if (method):
-                return method.method_name
+                return cast(str, method.method_name)
 
         construct = self.find(name)
         if (construct and ('method' == construct.idl_type)):
-            return construct.method_name
+            return cast(str, construct.method_name)
         return name + '(' + ', '.join(argument_names or []) + ')'
 
-    def normalized_method_names(self, method_text, interface_name = None):
+    def normalized_method_names(self, method_text: str, interface_name: str = None) -> List[str]:
         """Return all possible normalized names for a method description."""
+        argument_names: Optional[List[str]]
         match = re.match(r'(.*)\((.*)\)(.*)', method_text)
         if (match):
             tokens = tokenizer.Tokenizer(match.group(2))
@@ -292,6 +316,7 @@ class Parser(object):
                     return list(itertools.chain(*[method.method_names for method in methods]))
             return [name + '(' + ', '.join(argument_names or []) + ')']
 
+        construct: Optional[protocols.Construct]
         for construct in self.constructs:
             methods = construct.find_methods(name, argument_names)
             if (methods):
@@ -302,11 +327,11 @@ class Parser(object):
             return construct.method_names
         return [name + '(' + ', '.join(argument_names or []) + ')']
 
-    def markup(self, marker):
+    def markup(self, marker: protocols.Marker = None) -> str:
         """Generate marked up version of parsed content."""
         if (marker):
             generator = markup.MarkupGenerator(None)
             for construct in self.constructs:
-                construct.markup(generator)
+                construct.define_markup(generator)
             return generator.markup(marker)
         return str(self)

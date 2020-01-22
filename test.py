@@ -18,7 +18,7 @@ import sys
 import widlparser
 
 
-def debugHook(type, value, tb):
+def debug_hook(type, value, tb):
     if hasattr(sys, 'ps1') or not sys.stderr.isatty():
         # we are in interactive mode or we don't have a tty-like
         # device, so we call the default hook
@@ -107,12 +107,12 @@ class NullMarker(object):
         return text
 
 
-class ui(object):
+class UI(object):
     def warn(self, str):
         print(str)
 
     def note(self, str):
-#        return
+        # return
         print(str)
 
 
@@ -130,13 +130,13 @@ def test_difference(input, output):
 
 
 if __name__ == "__main__":      # called from the command line
-    sys.excepthook = debugHook
-    parser = widlparser.Parser(ui=ui())
+    sys.excepthook = debug_hook
+    parser = widlparser.Parser(ui=UI())
 
     if (1 < len(sys.argv)):
-        for fileName in sys.argv[1:]:
-            print("Parsing: " + fileName)
-            file = open(fileName)
+        for file_name in sys.argv[1:]:
+            print("Parsing: " + file_name)
+            file = open(file_name)
             parser.reset()
             text = file.read()
             parser.parse(text)
@@ -349,7 +349,6 @@ interface Underscores {
     print(parser.markup(Marker()))
 
     print("Complexity: " + str(parser.complexity_factor))
-
 
     for construct in parser.constructs:
         print(str(construct.idl_type) + ': ' + str(construct.normal_name))

@@ -14,7 +14,19 @@
 import collections
 import enum
 import re
-from typing import Any, Deque, List, Optional, Tuple, Union
+from typing import Any, Container, Deque, Iterator, List, Optional, Union
+
+from typing_extensions import Protocol
+
+
+class UserInterface(Protocol):
+    """Object to provide error output."""
+
+    def warn(self, message: str) -> None:
+        ...
+
+    def note(self, message: str) -> None:
+        ...
 
 
 class TokenType(enum.Enum):
@@ -40,7 +52,7 @@ class Token(object):
         self.type = type
         self.text = text
 
-    def is_symbol(self, symbol: Union[str, Tuple[str]] = None) -> bool:
+    def is_symbol(self, symbol: Union[str, Container[str]] = None) -> bool:
         """Check if token is a symbol, and optionally one of a given symbol."""
         if (TokenType.SYMBOL == self.type):
             if (symbol):
@@ -50,9 +62,15 @@ class Token(object):
             return True
         return False
 
-    def is_identifier(self) -> bool:
+    def is_identifier(self, identifier: Union[str, Container[str]] = None) -> bool:
         """Check if token is an identifier."""
-        return (TokenType.IDENTIFIER == self.type)
+        if (TokenType.IDENTIFIER == self.type):
+            if (identifier):
+                if isinstance(identifier, str):
+                    return (identifier == self.text)
+                return (self.text in identifier)
+            return True
+        return False
 
     def is_float(self) -> bool:
         """Check if token is a float."""
@@ -92,14 +110,14 @@ class Tokenizer(object):
         'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 'unrestricted', 'unsigned', 'USVString',
         'void'))
 
-    # ui: XXX  define interface
+    ui: Optional[UserInterface]
     tokens: Deque[Token]
     position_stack: List[int]
     peek_index: int
     line_number: int
     # XXX add column number
 
-    def __init__(self, text: str, ui=None) -> None:
+    def __init__(self, text: str, ui: UserInterface = None) -> None:
         self.ui = ui
         self.tokens = collections.deque()
         self.position_stack = []
@@ -164,6 +182,15 @@ class Tokenizer(object):
             return True
         return False
 
+    def __iter__(self) -> Iterator[Token]:
+        return self
+
+    def __next__(self) -> Token:
+        token = self.next()
+        if (token is None):
+            raise StopIteration
+        return token
+
     def next(self, skip_whitespace: bool = True) -> Optional[Token]:
         """Remove and return next available token, optionally skipping whitespace."""
         self.reset_peek()
@@ -225,7 +252,7 @@ class Tokenizer(object):
             return token
         return None
 
-    def peek_symbol(self, symbol: str) -> Optional[Token]:
+    def peek_symbol(self, symbol: str) -> bool:
         """Advance lookahead index until symbol token is found, respect nesting of (), {}, []."""
         token = self.peek()
         while (token and (not token.is_symbol(symbol))):
@@ -236,14 +263,14 @@ class Tokenizer(object):
             elif (token.is_symbol('[')):
                 self.peek_symbol(']')
             token = self.peek()
-        return token
+        return ((token is not None) and token.is_symbol(symbol))
 
     def reset_peek(self) -> None:
         """Reset lookahead index to first available token."""
         assert (0 == len(self.position_stack))
         self.peek_index = -1
 
-    def seek_symbol(self, symbol: Union[str, Tuple[str]]) -> List[Token]:
+    def seek_symbol(self, symbol: Union[str, Container[str]]) -> List[Token]:
         """Return all tokens up to and inculding symbol, respect nesting of (), {}, []."""
         token = self.next(False)
         skipped = []
@@ -260,10 +287,10 @@ class Tokenizer(object):
             skipped.append(token)
         return skipped
 
-    def syntax_error(self, symbol: str, ending: bool = True) -> Optional[List[Token]]:
+    def syntax_error(self, symbol: Union[None, str, Container[str]], ending: bool = True) -> List[Token]:
         """Seek to symbol and report skipped tokens as syntax error."""
         line_number = self.line_number
-        skipped = self.seek_symbol(symbol) if (symbol) else None
+        skipped = self.seek_symbol(symbol) if (symbol) else []
         if (self.ui and hasattr(self.ui, 'warn')):
             message = 'IDL SYNTAX ERROR LINE: ' + str(line_number) + ' - '
             if (ending):

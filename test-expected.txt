@@ -274,7 +274,7 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: frozenMaybeFoos]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: DOMString] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo[TypeSuffix: [array] ]]]][null]]]] [name: recordFoo]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: DOMString] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]][null]]]] [name: recordMaybeFoo]]
-[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: USVString] [TypeWithExtendedAttributes: [SingleType: any]]]]] [name: recordAny]]
+[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: USVString] [TypeWithExtendedAttributes: [SingleType: [AnyType: ]]]]]] [name: recordAny]]
 [Unknown:  tokens: [symbol:typedef][whitespace: ][symbol:record][symbol:<][symbol:any][symbol:,][whitespace: ][symbol:any][symbol:>][whitespace: ][identifier:recordBroken][symbol:;]]
 [Interface: [name: foo] [members: 
   [Member: [ExtendedAttributes: [ExtendedAttributeNoArgs: one]] [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [name: one]]]]
@@ -358,9 +358,9 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: ]]]]
 ]]]
 [Dictionary: [ExtendedAttributes: [ExtendedAttributeIdentList: Exposed [value: Window] Worker]] [name: MyDictionary] [members: 
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any]] [name: value] = [default: [Default: 'null']]]
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: 'null']]]
-  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: any[TypeSuffixStartingWithArray: ]]] [name: value] = [default: [Default: 'null']]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [AnyType: ]]] [name: value] = [default: [Default: 'null']]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [AnyType: [TypeSuffixStartingWithArray: ]]]] [name: value] = [default: [Default: 'null']]]
+  [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [AnyType: [TypeSuffixStartingWithArray: ]]]] [name: value] = [default: [Default: 'null']]]
 ]]
 [Interface: [ExtendedAttributes: [ExtendedAttribute: ]] [name: _interface] [members: 
   [Member: [Attribute: [AttributeRest: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]][TypeSuffix: [null] ]]]] [name: service]]]]
