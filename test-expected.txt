@@ -21,6 +21,7 @@ typedef sequence<Foo[]>? fooType;
 typedef (short or Foo) maybeFoo;
 typedef sequence<(short or Foo)> maybeFoos;
 typedef FrozenArray<(short or Foo)> frozenMaybeFoos;
+typedef ObservableArray<(short or Foo)> observableMaybeFoos;
 typedef record<DOMString, Foo[]>? recordFoo;
 typedef record<DOMString, (short or Foo)>? recordMaybeFoo;
 typedef record<USVString, any> recordAny;
@@ -196,57 +197,57 @@ IDL SYNTAX ERROR LINE: 4 - skipped: "serializer = { foo }"
 
 IGNORED LEGACY IDL LINE: 16 - "  ,  Two   ,   Three     "
 
-IDL SYNTAX ERROR LINE: 26 - skipped: "typedef record<any, any> recordBroken"
+IDL SYNTAX ERROR LINE: 27 - skipped: "typedef record<any, any> recordBroken"
 
-IDL SYNTAX ERROR LINE: 29 - expected ";" skipped: "bar"
+IDL SYNTAX ERROR LINE: 30 - expected ";" skipped: "bar"
 
-IDL SYNTAX ERROR LINE: 30 - expected ";" 
+IDL SYNTAX ERROR LINE: 31 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 30 - expected ";" 
+IDL SYNTAX ERROR LINE: 31 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 30 - skipped: "}"
+IDL SYNTAX ERROR LINE: 31 - skipped: "}"
 
-IDL SYNTAX ERROR LINE: 30 - skipped: "foo
+IDL SYNTAX ERROR LINE: 31 - skipped: "foo
 typedef   short    shorttype  = error this is"
 
-IDL SYNTAX ERROR LINE: 39 - skipped: "const double invalid = - Infinity"
+IDL SYNTAX ERROR LINE: 40 - skipped: "const double invalid = - Infinity"
 
-IGNORED LEGACY IDL LINE: 42 - ","
+IGNORED LEGACY IDL LINE: 43 - ","
 
-IGNORED LEGACY IDL LINE: 44 - ","
+IGNORED LEGACY IDL LINE: 45 - ","
 
-IGNORED LEGACY IDL LINE: 50 - ","
+IGNORED LEGACY IDL LINE: 51 - ","
 
-IGNORED LEGACY IDL LINE: 72 - "raises (hell)"
+IGNORED LEGACY IDL LINE: 73 - "raises (hell)"
 
-IGNORED LEGACY IDL LINE: 76 - "getraises (an, exception)"
+IGNORED LEGACY IDL LINE: 77 - "getraises (an, exception)"
 
-IDL SYNTAX ERROR LINE: 83 - expected ";" 
+IDL SYNTAX ERROR LINE: 84 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 94 - skipped: "this is a syntax error, naturally
+IDL SYNTAX ERROR LINE: 95 - skipped: "this is a syntax error, naturally
 "
 
-IDL SYNTAX ERROR LINE: 102 - expected ";" 
+IDL SYNTAX ERROR LINE: 103 - expected ";" 
 
-IGNORED LEGACY IDL LINE: 105 - "setraises (for the heck of it)"
+IGNORED LEGACY IDL LINE: 106 - "setraises (for the heck of it)"
 
-IDL SYNTAX ERROR LINE: 128 - skipped: "attribute long error"
-
-IDL ERROR LINE: 143 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL SYNTAX ERROR LINE: 129 - skipped: "attribute long error"
 
 IDL ERROR LINE: 144 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 163 - skipped: "[NoInterfaceObject] Interface includes Mixin"
+IDL ERROR LINE: 145 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 166 - skipped: "getter long (unsigned long argument)"
+IDL SYNTAX ERROR LINE: 164 - skipped: "[NoInterfaceObject] Interface includes Mixin"
 
-IDL SYNTAX ERROR LINE: 170 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
+IDL SYNTAX ERROR LINE: 167 - skipped: "getter long (unsigned long argument)"
 
-IDL SYNTAX ERROR LINE: 174 - skipped: "iterable<long>"
+IDL SYNTAX ERROR LINE: 171 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
 
-IDL SYNTAX ERROR LINE: 178 - skipped: "readonly maplike<DOMString, DOMString>"
+IDL SYNTAX ERROR LINE: 175 - skipped: "iterable<long>"
 
-IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
+IDL SYNTAX ERROR LINE: 179 - skipped: "readonly maplike<DOMString, DOMString>"
+
+IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [Dictionary: [name: CSSFontFaceLoadEventInit] [Inheritance: EventInit][members: 
   [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: '[]']]]
@@ -271,7 +272,8 @@ IDL SYNTAX ERROR LINE: 182 - skipped: "readonly setlike<DOMString>"
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo[TypeSuffix: [array] ]]]][null]]]] [name: fooType]]
 [Typedef: [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]] [name: maybeFoo]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: maybeFoos]]
-[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: frozenMaybeFoos]]
+[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [FrozenArray] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: frozenMaybeFoos]]
+[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [ObservableArray] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]]]]] [name: observableMaybeFoos]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: DOMString] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo[TypeSuffix: [array] ]]]][null]]]] [name: recordFoo]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: DOMString] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: Foo]]]][null]]]] [name: recordMaybeFoo]]
 [Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [record] [StringType: USVString] [TypeWithExtendedAttributes: [SingleType: [AnyType: ]]]]]] [name: recordAny]]
@@ -445,6 +447,7 @@ MARKED UP:
 <c typedef><k>typedef</k> <t>(<t><p><k>short</k></p></t> <k>or</k> <t><tn>Foo</tn></t>)</t> <n>maybeFoo</n>;</c>
 <c typedef><k>typedef</k> <t><k>sequence</k>&lt;<t>(<t><p><k>short</k></p></t> <k>or</k> <t><tn>Foo</tn></t>)</t>&gt;</t> <n>maybeFoos</n>;</c>
 <c typedef><k>typedef</k> <t><k>FrozenArray</k>&lt;<t>(<t><p><k>short</k></p></t> <k>or</k> <t><tn>Foo</tn></t>)</t>&gt;</t> <n>frozenMaybeFoos</n>;</c>
+<c typedef><k>typedef</k> <t><k>ObservableArray</k>&lt;<t>(<t><p><k>short</k></p></t> <k>or</k> <t><tn>Foo</tn></t>)</t>&gt;</t> <n>observableMaybeFoos</n>;</c>
 <c typedef><k>typedef</k> <t><k>record</k>&lt;<s><k>DOMString</k></s>, <tn>Foo</tn>[]&gt;?</t> <n>recordFoo</n>;</c>
 <c typedef><k>typedef</k> <t><k>record</k>&lt;<s><k>DOMString</k></s>, (<t><p><k>short</k></p></t> <k>or</k> <t><tn>Foo</tn></t>)&gt;?</t> <n>recordMaybeFoo</n>;</c>
 <c typedef><k>typedef</k> <t><k>record</k>&lt;<s><k>USVString</k></s>, <k>any</k>&gt;</t> <n>recordAny</n>;</c>
@@ -613,7 +616,7 @@ typedef   short    shorttype  = error this is;</c>
 };</c>
 
 
-Complexity: 142
+Complexity: 143
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -635,6 +638,7 @@ typedef: fooType
 typedef: maybeFoo
 typedef: maybeFoos
 typedef: frozenMaybeFoos
+typedef: observableMaybeFoos
 typedef: recordFoo
 typedef: recordMaybeFoo
 typedef: recordAny

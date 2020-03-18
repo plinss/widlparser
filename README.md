@@ -15,10 +15,6 @@ Standard python package installation:
 
     pip install widlparser3
 
-or
-
-    python setup.py install
-
 
 Usage
 -----

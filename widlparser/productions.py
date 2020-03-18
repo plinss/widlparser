@@ -907,7 +907,8 @@ class NonAnyType(ChildProduction):
     PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix]
     | "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null]
     | "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null]
-    | "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "record" "<" StringType "," TypeWithExtendedAttributes ">"
+    | "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "ObservableArray" "<" TypeWithExtendedAttributes ">" [Null]
+    | "record" "<" StringType "," TypeWithExtendedAttributes ">"
     """
 
     BUFFER_RELATED_TYPES = frozenset(['ArrayBuffer', 'DataView', 'Int8Array', 'Int16Array', 'Int32Array',
@@ -936,7 +937,7 @@ class NonAnyType(ChildProduction):
         if (token and (token.is_symbol(cls.STRING_TYPES | cls.OBJECT_TYPES) or token.is_identifier())):
             TypeSuffix.peek(tokens)
             return tokens.pop_position(True)
-        elif (token and token.is_symbol(('sequence', 'FrozenArray'))):
+        elif (token and token.is_symbol(('sequence', 'FrozenArray', 'ObservableArray'))):
             if (Symbol.peek(tokens, '<')):
                 if (TypeWithExtendedAttributes.peek(tokens)):
                     if (Symbol.peek(tokens, '>')):
@@ -981,7 +982,7 @@ class NonAnyType(ChildProduction):
                 self.type = TypeIdentifier(tokens)
                 self.type_name = self.type.type_name
                 self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
-            elif (token.is_symbol(('sequence', 'FrozenArray'))):
+            elif (token.is_symbol(('sequence', 'FrozenArray', 'ObservableArray'))):
                 self.sequence = Symbol(tokens)
                 self._open_type = Symbol(tokens, '<')
                 self.type = TypeWithExtendedAttributes(tokens, self)
@@ -1076,7 +1077,7 @@ class NonAnyType(ChildProduction):
         return self
 
     def __repr__(self) -> str:
-        output = ('[NonAnyType: ' + ('[sequence] ' if (self.sequence) else '') + ('[Promise] ' if (self.promise) else '')
+        output = ('[NonAnyType: ' + ('[' + self.sequence.symbol + '] ' if (self.sequence) else '') + ('[Promise] ' if (self.promise) else '')
                   + ('[record] [StringType: ' + repr(self.key_type) + '] ' if (self.record) else ''))
         output += repr(self.type) + ('[null]' if (self.null) else '')
         return output + (repr(self.suffix) if (self.suffix) else '') + ']'

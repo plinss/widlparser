@@ -166,6 +166,7 @@ typedef sequence<Foo[]>? fooType;
 typedef (short or Foo) maybeFoo;
 typedef sequence<(short or Foo)> maybeFoos;
 typedef FrozenArray<(short or Foo)> frozenMaybeFoos;
+typedef ObservableArray<(short or Foo)> observableMaybeFoos;
 typedef record<DOMString, Foo[]>? recordFoo;
 typedef record<DOMString, (short or Foo)>? recordMaybeFoo;
 typedef record<USVString, any> recordAny;
