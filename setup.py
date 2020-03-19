@@ -19,6 +19,7 @@ setuptools.setup(
     package_data={'widlparser': ['py.typed']},
 
     install_requires=[
+        'typing-extensions>=3.7.4.1,<3.8',
     ],
     extras_require={
         'dev': ['mypy',
