@@ -109,7 +109,7 @@ A list of extended attributes, or None. Extended attributes are stored as Constr
 
 **Construct.constructors**
 
-A list of any extended attributes matching the Constructor or NamedConstructor form. Any constructors present will be prepended to the 'members' attribute of an 'interface' Construct.
+A list of any extended attributes matching the Constructor or LegacyFactoryFunction form. Any constructors present will be prepended to the 'members' attribute of an 'interface' Construct.
 
 **Construct.complexity_factor**
 
@@ -234,7 +234,7 @@ A string of the type implemented in the ImplementsStatement.
 
 **ExtendedAttribute.attribute**
 
-The ExtendedAttribute sub-type Production of an ExtendedAttribute. See below. Each of the below ExtendedAttribute sub-type also has an '.attribute' attribute designating the first identifier in the ExtendedAttribute. ExtendedAttributes other than Constructor or NamedConstructor types will also contain this identifier in the '.name' attribute.
+The ExtendedAttribute sub-type Production of an ExtendedAttribute. See below. Each of the below ExtendedAttribute sub-type also has an '.attribute' attribute designating the first identifier in the ExtendedAttribute. ExtendedAttributes other than Constructor or LegacyFactoryFunction types will also contain this identifier in the '.name' attribute.
 
 **ExtendedAttributeArgList.arguments.**
 

@@ -70,7 +70,7 @@ typedef (short or (long or double)) nestedUnion;
 typedef (short or (long or double) or long long) moreNested;
 typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequenceUnion;
 
-[ Constructor , NamedConstructor = MyConstructor, Constructor (Foo one), NamedConstructor = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
+[ Constructor , LegacyFactoryFunction = MyConstructor, Constructor (Foo one), LegacyFactoryFunction = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
     unsigned long long method(short x, unsigned long long y, optional double inf = Infinity, sequence<Foo>... fooArg) raises (hell);
     unsigned long long method(DOMString string, optional Foo foo = {});
     void abort();
@@ -82,7 +82,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     void bar(any constructor);
     long includes();
 }
-[ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
+[ LegacyNoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
     constructor();
     constructor(int x);
     stringifier attribute DOMString mediaText;
@@ -162,7 +162,7 @@ interface mixin Mixin {
 
 Interface includes Mixin;
 
-[NoInterfaceObject] Interface includes Mixin;
+[LegacyNoInterfaceObject] Interface includes Mixin;
 
 interface mixin MixinCanNotIncludeSpecialOperation {
   getter long (unsigned long argument);
@@ -237,7 +237,7 @@ IDL ERROR LINE: 144 - Dictionary argument "optionalDict" without required member
 
 IDL ERROR LINE: 145 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 164 - skipped: "[NoInterfaceObject] Interface includes Mixin"
+IDL SYNTAX ERROR LINE: 164 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
 
 IDL SYNTAX ERROR LINE: 167 - skipped: "getter long (unsigned long argument)"
 
@@ -316,11 +316,11 @@ IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
 [Typedef: [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]][UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]]]]]] [name: nestedUnion]]
 [Typedef: [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]][UnionMemberType: [NonAnyType: [PrimitiveType: [UnrestrictedFloatType: [FloatType: double]]]]]]][UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long long]]]]]]] [name: moreNested]]
 [Typedef: [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]][UnionMemberType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [UnionType: [UnionMemberType: [NonAnyType: DOMString[TypeSuffix: [array] [TypeSuffix: [null] [TypeSuffixStartingWithArray: ]]]]][UnionMemberType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]]][null]]][UnionMemberType: [NonAnyType: DOMString[TypeSuffix: [array] [TypeSuffix: [null] [TypeSuffixStartingWithArray: ]]]]]]] [name: sequenceUnion]]
-[Interface: [ExtendedAttributes: [ExtendedAttributeNoArgs: Constructor] [ExtendedAttributeIdent: NamedConstructor [value: MyConstructor]] [ExtendedAttributeArgList: Constructor [arguments: [Argument: [type: Foo ] [name: [ArgumentName: one]]]]] [ExtendedAttributeNamedArgList: NamedConstructor [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]] [partial] [name: Foo] [Inheritance: Bar][members: 
+[Interface: [ExtendedAttributes: [ExtendedAttributeNoArgs: Constructor] [ExtendedAttributeIdent: LegacyFactoryFunction [value: MyConstructor]] [ExtendedAttributeArgList: Constructor [arguments: [Argument: [type: Foo ] [name: [ArgumentName: one]]]]] [ExtendedAttributeNamedArgList: LegacyFactoryFunction [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]] [partial] [name: Foo] [Inheritance: Bar][members: 
   [ExtendedAttributeNoArgs: Constructor]
-  [ExtendedAttributeIdent: NamedConstructor [value: MyConstructor]]
+  [ExtendedAttributeIdent: LegacyFactoryFunction [value: MyConstructor]]
   [ExtendedAttributeArgList: Constructor [arguments: [Argument: [type: Foo ] [name: [ArgumentName: one]]]]]
-  [ExtendedAttributeNamedArgList: NamedConstructor [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]
+  [ExtendedAttributeNamedArgList: LegacyFactoryFunction [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]] [Argument: [type: unsigned long long ] [name: [ArgumentName: y]]] [Argument: [optional] [type: double ] [name: [ArgumentName: inf]] [default: [Default: 'Infinity']]] [Argument: [type: sequence<Foo>][...] [name: [ArgumentName: fooArg]]]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: string]]] [Argument: [optional] [type: Foo ] [name: [ArgumentName: foo]] [default: [Default: '{}']]]]]]]
   [Member: [Operation: void [OperationRest: [name: [OperationName: abort]] [ArgumentList: ]]]]
@@ -332,7 +332,7 @@ IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
   [Member: [Operation: void [OperationRest: [name: [OperationName: bar]] [ArgumentList: [Argument: [type: any ] [name: [ArgumentName: constructor]]]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: includes]] [ArgumentList: ]]]]
 ]]
-[Interface: [ExtendedAttributes: [ExtendedAttributeNoArgs: NoInterfaceObject] [ExtendedAttributeTypePair: MapClass [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [Type: [SingleType: [NonAnyType: Foo]]]]] [name: LinkStyle] [members: 
+[Interface: [ExtendedAttributes: [ExtendedAttributeNoArgs: LegacyNoInterfaceObject] [ExtendedAttributeTypePair: MapClass [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [Type: [SingleType: [NonAnyType: Foo]]]]] [name: LinkStyle] [members: 
   [Member: [Constructor: [ArgumentList: ]]]
   [Member: [Constructor: [ArgumentList: [Argument: [type: int ] [name: [ArgumentName: x]]]]]]
   [Member: [Stringifier: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString]]] [name: mediaText]]]]
@@ -403,7 +403,7 @@ IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
   [Member: [Stringifier: ]]
 ]]
 [Includes: [name: Interface] [Includes: Mixin]]
-[Unknown:  tokens: [symbol:[][identifier:NoInterfaceObject][symbol:]][whitespace: ][identifier:Interface][whitespace: ][symbol:includes][whitespace: ][identifier:Mixin][symbol:;]]
+[Unknown:  tokens: [symbol:[][identifier:LegacyNoInterfaceObject][symbol:]][whitespace: ][identifier:Interface][whitespace: ][symbol:includes][whitespace: ][identifier:Mixin][symbol:;]]
 [Interface: [mixin] [name: MixinCanNotIncludeSpecialOperation] [members: 
   [Unknown:  tokens: [symbol:getter][whitespace: ][symbol:long][whitespace: ][symbol:(][symbol:unsigned][whitespace: ][symbol:long][whitespace: ][identifier:argument][symbol:)][symbol:;]]
 ]]
@@ -496,7 +496,7 @@ typedef   short    shorttype  = error this is;</c>
 <c typedef><k>typedef</k> <t>(<t><p><k>short</k></p></t> <k>or</k> <t>(<t><p><k>long</k></p></t> <k>or</k> <t><p><k>double</k></p></t>)</t> <k>or</k> <t><p><k>long</k> <k>long</k></p></t>)</t> <n>moreNested</n>;</c>
 <c typedef><k>typedef</k> <t>(<t><p><k>short</k></p></t> <k>or</k> <t><k>sequence</k>&lt;<t>(<t><s><k>DOMString</k></s>[]?[]</t> <k>or</k> <t><p><k>short</k></p></t>)</t>&gt;?</t> <k>or</k> <t><s><k>DOMString</k></s>[]?[]</t>)</t> <n>sequenceUnion</n>;</c>
 
-<c interface>[ <c constructor><n>Constructor</n></c> , <c constructor><n>NamedConstructor</n> = <tn>MyConstructor</tn></c>, <c constructor><n>Constructor</n> (<c argument><t><tn>Foo</tn></t> <n>one</n></c>)</c>, <c constructor><n>NamedConstructor</n> = <tn>MyOtherConstructor</tn> (<c argument><t><tn>Foo</tn></t> <n>two</n> </c>, <c argument><t><p><k>long</k> <k>long</k></p></t> <n>longest</n> </c>) </c>] <k>partial</k> <k>interface</k> <n>Foo</n>: <tn>Bar</tn> {
+<c interface>[ <c constructor><n>Constructor</n></c> , <c constructor><n>LegacyFactoryFunction</n> = <tn>MyConstructor</tn></c>, <c constructor><n>Constructor</n> (<c argument><t><tn>Foo</tn></t> <n>one</n></c>)</c>, <c constructor><n>LegacyFactoryFunction</n> = <tn>MyOtherConstructor</tn> (<c argument><t><tn>Foo</tn></t> <n>two</n> </c>, <c argument><t><p><k>long</k> <k>long</k></p></t> <n>longest</n> </c>) </c>] <k>partial</k> <k>interface</k> <n>Foo</n>: <tn>Bar</tn> {
     <c method><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><p><k>short</k></p></t> <n>x</n></c>, <c argument><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>y</n></c>, <c argument><k>optional</k> <t><p><k>double</k></p></t> <n>inf</n> = <k>Infinity</k></c>, <c argument><t><k>sequence</k>&lt;<t><tn>Foo</tn></t>&gt;</t>... <n>fooArg</n></c>) raises (hell);</c>
     <c method><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><s><k>DOMString</k></s></t> <n>string</n></c>, <c argument><k>optional</k> <t><tn>Foo</tn></t> <n>foo</n> = {}</c>);</c>
     <c method><k>void</k> <n>abort</n>();</c>
@@ -508,7 +508,7 @@ typedef   short    shorttype  = error this is;</c>
     <c method><k>void</k> <n>bar</n>(<c argument><t><k>any</k></t> <n>constructor</n></c>);</c>
     <c method><t><p><k>long</k></p></t> <n>includes</n>();</c>
 }
-</c><c interface>[ <c extended-attribute><n>NoInterfaceObject</n></c> , <c extended-attribute><n>MapClass</n> (<p><k>short</k></p>, <tn>Foo</tn> )</c>] <k>interface</k> <n>LinkStyle</n> {
+</c><c interface>[ <c extended-attribute><n>LegacyNoInterfaceObject</n></c> , <c extended-attribute><n>MapClass</n> (<p><k>short</k></p>, <tn>Foo</tn> )</c>] <k>interface</k> <n>LinkStyle</n> {
     <c method><n>constructor</n>();</c>
     <c method><n>constructor</n>(<c argument><t><tn>int</tn></t> <n>x</n></c>);</c>
     <c attribute><k>stringifier</k> <k>attribute</k> <t><s><k>DOMString</k></s></t> <n>mediaText</n>;</c>
@@ -588,7 +588,7 @@ typedef   short    shorttype  = error this is;</c>
 
 <c includes><tn>Interface</tn> <k>includes</k> <tn>Mixin</tn>;</c>
 
-<c unknown>[NoInterfaceObject] Interface includes Mixin;</c>
+<c unknown>[LegacyNoInterfaceObject] Interface includes Mixin;</c>
 
 <c interface><k>interface</k> <k>mixin</k> <n>MixinCanNotIncludeSpecialOperation</n> {
   <c unknown>getter long (unsigned long argument);</c>

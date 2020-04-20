@@ -215,7 +215,7 @@ typedef (short or (long or double)) nestedUnion;
 typedef (short or (long or double) or long long) moreNested;
 typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequenceUnion;
 
-[ Constructor , NamedConstructor = MyConstructor, Constructor (Foo one), NamedConstructor = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
+[ Constructor , LegacyFactoryFunction = MyConstructor, Constructor (Foo one), LegacyFactoryFunction = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
     unsigned long long method(short x, unsigned long long y, optional double inf = Infinity, sequence<Foo>... fooArg) raises (hell);
     unsigned long long method(DOMString string, optional Foo foo = {});
     void abort();
@@ -227,7 +227,7 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
     void bar(any constructor);
     long includes();
 }
-[ NoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
+[ LegacyNoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
     constructor();
     constructor(int x);
     stringifier attribute DOMString mediaText;
@@ -307,7 +307,7 @@ interface mixin Mixin {
 
 Interface includes Mixin;
 
-[NoInterfaceObject] Interface includes Mixin;
+[LegacyNoInterfaceObject] Interface includes Mixin;
 
 interface mixin MixinCanNotIncludeSpecialOperation {
   getter long (unsigned long argument);

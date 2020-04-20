@@ -1976,7 +1976,7 @@ class ExtendedAttributeIdent(Construct):
 
     @property
     def idl_type(self) -> str:
-        return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
+        return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
 
     @property
     def attribute(self) -> str:
@@ -2047,7 +2047,7 @@ class ExtendedAttributeIdentList(Construct):
 
     @property
     def idl_type(self) -> str:
-        return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
+        return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
 
     @property
     def attribute(self) -> str:
@@ -2127,7 +2127,7 @@ class ExtendedAttributeNamedArgList(Construct):
 
     @property
     def idl_type(self) -> str:
-        return 'constructor' if ('NamedConstructor' == self.attribute) else 'extended-attribute'
+        return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
 
     @property
     def attribute(self) -> str:
