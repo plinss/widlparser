@@ -37,6 +37,9 @@ test:
   script:
     - ./test.py > test-actual.txt
     - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
 
 
 package:
@@ -50,9 +53,22 @@ package:
   artifacts:
     paths:
       - dist
-  only:
-    - tags
-    - /^v[0-9]+\.[0-9]+(\.[0-9]+)[a-zA-Z]*$/
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9-\.]+)?$/'
+
+
+pdoc3:
+  stage: package
+  before_script:
+    - pip install pdoc3
+    - pip install -e .
+  script:
+    - pdoc --html --config show_type_annotations=True ${PACKAGE_NAME}
+  artifacts:
+    paths:
+      - html
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9-\.]+)?$/'
 
 
 deploy:
@@ -62,6 +78,5 @@ deploy:
     - pip install --upgrade wheel twine
   script:
     - python -m twine upload --username __token__ --password ${PYPI_API_TOKEN} --non-interactive --disable-progress-bar --repository-url ${PYPI_REPOSITORY_URL} dist/*
-  only:
-    - tags
-    - /^v[0-9]+\.[0-9]+(\.[0-9]+)[a-zA-Z]*$/
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9-\.]+)?$/'
