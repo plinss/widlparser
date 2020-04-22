@@ -2131,10 +2131,9 @@ class Iterable(ChildProduction):
                 if (TypeWithExtendedAttributes.peek(tokens)):
                     if (Symbol.peek(tokens, ',')):
                         if (TypeWithExtendedAttributes.peek(tokens)):
-                            token = tokens.peek()
-                            return tokens.pop_position((token is not None) and token.is_symbol('>'))
-                    token = tokens.peek()
-                    return tokens.pop_position((token is not None) and token.is_symbol('>'))
+                            return tokens.pop_position(Symbol.peek(tokens, '>'))
+                        return tokens.pop_position(False)
+                    return tokens.pop_position(Symbol.peek(tokens, '>'))
         elif (Symbol.peek(tokens, 'legacyiterable')):
             if (Symbol.peek(tokens, '<')):
                 if (Type.peek(tokens)):
@@ -2205,16 +2204,20 @@ class AsyncIterable(ChildProduction):
     Async iterable production.
 
     Syntax:
-    "async" "iterable" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
+    "async" "iterable" "<" TypeWithExtendedAttributes ["," TypeWithExtendedAttributes] ">" [ "(" [ArgumentList] ")" ] ";"
     """
 
     _async: Symbol
     _iterable: Symbol
     _open_type: Symbol
-    key_type: TypeWithExtendedAttributes
-    _comma: Symbol
-    value_type: TypeWithExtendedAttributes
+    type: Optional[TypeWithExtendedAttributes]
+    key_type: Optional[TypeWithExtendedAttributes]
+    _comma: Optional[Symbol]
+    value_type: Optional[TypeWithExtendedAttributes]
     _close_type: Symbol
+    _open_paren: Optional[Symbol]
+    _arguments: Optional[ArgumentList]
+    _close_paren: Optional[Symbol]
 
     @classmethod
     def peek(cls, tokens: Tokenizer) -> bool:
@@ -2225,8 +2228,17 @@ class AsyncIterable(ChildProduction):
                     if (TypeWithExtendedAttributes.peek(tokens)):
                         if (Symbol.peek(tokens, ',')):
                             if (TypeWithExtendedAttributes.peek(tokens)):
-                                token = tokens.peek()
-                                return tokens.pop_position((token is not None) and token.is_symbol('>'))
+                                if (Symbol.peek(tokens, '>')):
+                                    if (Symbol.peek(tokens, '(')):
+                                        ArgumentList.peek(tokens)
+                                        return tokens.pop_position(Symbol.peek(tokens, ')'))
+                                    return tokens.pop_position(True)
+                            return tokens.pop_position(False)
+                        if (Symbol.peek(tokens, '>')):
+                            if (Symbol.peek(tokens, '(')):
+                                ArgumentList.peek(tokens)
+                                return tokens.pop_position(Symbol.peek(tokens, ')'))
+                            return tokens.pop_position(True)
         return tokens.pop_position(False)
 
     def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
@@ -2234,10 +2246,25 @@ class AsyncIterable(ChildProduction):
         self._async = Symbol(tokens)
         self._iterable = Symbol(tokens)
         self._open_type = Symbol(tokens, '<')
-        self.key_type = TypeWithExtendedAttributes(tokens, self)
-        self._comma = Symbol(tokens)
-        self.value_type = TypeWithExtendedAttributes(tokens, self)
+        self.type = TypeWithExtendedAttributes(tokens, self)
+        if (Symbol.peek(tokens, ',')):
+            self.key_type = self.type
+            self.type = None
+            self._comma = Symbol(tokens)
+            self.value_type = TypeWithExtendedAttributes(tokens, self)
+        else:
+            self.key_type = None
+            self.value_type = None
         self._close_type = Symbol(tokens, '>')
+
+        if (Symbol.peek(tokens, '(')):
+            self._open_paren = Symbol(tokens, '(')
+            self._arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+            self._close_paren = Symbol(tokens, ')')
+        else:
+            self._open_paren = None
+            self._arguments = None
+            self._close_paren = None
         self._consume_semicolon(tokens)
         self._did_parse(tokens)
 
@@ -2251,26 +2278,45 @@ class AsyncIterable(ChildProduction):
 
     @property
     def arguments(self) -> Optional[protocols.ArgumentList]:
-        return None
+        return self._arguments
 
     def _str(self) -> str:
         output = str(self._async) + str(self._iterable) + str(self._open_type)
-        output += str(self.key_type) + str(self._comma) + str(self.value_type)
-        return output + str(self._close_type)
+        if (self.type):
+            output += str(self.type)
+        else:
+            output += str(self.key_type) + str(self._comma) + str(self.value_type)
+        output += str(self._close_type)
+        if (self._open_paren):
+            output += str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
+        return output
 
     def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
         self._async.define_markup(generator)
         self._iterable.define_markup(generator)
         generator.add_text(self._open_type)
-        generator.add_type(self.key_type)
-        generator.add_text(self._comma)
-        generator.add_type(self.value_type)
+        if (self.type):
+            generator.add_type(self.type)
+        else:
+            generator.add_type(self.key_type)
+            generator.add_text(self._comma)
+            generator.add_type(self.value_type)
         generator.add_text(self._close_type)
+        if (self._open_paren):
+            generator.add_text(self._open_paren)
+            if (self._arguments):
+                self._arguments.define_markup(generator)
+            generator.add_text(self._close_paren)
         return self
 
     def __repr__(self) -> str:
         output = '[AsyncIterable: '
-        output += repr(self.key_type) + ' ' + repr(self.value_type)
+        if (self.type):
+            output += repr(self.type)
+        else:
+            output += repr(self.key_type) + ' ' + repr(self.value_type)
+        if (self._arguments):
+            output += repr(self._arguments)
         return output + ']'
 
 

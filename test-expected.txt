@@ -6,7 +6,10 @@ interface Simple{
     serializer cereal(short one);
     iterable<Foo>;
     iterable<Foo, Bar>;
+    async iterable<Foo>;
     async iterable<Foo, Bar>;
+    async iterable<Foo, Bar>();
+    async iterable<Foo, Bar>(DOMString name);
     readonly maplike<Foo, Bar>;
     setlike<Uint8ClampedArray>;
     attribute boolean required;
@@ -195,59 +198,59 @@ IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
 
 IDL SYNTAX ERROR LINE: 4 - skipped: "serializer = { foo }"
 
-IGNORED LEGACY IDL LINE: 16 - "  ,  Two   ,   Three     "
+IGNORED LEGACY IDL LINE: 19 - "  ,  Two   ,   Three     "
 
-IDL SYNTAX ERROR LINE: 27 - skipped: "typedef record<any, any> recordBroken"
+IDL SYNTAX ERROR LINE: 30 - skipped: "typedef record<any, any> recordBroken"
 
-IDL SYNTAX ERROR LINE: 30 - expected ";" skipped: "bar"
+IDL SYNTAX ERROR LINE: 33 - expected ";" skipped: "bar"
 
-IDL SYNTAX ERROR LINE: 31 - expected ";" 
+IDL SYNTAX ERROR LINE: 34 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 31 - expected ";" 
+IDL SYNTAX ERROR LINE: 34 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 31 - skipped: "}"
+IDL SYNTAX ERROR LINE: 34 - skipped: "}"
 
-IDL SYNTAX ERROR LINE: 31 - skipped: "foo
+IDL SYNTAX ERROR LINE: 34 - skipped: "foo
 typedef   short    shorttype  = error this is"
 
-IDL SYNTAX ERROR LINE: 40 - skipped: "const double invalid = - Infinity"
+IDL SYNTAX ERROR LINE: 43 - skipped: "const double invalid = - Infinity"
 
-IGNORED LEGACY IDL LINE: 43 - ","
+IGNORED LEGACY IDL LINE: 46 - ","
 
-IGNORED LEGACY IDL LINE: 45 - ","
+IGNORED LEGACY IDL LINE: 48 - ","
 
-IGNORED LEGACY IDL LINE: 51 - ","
+IGNORED LEGACY IDL LINE: 54 - ","
 
-IGNORED LEGACY IDL LINE: 73 - "raises (hell)"
+IGNORED LEGACY IDL LINE: 76 - "raises (hell)"
 
-IGNORED LEGACY IDL LINE: 77 - "getraises (an, exception)"
+IGNORED LEGACY IDL LINE: 80 - "getraises (an, exception)"
 
-IDL SYNTAX ERROR LINE: 84 - expected ";" 
+IDL SYNTAX ERROR LINE: 87 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 95 - skipped: "this is a syntax error, naturally
+IDL SYNTAX ERROR LINE: 98 - skipped: "this is a syntax error, naturally
 "
 
-IDL SYNTAX ERROR LINE: 103 - expected ";" 
+IDL SYNTAX ERROR LINE: 106 - expected ";" 
 
-IGNORED LEGACY IDL LINE: 106 - "setraises (for the heck of it)"
+IGNORED LEGACY IDL LINE: 109 - "setraises (for the heck of it)"
 
-IDL SYNTAX ERROR LINE: 129 - skipped: "attribute long error"
+IDL SYNTAX ERROR LINE: 132 - skipped: "attribute long error"
 
-IDL ERROR LINE: 144 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL ERROR LINE: 147 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL ERROR LINE: 145 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL ERROR LINE: 148 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 164 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
+IDL SYNTAX ERROR LINE: 167 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
 
-IDL SYNTAX ERROR LINE: 167 - skipped: "getter long (unsigned long argument)"
+IDL SYNTAX ERROR LINE: 170 - skipped: "getter long (unsigned long argument)"
 
-IDL SYNTAX ERROR LINE: 171 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
+IDL SYNTAX ERROR LINE: 174 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
 
-IDL SYNTAX ERROR LINE: 175 - skipped: "iterable<long>"
+IDL SYNTAX ERROR LINE: 178 - skipped: "iterable<long>"
 
-IDL SYNTAX ERROR LINE: 179 - skipped: "readonly maplike<DOMString, DOMString>"
+IDL SYNTAX ERROR LINE: 182 - skipped: "readonly maplike<DOMString, DOMString>"
 
-IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
+IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [Dictionary: [name: CSSFontFaceLoadEventInit] [Inheritance: EventInit][members: 
   [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: '[]']]]
@@ -258,7 +261,10 @@ IDL SYNTAX ERROR LINE: 183 - skipped: "readonly setlike<DOMString>"
   [Member: [Operation: [Type: [SingleType: [NonAnyType: serializer]]] [OperationRest: [name: [OperationName: cereal]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: one]]]]]]]
   [Member: [Iterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]]]]
   [Member: [Iterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
+  [Member: [AsyncIterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]]]]
   [Member: [AsyncIterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
+  [Member: [AsyncIterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
+  [Member: [AsyncIterable: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]][Argument: [type: DOMString ] [name: [ArgumentName: name]]]]]
   [Member: [Maplike: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
   [Member: [Setlike: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Uint8ClampedArray]]]]]
   [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [name: required]]]]
@@ -432,7 +438,10 @@ MARKED UP:
     <c method><t><tn>serializer</tn></t> <n>cereal</n>(<c argument><t><p><k>short</k></p></t> <n>one</n></c>);</c>
     <c iterable><k>iterable</k>&lt;<t><tn>Foo</tn></t>&gt;;</c>
     <c iterable><k>iterable</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;;</c>
+    <c async-iterable><k>async</k> <k>iterable</k>&lt;<t><tn>Foo</tn></t>&gt;;</c>
     <c async-iterable><k>async</k> <k>iterable</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;;</c>
+    <c async-iterable><k>async</k> <k>iterable</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;();</c>
+    <c async-iterable><k>async</k> <k>iterable</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;(<c argument><t><s><k>DOMString</k></s></t> <n>name</n></c>);</c>
     <c maplike><k>readonly</k> <k>maplike</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;;</c>
     <c setlike><k>setlike</k>&lt;<t><b><k>Uint8ClampedArray</k></b></t>&gt;;</c>
     <c attribute><k>attribute</k> <t><p><k>boolean</k></p></t> <n>required</n>;</c>
@@ -616,7 +625,7 @@ typedef   short    shorttype  = error this is;</c>
 };</c>
 
 
-Complexity: 143
+Complexity: 146
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -625,6 +634,9 @@ interface: Simple
     method: cereal(one) (cereal)
     iterable: __iterable__ (__iterable__)
     iterable: __iterable__ (__iterable__)
+    async-iterable: __async_iterable__ (__async_iterable__)
+    async-iterable: __async_iterable__ (__async_iterable__)
+    async-iterable: __async_iterable__ (__async_iterable__)
     async-iterable: __async_iterable__ (__async_iterable__)
     maplike: __maplike__ (__maplike__)
     setlike: __setlike__ (__setlike__)

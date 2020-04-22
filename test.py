@@ -150,7 +150,10 @@ interface Simple{
     serializer cereal(short one);
     iterable<Foo>;
     iterable<Foo, Bar>;
+    async iterable<Foo>;
     async iterable<Foo, Bar>;
+    async iterable<Foo, Bar>();
+    async iterable<Foo, Bar>(DOMString name);
     readonly maplike<Foo, Bar>;
     setlike<Uint8ClampedArray>;
     attribute boolean required;
