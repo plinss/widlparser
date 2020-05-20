@@ -1773,6 +1773,7 @@ class Special(Production):
     _name: str
 
     SPECIAL_SYMBOLS = frozenset(['getter', 'setter', 'creator', 'deleter', 'legacycaller'])
+
     @classmethod
     def peek(cls, tokens: Tokenizer) -> bool:
         token = tokens.push_position()

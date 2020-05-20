@@ -11,9 +11,15 @@
 #
 """Process markup output."""
 
+import sys
 from typing import List, Optional, Tuple, Union, cast
 
 from . import protocols
+
+
+def warning(method_name: str) -> None:
+    """Deprecated method warning."""
+    print('WARNING: calling deprecated marker method {name}'.format(name=repr(method_name)), file=sys.stderr)
 
 
 class MarkupGenerator(object):
@@ -97,6 +103,9 @@ class MarkupGenerator(object):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_construct')):
             return marker.markup_construct(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupConstruct')):
+            warning('markupConstruct')
+            return cast(protocols.LegacyMarker, marker).markupConstruct(self.text, self.construct)
         return (None, None)
 
     def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
@@ -117,6 +126,9 @@ class MarkupType(MarkupGenerator):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_type')):
             return marker.markup_type(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupType')):
+            warning('markupType')
+            return cast(protocols.LegacyMarker, marker).markupType(self.text, self.construct)
         return (None, None)
 
 
@@ -130,6 +142,9 @@ class MarkupPrimitiveType(MarkupGenerator):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_primitive_type')):
             return marker.markup_primitive_type(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupPrimitiveType')):
+            warning('markupPrimitiveType')
+            return cast(protocols.LegacyMarker, marker).markupPrimitiveType(self.text, self.construct)
         return (None, None)
 
 
@@ -143,6 +158,9 @@ class MarkupBufferType(MarkupGenerator):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_buffer_type')):
             return marker.markup_buffer_type(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupBufferType')):
+            warning('markupBufferType')
+            return cast(protocols.LegacyMarker, marker).markupBufferType(self.text, self.construct)
         return (None, None)
 
 
@@ -156,6 +174,9 @@ class MarkupStringType(MarkupGenerator):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_string_type')):
             return marker.markup_string_type(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupStringType')):
+            warning('markupStringType')
+            return cast(protocols.LegacyMarker, marker).markupStringType(self.text, self.construct)
         return (None, None)
 
 
@@ -169,6 +190,9 @@ class MarkupObjectType(MarkupGenerator):
     def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
         if (self.construct and hasattr(marker, 'markup_object_type')):
             return marker.markup_object_type(self.text, self.construct)
+        if (self.construct and hasattr(marker, 'markupObjectType')):
+            warning('markupObjectType')
+            return cast(protocols.LegacyMarker, marker).markupObjectType(self.text, self.construct)
         return (None, None)
 
 
@@ -201,7 +225,13 @@ class MarkupTypeName(MarkupText):
 
     def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
         """Generate marked up type name."""
-        head, tail = marker.markup_type_name(self.text, cast(protocols.Construct, construct)) if (hasattr(marker, 'markup_type_name')) else (None, None)
+        if (hasattr(marker, 'markup_type_name')):
+            head, tail = marker.markup_type_name(self.text, cast(protocols.Construct, construct))
+        elif (hasattr(marker, 'markupTypeName')):
+            warning('markupTypeName')
+            head, tail = cast(protocols.LegacyMarker, marker).markupTypeName(self.text, cast(protocols.Construct, construct))
+        else:
+            head, tail = (None, None)
         output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
         return output + (str(tail) if (tail) else '')
@@ -215,7 +245,13 @@ class MarkupName(MarkupText):
 
     def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
         """Generate marked up name."""
-        head, tail = marker.markup_name(self.text, cast(protocols.Construct, construct)) if (hasattr(marker, 'markup_name')) else (None, None)
+        if (hasattr(marker, 'markup_name')):
+            head, tail = marker.markup_name(self.text, cast(protocols.Construct, construct))
+        elif (hasattr(marker, 'markupName')):
+            warning('markupName')
+            head, tail = cast(protocols.LegacyMarker, marker).markupName(self.text, cast(protocols.Construct, construct))
+        else:
+            head, tail = (None, None)
         output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
         return output + (str(tail) if (tail) else '')
@@ -229,7 +265,13 @@ class MarkupKeyword(MarkupText):
 
     def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
         """Generate marked up keyword."""
-        head, tail = marker.markup_keyword(self.text, cast(protocols.Construct, construct)) if (hasattr(marker, 'markup_keyword')) else (None, None)
+        if (hasattr(marker, 'markup_keyword')):
+            head, tail = marker.markup_keyword(self.text, cast(protocols.Construct, construct))
+        elif (hasattr(marker, 'markupKeyword')):
+            warning('markupKeyword')
+            head, tail = cast(protocols.LegacyMarker, marker).markupKeyword(self.text, cast(protocols.Construct, construct))
+        else:
+            head, tail = (None, None)
         output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
         return output + (str(tail) if (tail) else '')
@@ -243,7 +285,13 @@ class MarkupEnumValue(MarkupText):
 
     def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
         """Generate marked up enum value."""
-        head, tail = marker.markup_enum_value(self.text, cast(protocols.Construct, construct)) if (hasattr(marker, 'markup_enum_value')) else (None, None)
+        if (hasattr(marker, 'markup_enum_value')):
+            head, tail = marker.markup_enum_value(self.text, cast(protocols.Construct, construct))
+        elif (hasattr(marker, 'markupEnumValue')):
+            warning('markupEnumValue')
+            head, tail = cast(protocols.LegacyMarker, marker).markupEnumValue(self.text, cast(protocols.Construct, construct))
+        else:
+            head, tail = (None, None)
         output = str(head) if (head) else ''
         output += MarkupText.markup(self, marker, construct)
         return output + (str(tail) if (tail) else '')

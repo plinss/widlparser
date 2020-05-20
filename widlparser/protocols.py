@@ -303,6 +303,43 @@ class Marker(Protocol):
         ...
 
 
+class LegacyMarker(Protocol):
+    """Protocol to provide markup."""
+
+    def markupConstruct(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupPrimitiveType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupBufferType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupStringType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupObjectType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupTypeName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupKeyword(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def markupEnumValue(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+        ...
+
+    def encode(self, text: str) -> str:
+        ...
+
+
 class MarkupGenerator(Protocol):
     """MarkupGenerator controls the markup process for a construct."""
 
