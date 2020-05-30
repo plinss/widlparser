@@ -18,280 +18,280 @@ from . import protocols
 
 
 def warning(method_name: str) -> None:
-    """Deprecated method warning."""
-    print('WARNING: calling deprecated marker method {name}'.format(name=repr(method_name)), file=sys.stderr)
+	"""Deprecated method warning."""
+	print('WARNING: calling deprecated marker method {name}'.format(name=repr(method_name)), file=sys.stderr)
 
 
 class MarkupGenerator(object):
-    """MarkupGenerator controls the markup process for a construct."""
+	"""MarkupGenerator controls the markup process for a construct."""
 
-    construct: Optional[protocols.Construct]
-    children: List[protocols.MarkupGenerator]
+	construct: Optional[protocols.Construct]
+	children: List[protocols.MarkupGenerator]
 
-    def __init__(self, construct: protocols.Construct = None) -> None:
-        self.construct = construct
-        self.children = []
+	def __init__(self, construct: protocols.Construct = None) -> None:
+		self.construct = construct
+		self.children = []
 
-    def add_generator(self, generator: protocols.MarkupGenerator) -> None:
-        """Add a generator for child constructs."""
-        self.children.append(generator)
+	def add_generator(self, generator: protocols.MarkupGenerator) -> None:
+		"""Add a generator for child constructs."""
+		self.children.append(generator)
 
-    def add_type(self, type: Optional[protocols.Production]) -> None:
-        """Add a type."""
-        if (type):
-            self.add_text(type.leading_space)
-            self.children.append(MarkupType(self.construct, type))
-            self.add_text(type.semicolon)
-            self.add_text(type.trailing_space)
+	def add_type(self, type: Optional[protocols.Production]) -> None:
+		"""Add a type."""
+		if (type):
+			self.add_text(type.leading_space)
+			self.children.append(MarkupType(self.construct, type))
+			self.add_text(type.semicolon)
+			self.add_text(type.trailing_space)
 
-    def add_primitive_type(self, type: Optional[protocols.Production]) -> None:
-        """Add a primitive type."""
-        if (type):
-            self.children.append(MarkupPrimitiveType(self.construct, type))
+	def add_primitive_type(self, type: Optional[protocols.Production]) -> None:
+		"""Add a primitive type."""
+		if (type):
+			self.children.append(MarkupPrimitiveType(self.construct, type))
 
-    def add_string_type(self, type: Optional[protocols.Production]) -> None:
-        """Add a string type."""
-        if (type):
-            self.children.append(MarkupStringType(self.construct, type))
+	def add_string_type(self, type: Optional[protocols.Production]) -> None:
+		"""Add a string type."""
+		if (type):
+			self.children.append(MarkupStringType(self.construct, type))
 
-    def add_buffer_type(self, type: Optional[protocols.Production]) -> None:
-        """Add a buffer type."""
-        if (type):
-            self.children.append(MarkupBufferType(self.construct, type))
+	def add_buffer_type(self, type: Optional[protocols.Production]) -> None:
+		"""Add a buffer type."""
+		if (type):
+			self.children.append(MarkupBufferType(self.construct, type))
 
-    def add_object_type(self, type: Optional[protocols.Production]) -> None:
-        """Add an object type."""
-        if (type):
-            self.children.append(MarkupObjectType(self.construct, type))
+	def add_object_type(self, type: Optional[protocols.Production]) -> None:
+		"""Add an object type."""
+		if (type):
+			self.children.append(MarkupObjectType(self.construct, type))
 
-    def add_type_name(self, type_name: Optional[Union[str, protocols.Production]]) -> None:
-        """Add a type name."""
-        if (type_name):
-            self.children.append(MarkupTypeName(self.construct, str(type_name)))
+	def add_type_name(self, type_name: Optional[Union[str, protocols.Production]]) -> None:
+		"""Add a type name."""
+		if (type_name):
+			self.children.append(MarkupTypeName(self.construct, str(type_name)))
 
-    def add_name(self, name: Optional[Union[str, protocols.Production]]) -> None:
-        """Add a name."""
-        if (name):
-            self.children.append(MarkupName(self.construct, str(name)))
+	def add_name(self, name: Optional[Union[str, protocols.Production]]) -> None:
+		"""Add a name."""
+		if (name):
+			self.children.append(MarkupName(self.construct, str(name)))
 
-    def add_keyword(self, keyword: Optional[Union[str, protocols.Production]]) -> None:
-        """Add a keyword."""
-        if (keyword):
-            self.children.append(MarkupKeyword(self.construct, str(keyword)))
+	def add_keyword(self, keyword: Optional[Union[str, protocols.Production]]) -> None:
+		"""Add a keyword."""
+		if (keyword):
+			self.children.append(MarkupKeyword(self.construct, str(keyword)))
 
-    def add_enum_value(self, enum_value: Optional[Union[str, protocols.Production]]) -> None:
-        """Add an enum value."""
-        if (enum_value):
-            self.children.append(MarkupEnumValue(self.construct, str(enum_value)))
+	def add_enum_value(self, enum_value: Optional[Union[str, protocols.Production]]) -> None:
+		"""Add an enum value."""
+		if (enum_value):
+			self.children.append(MarkupEnumValue(self.construct, str(enum_value)))
 
-    def add_text(self, text: Optional[Union[str, protocols.Production]]) -> None:
-        """Add plain text."""
-        if (text):
-            if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
-                cast(MarkupText, self.children[-1])._append_text(str(text))
-            else:
-                self.children.append(MarkupText(self.construct, str(text)))
+	def add_text(self, text: Optional[Union[str, protocols.Production]]) -> None:
+		"""Add plain text."""
+		if (text):
+			if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
+				cast(MarkupText, self.children[-1])._append_text(str(text))
+			else:
+				self.children.append(MarkupText(self.construct, str(text)))
 
-    @property
-    def text(self) -> str:
-        """Get text of all children."""
-        return ''.join([child.text for child in self.children])
+	@property
+	def text(self) -> str:
+		"""Get text of all children."""
+		return ''.join([child.text for child in self.children])
 
-    def _append_text(self, text: str) -> None:
-        raise NotImplementedError
+	def _append_text(self, text: str) -> None:
+		raise NotImplementedError
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_construct')):
-            return marker.markup_construct(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupConstruct')):
-            warning('markupConstruct')
-            return cast(protocols.LegacyMarker, marker).markupConstruct(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_construct')):
+			return marker.markup_construct(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupConstruct')):
+			warning('markupConstruct')
+			return cast(protocols.LegacyMarker, marker).markupConstruct(self.text, self.construct)
+		return (None, None)
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Generate markup, calling marker."""
-        head, tail = self._markup(marker)
-        output = str(head) if (head) else ''
-        output += ''.join([child.markup(marker, self.construct) for child in self.children])
-        return output + (str(tail) if (tail) else '')
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Generate markup, calling marker."""
+		head, tail = self._markup(marker)
+		output = str(head) if (head) else ''
+		output += ''.join([child.markup(marker, self.construct) for child in self.children])
+		return output + (str(tail) if (tail) else '')
 
 
 class MarkupType(MarkupGenerator):
-    """MarkupGenerator subclass to markup types."""
+	"""MarkupGenerator subclass to markup types."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
-        MarkupGenerator.__init__(self, construct)
-        type._define_markup(self)
+	def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
+		MarkupGenerator.__init__(self, construct)
+		type._define_markup(self)
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_type')):
-            return marker.markup_type(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupType')):
-            warning('markupType')
-            return cast(protocols.LegacyMarker, marker).markupType(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_type')):
+			return marker.markup_type(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupType')):
+			warning('markupType')
+			return cast(protocols.LegacyMarker, marker).markupType(self.text, self.construct)
+		return (None, None)
 
 
 class MarkupPrimitiveType(MarkupGenerator):
-    """MarkupGenerator subclass to markup primitive types."""
+	"""MarkupGenerator subclass to markup primitive types."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
-        MarkupGenerator.__init__(self, construct)
-        type._define_markup(self)
+	def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
+		MarkupGenerator.__init__(self, construct)
+		type._define_markup(self)
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_primitive_type')):
-            return marker.markup_primitive_type(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupPrimitiveType')):
-            warning('markupPrimitiveType')
-            return cast(protocols.LegacyMarker, marker).markupPrimitiveType(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_primitive_type')):
+			return marker.markup_primitive_type(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupPrimitiveType')):
+			warning('markupPrimitiveType')
+			return cast(protocols.LegacyMarker, marker).markupPrimitiveType(self.text, self.construct)
+		return (None, None)
 
 
 class MarkupBufferType(MarkupGenerator):
-    """MarkupGenerator subclass to markup buffer types."""
+	"""MarkupGenerator subclass to markup buffer types."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
-        MarkupGenerator.__init__(self, construct)
-        type._define_markup(self)
+	def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
+		MarkupGenerator.__init__(self, construct)
+		type._define_markup(self)
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_buffer_type')):
-            return marker.markup_buffer_type(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupBufferType')):
-            warning('markupBufferType')
-            return cast(protocols.LegacyMarker, marker).markupBufferType(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_buffer_type')):
+			return marker.markup_buffer_type(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupBufferType')):
+			warning('markupBufferType')
+			return cast(protocols.LegacyMarker, marker).markupBufferType(self.text, self.construct)
+		return (None, None)
 
 
 class MarkupStringType(MarkupGenerator):
-    """MarkupGenerator subclass to markup string types."""
+	"""MarkupGenerator subclass to markup string types."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
-        MarkupGenerator.__init__(self, construct)
-        type._define_markup(self)
+	def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
+		MarkupGenerator.__init__(self, construct)
+		type._define_markup(self)
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_string_type')):
-            return marker.markup_string_type(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupStringType')):
-            warning('markupStringType')
-            return cast(protocols.LegacyMarker, marker).markupStringType(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_string_type')):
+			return marker.markup_string_type(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupStringType')):
+			warning('markupStringType')
+			return cast(protocols.LegacyMarker, marker).markupStringType(self.text, self.construct)
+		return (None, None)
 
 
 class MarkupObjectType(MarkupGenerator):
-    """MarkupGenerator subclass to markup object types."""
+	"""MarkupGenerator subclass to markup object types."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
-        MarkupGenerator.__init__(self, construct)
-        type._define_markup(self)
+	def __init__(self, construct: Optional[protocols.Construct], type: protocols.Production) -> None:
+		MarkupGenerator.__init__(self, construct)
+		type._define_markup(self)
 
-    def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
-        if (self.construct and hasattr(marker, 'markup_object_type')):
-            return marker.markup_object_type(self.text, self.construct)
-        if (self.construct and hasattr(marker, 'markupObjectType')):
-            warning('markupObjectType')
-            return cast(protocols.LegacyMarker, marker).markupObjectType(self.text, self.construct)
-        return (None, None)
+	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
+		if (self.construct and hasattr(marker, 'markup_object_type')):
+			return marker.markup_object_type(self.text, self.construct)
+		if (self.construct and hasattr(marker, 'markupObjectType')):
+			warning('markupObjectType')
+			return cast(protocols.LegacyMarker, marker).markupObjectType(self.text, self.construct)
+		return (None, None)
 
 
 class MarkupText(MarkupGenerator):
-    """MarkupGenerator subclass to markup text."""
+	"""MarkupGenerator subclass to markup text."""
 
-    _text: str
+	_text: str
 
-    def __init__(self, construct: Optional[protocols.Construct], text: str) -> None:
-        MarkupGenerator.__init__(self, construct)
-        self._text = text
+	def __init__(self, construct: Optional[protocols.Construct], text: str) -> None:
+		MarkupGenerator.__init__(self, construct)
+		self._text = text
 
-    @property
-    def text(self) -> str:
-        return self._text
+	@property
+	def text(self) -> str:
+		return self._text
 
-    def _append_text(self, text: str) -> None:
-        self._text += text
+	def _append_text(self, text: str) -> None:
+		self._text += text
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Use marker to encode text."""
-        return str(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Use marker to encode text."""
+		return str(marker.encode(self.text)) if (hasattr(marker, 'encode')) else self.text
 
 
 class MarkupTypeName(MarkupText):
-    """MarkupGenerator subclass to markup type names."""
+	"""MarkupGenerator subclass to markup type names."""
 
-    def __init__(self, construct: Optional[protocols.Construct], type: str) -> None:
-        MarkupText.__init__(self, construct, type)
+	def __init__(self, construct: Optional[protocols.Construct], type: str) -> None:
+		MarkupText.__init__(self, construct, type)
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Generate marked up type name."""
-        if (hasattr(marker, 'markup_type_name')):
-            head, tail = marker.markup_type_name(self.text, cast(protocols.Construct, construct))
-        elif (hasattr(marker, 'markupTypeName')):
-            warning('markupTypeName')
-            head, tail = cast(protocols.LegacyMarker, marker).markupTypeName(self.text, cast(protocols.Construct, construct))
-        else:
-            head, tail = (None, None)
-        output = str(head) if (head) else ''
-        output += MarkupText.markup(self, marker, construct)
-        return output + (str(tail) if (tail) else '')
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Generate marked up type name."""
+		if (hasattr(marker, 'markup_type_name')):
+			head, tail = marker.markup_type_name(self.text, cast(protocols.Construct, construct))
+		elif (hasattr(marker, 'markupTypeName')):
+			warning('markupTypeName')
+			head, tail = cast(protocols.LegacyMarker, marker).markupTypeName(self.text, cast(protocols.Construct, construct))
+		else:
+			head, tail = (None, None)
+		output = str(head) if (head) else ''
+		output += MarkupText.markup(self, marker, construct)
+		return output + (str(tail) if (tail) else '')
 
 
 class MarkupName(MarkupText):
-    """MarkupGenerator subclass to markup names."""
+	"""MarkupGenerator subclass to markup names."""
 
-    def __init__(self, construct: Optional[protocols.Construct], name: str) -> None:
-        MarkupText.__init__(self, construct, name)
+	def __init__(self, construct: Optional[protocols.Construct], name: str) -> None:
+		MarkupText.__init__(self, construct, name)
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Generate marked up name."""
-        if (hasattr(marker, 'markup_name')):
-            head, tail = marker.markup_name(self.text, cast(protocols.Construct, construct))
-        elif (hasattr(marker, 'markupName')):
-            warning('markupName')
-            head, tail = cast(protocols.LegacyMarker, marker).markupName(self.text, cast(protocols.Construct, construct))
-        else:
-            head, tail = (None, None)
-        output = str(head) if (head) else ''
-        output += MarkupText.markup(self, marker, construct)
-        return output + (str(tail) if (tail) else '')
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Generate marked up name."""
+		if (hasattr(marker, 'markup_name')):
+			head, tail = marker.markup_name(self.text, cast(protocols.Construct, construct))
+		elif (hasattr(marker, 'markupName')):
+			warning('markupName')
+			head, tail = cast(protocols.LegacyMarker, marker).markupName(self.text, cast(protocols.Construct, construct))
+		else:
+			head, tail = (None, None)
+		output = str(head) if (head) else ''
+		output += MarkupText.markup(self, marker, construct)
+		return output + (str(tail) if (tail) else '')
 
 
 class MarkupKeyword(MarkupText):
-    """MarkupGenerator subclass to markup keywords."""
+	"""MarkupGenerator subclass to markup keywords."""
 
-    def __init__(self, construct: Optional[protocols.Construct], keyword: str) -> None:
-        MarkupText.__init__(self, construct, keyword)
+	def __init__(self, construct: Optional[protocols.Construct], keyword: str) -> None:
+		MarkupText.__init__(self, construct, keyword)
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Generate marked up keyword."""
-        if (hasattr(marker, 'markup_keyword')):
-            head, tail = marker.markup_keyword(self.text, cast(protocols.Construct, construct))
-        elif (hasattr(marker, 'markupKeyword')):
-            warning('markupKeyword')
-            head, tail = cast(protocols.LegacyMarker, marker).markupKeyword(self.text, cast(protocols.Construct, construct))
-        else:
-            head, tail = (None, None)
-        output = str(head) if (head) else ''
-        output += MarkupText.markup(self, marker, construct)
-        return output + (str(tail) if (tail) else '')
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Generate marked up keyword."""
+		if (hasattr(marker, 'markup_keyword')):
+			head, tail = marker.markup_keyword(self.text, cast(protocols.Construct, construct))
+		elif (hasattr(marker, 'markupKeyword')):
+			warning('markupKeyword')
+			head, tail = cast(protocols.LegacyMarker, marker).markupKeyword(self.text, cast(protocols.Construct, construct))
+		else:
+			head, tail = (None, None)
+		output = str(head) if (head) else ''
+		output += MarkupText.markup(self, marker, construct)
+		return output + (str(tail) if (tail) else '')
 
 
 class MarkupEnumValue(MarkupText):
-    """MarkupGenerator subclass to markup enum values."""
+	"""MarkupGenerator subclass to markup enum values."""
 
-    def __init__(self, construct: Optional[protocols.Construct], keyword: str) -> None:
-        MarkupText.__init__(self, construct, str(keyword))
+	def __init__(self, construct: Optional[protocols.Construct], keyword: str) -> None:
+		MarkupText.__init__(self, construct, str(keyword))
 
-    def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
-        """Generate marked up enum value."""
-        if (hasattr(marker, 'markup_enum_value')):
-            head, tail = marker.markup_enum_value(self.text, cast(protocols.Construct, construct))
-        elif (hasattr(marker, 'markupEnumValue')):
-            warning('markupEnumValue')
-            head, tail = cast(protocols.LegacyMarker, marker).markupEnumValue(self.text, cast(protocols.Construct, construct))
-        else:
-            head, tail = (None, None)
-        output = str(head) if (head) else ''
-        output += MarkupText.markup(self, marker, construct)
-        return output + (str(tail) if (tail) else '')
+	def markup(self, marker: protocols.Marker, construct: protocols.Construct = None) -> str:
+		"""Generate marked up enum value."""
+		if (hasattr(marker, 'markup_enum_value')):
+			head, tail = marker.markup_enum_value(self.text, cast(protocols.Construct, construct))
+		elif (hasattr(marker, 'markupEnumValue')):
+			warning('markupEnumValue')
+			head, tail = cast(protocols.LegacyMarker, marker).markupEnumValue(self.text, cast(protocols.Construct, construct))
+		else:
+			head, tail = (None, None)
+		output = str(head) if (head) else ''
+		output += MarkupText.markup(self, marker, construct)
+		return output + (str(tail) if (tail) else '')
