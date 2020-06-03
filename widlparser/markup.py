@@ -19,7 +19,7 @@ from . import protocols
 
 def warning(method_name: str) -> None:
 	"""Deprecated method warning."""
-	print('WARNING: calling deprecated marker method {name}'.format(name=repr(method_name)), file=sys.stderr)
+	print(f'WARNING: calling deprecated marker method "{method_name}"', file=sys.stderr)
 
 
 class MarkupGenerator(object):

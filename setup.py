@@ -25,13 +25,24 @@ setuptools.setup(
 		'dev': [
 			'mypy',
 			'flake8',
-			'flake8-import-order', 'flake8-annotations', 'flake8-type-annotations', 'flake8-docstrings', 'flake8-tabs',
-			'pep8-naming'],
+			'flake8-annotations',
+			'flake8-bugbear',
+			'flake8-commas',
+			'flake8-continuation',
+			'flake8-datetimez',
+			'flake8-docstrings',
+			'flake8-import-order',
+			'flake8-polyfill',
+			'flake8-tabs',
+			'flake8-type-annotations',
+			'flake8-use-fstring',
+			'pep8-naming',
+		],
 	},
 	classifiers=[
 		"Programming Language :: Python :: 3",
 		"License :: OSI Approved :: MIT License",
 		"Operating System :: OS Independent",
 	],
-	python_requires='>=3.7'
+	python_requires='>=3.7',
 )

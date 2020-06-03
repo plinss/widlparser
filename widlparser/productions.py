@@ -1068,7 +1068,7 @@ class NonAnyType(ChildProduction):
 			elif (self.type.symbol in self.OBJECT_TYPES):
 				generator.add_object_type(self.type)
 			else:
-				assert(False)
+				raise NotImplementedError('unsuppoerted type')
 		else:
 			self.type._define_markup(generator)
 		generator.add_text(self.null)
@@ -1563,7 +1563,7 @@ class ArgumentName(Production):
 		'deleter', 'dictionary', 'enum', 'getter', 'includes',
 		'inherit', 'interface', 'iterable', 'maplike', 'namespace',
 		'partial', 'required', 'setlike', 'setter', 'static',
-		'stringifier', 'typedef', 'unrestricted'
+		'stringifier', 'typedef', 'unrestricted',
 	])
 
 	_name: Identifier

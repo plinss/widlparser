@@ -186,12 +186,12 @@ class Tokenizer(object):
 		return self
 
 	def __next__(self) -> Token:
-		token = self.next()
+		token = self.next_token()
 		if (token is None):
 			raise StopIteration
 		return token
 
-	def next(self, skip_whitespace: bool = True) -> Optional[Token]:
+	def next_token(self, skip_whitespace: bool = True) -> Optional[Token]:
 		"""Remove and return next available token, optionally skipping whitespace."""
 		self.reset_peek()
 		if (self.tokens):
@@ -213,7 +213,7 @@ class Tokenizer(object):
 
 	def whitespace(self) -> Optional[Token]:
 		"""Get next token only if it is whitespace."""
-		token = self.next(False)
+		token = self.next_token(False)
 		if (token):
 			if (token.is_whitespace()):
 				return token
@@ -272,7 +272,7 @@ class Tokenizer(object):
 
 	def seek_symbol(self, symbol: Union[str, Container[str]]) -> List[Token]:
 		"""Return all tokens up to and inculding symbol, respect nesting of (), {}, []."""
-		token = self.next(False)
+		token = self.next_token(False)
 		skipped = []
 		while (token and (not token.is_symbol(symbol))):
 			skipped.append(token)
@@ -282,7 +282,7 @@ class Tokenizer(object):
 				skipped += self.seek_symbol('}')
 			elif (token.is_symbol('[')):
 				skipped += self.seek_symbol(']')
-			token = self.next(False)
+			token = self.next_token(False)
 		if (token):
 			skipped.append(token)
 		return skipped
