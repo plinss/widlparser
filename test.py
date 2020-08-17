@@ -221,13 +221,13 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
 [ Constructor , LegacyFactoryFunction = MyConstructor, Constructor (Foo one), LegacyFactoryFunction = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
     unsigned long long method(short x, unsigned long long y, optional double inf = Infinity, sequence<Foo>... fooArg) raises (hell);
     unsigned long long method(DOMString string, optional Foo foo = {});
-    void abort();
-    void anotherMethod(short round);
+    undefined abort();
+    undefined anotherMethod(short round);
     [ha!] attribute short bar getraises (an, exception);
     const short fortyTwo = 42;
     attribute long async;
     long foo(long x, long y, long async);
-    void bar(any constructor);
+    undefined bar(any constructor);
     long includes();
 }
 [ LegacyNoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {

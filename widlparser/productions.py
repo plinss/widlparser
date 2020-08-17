@@ -399,14 +399,14 @@ class PrimitiveType(Production):
 	Primitive type production.
 
 	Syntax:
-	UnsignedIntegerType | UnrestrictedFloatType | "boolean" | "byte" | "octet"
+	UnsignedIntegerType | UnrestrictedFloatType | "undefined" | "boolean" | "byte" | "octet"
 	"""
 
 	type: Union[UnsignedIntegerType, UnrestrictedFloatType, Symbol]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
-		return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('boolean', 'byte', 'octet')))
+		return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('undefined', 'boolean', 'byte', 'octet')))
 
 	def __init__(self, tokens: Tokenizer) -> None:
 		Production.__init__(self, tokens)
@@ -906,7 +906,7 @@ class NonAnyType(ChildProduction):
 	Syntax:
 	PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix]
 	| "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null]
-	| "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" ReturnType ">" [Null] | BufferRelatedType [Null]
+	| "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" Type ">" [Null] | BufferRelatedType [Null]
 	| "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "ObservableArray" "<" TypeWithExtendedAttributes ">" [Null]
 	| "record" "<" StringType "," TypeWithExtendedAttributes ">"
 	"""
@@ -917,7 +917,7 @@ class NonAnyType(ChildProduction):
 	STRING_TYPES = frozenset(['ByteString', 'DOMString', 'USVString'])
 	OBJECT_TYPES = frozenset(['object', 'Error'])
 
-	type: Union[PrimitiveType, TypeIdentifier, 'TypeWithExtendedAttributes', 'ReturnType', Symbol]
+	type: Union[PrimitiveType, TypeIdentifier, 'TypeWithExtendedAttributes', 'Type', Symbol]
 	type_name: Optional[str]
 	sequence: Optional[Symbol]
 	promise: Optional[Symbol]
@@ -945,7 +945,7 @@ class NonAnyType(ChildProduction):
 						return tokens.pop_position(True)
 		elif (token and token.is_symbol('Promise')):
 			if (Symbol.peek(tokens, '<')):
-				if (ReturnType.peek(tokens)):
+				if (Type.peek(tokens)):
 					if (Symbol.peek(tokens, '>')):
 						Symbol.peek(tokens, '?')
 						return tokens.pop_position(True)
@@ -991,7 +991,7 @@ class NonAnyType(ChildProduction):
 			elif (token.is_symbol('Promise')):
 				self.promise = Symbol(tokens, 'Promise')
 				self._open_type = Symbol(tokens, '<')
-				self.type = ReturnType(tokens, self)
+				self.type = Type(tokens, self)
 				self._close_type = Symbol(tokens, '>', False)
 				self.null = Symbol(tokens, '?', False) if (Symbol.peek(tokens, '?')) else None
 			elif (token.is_symbol(self.BUFFER_RELATED_TYPES)):
@@ -1040,7 +1040,7 @@ class NonAnyType(ChildProduction):
 		if (self.promise):
 			self.promise.define_markup(generator)
 			generator.add_text(self._open_type)
-			self.type.define_markup(generator)
+			generator.add_type(self.type)
 			generator.add_text(self._close_type)
 			generator.add_text(self.null)
 			return self
@@ -1722,46 +1722,6 @@ class ArgumentList(Production):
 
 	def __repr__(self) -> str:
 		return ' '.join([repr(argument) for argument in self.arguments])
-
-
-class ReturnType(ChildProduction):
-	"""
-	Return type production.
-
-	Syntax:
-	Type | "void"
-	"""
-
-	type: Union[Symbol, Type]
-
-	@classmethod
-	def peek(cls, tokens: Tokenizer) -> bool:
-		if (Type.peek(tokens)):
-			return True
-		token = tokens.push_position()
-		return tokens.pop_position((token is not None) and token.is_symbol('void'))
-
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
-		ChildProduction.__init__(self, tokens, parent)
-		token = cast(Token, tokens.sneak_peek())
-		if (token.is_symbol('void')):
-			self.type = Symbol(tokens, 'void', False)
-		else:
-			self.type = Type(tokens, self)
-		self._did_parse(tokens)
-
-	def _str(self) -> str:
-		return str(self.type)
-
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
-		if (isinstance(self.type, Symbol)):
-			self.type._define_markup(generator)
-		else:
-			generator.add_type(self.type)
-		return self
-
-	def __repr__(self) -> str:
-		return repr(self.type)
 
 
 class Special(Production):
@@ -2466,11 +2426,11 @@ class SpecialOperation(ChildProduction):
 	Special operation production.
 
 	Syntax:
-	Special [Special]... ReturnType OperationRest
+	Special [Special]... Type OperationRest
 	"""
 
 	specials: List[Special]
-	return_type: ReturnType
+	return_type: Type
 	operation: OperationRest
 
 	@classmethod
@@ -2479,7 +2439,7 @@ class SpecialOperation(ChildProduction):
 		if (Special.peek(tokens)):
 			while (Special.peek(tokens)):
 				pass
-			if (ReturnType.peek(tokens)):
+			if (Type.peek(tokens)):
 				return tokens.pop_position(OperationRest.peek(tokens))
 		return tokens.pop_position(False)
 
@@ -2488,7 +2448,7 @@ class SpecialOperation(ChildProduction):
 		self.specials = []
 		while (Special.peek(tokens)):
 			self.specials.append(Special(tokens))
-		self.return_type = ReturnType(tokens, self)
+		self.return_type = Type(tokens, self)
 		self.operation = OperationRest(tokens, self)
 		self._did_parse(tokens)
 
@@ -2524,7 +2484,7 @@ class SpecialOperation(ChildProduction):
 	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
 		for special in self.specials:
 			special.define_markup(generator)
-		self.return_type.define_markup(generator)
+		generator.add_type(self.return_type)
 		return self.operation._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -2537,22 +2497,22 @@ class Operation(ChildProduction):
 	Operation production.
 
 	Syntax:
-	ReturnType OperationRest
+	Type OperationRest
 	"""
 
-	return_type: ReturnType
+	return_type: Type
 	operation: OperationRest
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
 		tokens.push_position(False)
-		if (ReturnType.peek(tokens)):
+		if (Type.peek(tokens)):
 			return tokens.pop_position(OperationRest.peek(tokens))
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
 		ChildProduction.__init__(self, tokens, parent)
-		self.return_type = ReturnType(tokens, self)
+		self.return_type = Type(tokens, self)
 		self.operation = OperationRest(tokens, self)
 		self._did_parse(tokens)
 
@@ -2585,7 +2545,7 @@ class Operation(ChildProduction):
 		return str(self.return_type) + str(self.operation)
 
 	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
-		self.return_type.define_markup(generator)
+		generator.add_type(self.return_type)
 		return self.operation._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -2597,19 +2557,19 @@ class Stringifier(ChildProduction):
 	Stringifier production.
 
 	Syntax:
-	"stringifier" AttributeRest | "stringifier" ReturnType OperationRest | "stringifier" ";"
+	"stringifier" AttributeRest | "stringifier" Type OperationRest | "stringifier" ";"
 	"""
 
 	_stringifier: Symbol
 	attribute: Optional[AttributeRest]
-	return_type: Optional[ReturnType]
+	return_type: Optional[Type]
 	operation: Optional[OperationRest]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
 		tokens.push_position(False)
 		if (Symbol.peek(tokens, 'stringifier')):
-			if (ReturnType.peek(tokens)):
+			if (Type.peek(tokens)):
 				return tokens.pop_position(OperationRest.peek(tokens))
 			AttributeRest.peek(tokens)
 			return tokens.pop_position(True)
@@ -2621,8 +2581,8 @@ class Stringifier(ChildProduction):
 		self.attribute = None
 		self.return_type = None
 		self.operation = None
-		if (ReturnType.peek(tokens)):
-			self.return_type = ReturnType(tokens, self)
+		if (Type.peek(tokens)):
+			self.return_type = Type(tokens, self)
 			self.operation = OperationRest(tokens, self)
 		elif (AttributeRest.peek(tokens)):
 			self.attribute = AttributeRest(tokens, self)
@@ -2674,7 +2634,7 @@ class Stringifier(ChildProduction):
 	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
 		self._stringifier.define_markup(generator)
 		if (self.operation):
-			cast(ReturnType, self.return_type).define_markup(generator)
+			generator.add_type(self.return_type)
 			return self.operation._define_markup(generator)
 		if (self.attribute):
 			return self.attribute._define_markup(generator)
@@ -2774,12 +2734,12 @@ class StaticMember(ChildProduction):
 	Static member production.
 
 	Syntax:
-	"static" AttributeRest | "static" ReturnType OperationRest
+	"static" AttributeRest | "static" Type OperationRest
 	"""
 
 	_static: Symbol
 	attribute: Optional[AttributeRest]
-	return_type: Optional[ReturnType]
+	return_type: Optional[Type]
 	operation: Optional[OperationRest]
 
 	@classmethod
@@ -2788,7 +2748,7 @@ class StaticMember(ChildProduction):
 		if (Symbol.peek(tokens, 'static')):
 			if (AttributeRest.peek(tokens)):
 				return tokens.pop_position(True)
-			if (ReturnType.peek(tokens)):
+			if (Type.peek(tokens)):
 				return tokens.pop_position(OperationRest.peek(tokens))
 		return tokens.pop_position(False)
 
@@ -2801,7 +2761,7 @@ class StaticMember(ChildProduction):
 			self.operation = None
 		else:
 			self.attribute = None
-			self.return_type = ReturnType(tokens, self)
+			self.return_type = Type(tokens, self)
 			self.operation = OperationRest(tokens, self)
 		self._did_parse(tokens)
 
@@ -2848,7 +2808,7 @@ class StaticMember(ChildProduction):
 	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
 		self._static.define_markup(generator)
 		if (self.operation):
-			cast(ReturnType, self.return_type).define_markup(generator)
+			generator.add_type(self.return_type)
 			return self.operation._define_markup(generator)
 		return cast(AttributeRest, self.attribute)._define_markup(generator)
 

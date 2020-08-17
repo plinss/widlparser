@@ -107,8 +107,7 @@ class Tokenizer(object):
 		'Int16Array', 'Int32Array', 'interface', 'iterable', 'legacycaller', 'legacyiterable', 'long', 'maplike', 'mixin',
 		'namespace', 'NaN', 'null', 'object', 'ObservableArray', 'octet', 'optional', 'or', 'partial', 'Promise', 'readonly', 'record', 'required',
 		'sequence', 'setlike', 'setter', 'short', 'static', 'stringifier', 'true', 'typedef',
-		'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 'unrestricted', 'unsigned', 'USVString',
-		'void'))
+		'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 'undefined', 'unrestricted', 'unsigned', 'USVString'))
 
 	ui: Optional[UserInterface]
 	tokens: Deque[Token]

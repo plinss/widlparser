@@ -76,13 +76,13 @@ typedef (short or sequence<(DOMString[]?[] or short)>? or DOMString[]?[]) sequen
 [ Constructor , LegacyFactoryFunction = MyConstructor, Constructor (Foo one), LegacyFactoryFunction = MyOtherConstructor (Foo two , long long longest ) ] partial interface Foo: Bar {
     unsigned long long method(short x, unsigned long long y, optional double inf = Infinity, sequence<Foo>... fooArg) raises (hell);
     unsigned long long method(DOMString string, optional Foo foo = {});
-    void abort();
-    void anotherMethod(short round);
+    undefined abort();
+    undefined anotherMethod(short round);
     [ha!] attribute short bar getraises (an, exception);
     const short fortyTwo = 42;
     attribute long async;
     long foo(long x, long y, long async);
-    void bar(any constructor);
+    undefined bar(any constructor);
     long includes();
 }
 [ LegacyNoInterfaceObject , MapClass (short, Foo )] interface LinkStyle {
@@ -329,13 +329,13 @@ IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
   [ExtendedAttributeNamedArgList: LegacyFactoryFunction [value: MyOtherConstructor] [arguments: [Argument: [type: Foo ] [name: [ArgumentName: two]]] [Argument: [type: long long ] [name: [ArgumentName: longest]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]] [Argument: [type: unsigned long long ] [name: [ArgumentName: y]]] [Argument: [optional] [type: double ] [name: [ArgumentName: inf]] [default: [Default: 'Infinity']]] [Argument: [type: sequence<Foo>][...] [name: [ArgumentName: fooArg]]]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: string]]] [Argument: [optional] [type: Foo ] [name: [ArgumentName: foo]] [default: [Default: '{}']]]]]]]
-  [Member: [Operation: void [OperationRest: [name: [OperationName: abort]] [ArgumentList: ]]]]
-  [Member: [Operation: void [OperationRest: [name: [OperationName: anotherMethod]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: round]]]]]]]
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: undefined]]]] [OperationRest: [name: [OperationName: abort]] [ArgumentList: ]]]]
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: undefined]]]] [OperationRest: [name: [OperationName: anotherMethod]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: round]]]]]]]
   [Member: [ExtendedAttributes: [ExtendedAttribute: [identifier:ha][other:!]]] [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [name: bar]]]]
   [Member: [Const: [ConstType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]][name: fortyTwo] = [value: 42]]]
   [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [name: async]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: foo]] [ArgumentList: [Argument: [type: long ] [name: [ArgumentName: x]]] [Argument: [type: long ] [name: [ArgumentName: y]]] [Argument: [type: long ] [name: [ArgumentName: async]]]]]]]
-  [Member: [Operation: void [OperationRest: [name: [OperationName: bar]] [ArgumentList: [Argument: [type: any ] [name: [ArgumentName: constructor]]]]]]]
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: undefined]]]] [OperationRest: [name: [OperationName: bar]] [ArgumentList: [Argument: [type: any ] [name: [ArgumentName: constructor]]]]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]]]]] [OperationRest: [name: [OperationName: includes]] [ArgumentList: ]]]]
 ]]
 [Interface: [ExtendedAttributes: [ExtendedAttributeNoArgs: LegacyNoInterfaceObject] [ExtendedAttributeTypePair: MapClass [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]]]] [Type: [SingleType: [NonAnyType: Foo]]]]] [name: LinkStyle] [members: 
@@ -508,13 +508,13 @@ typedef   short    shorttype  = error this is;</c>
 <c interface>[ <c constructor><n>Constructor</n></c> , <c constructor><n>LegacyFactoryFunction</n> = <tn>MyConstructor</tn></c>, <c constructor><n>Constructor</n> (<c argument><t><tn>Foo</tn></t> <n>one</n></c>)</c>, <c constructor><n>LegacyFactoryFunction</n> = <tn>MyOtherConstructor</tn> (<c argument><t><tn>Foo</tn></t> <n>two</n> </c>, <c argument><t><p><k>long</k> <k>long</k></p></t> <n>longest</n> </c>) </c>] <k>partial</k> <k>interface</k> <n>Foo</n>: <tn>Bar</tn> {
     <c method><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><p><k>short</k></p></t> <n>x</n></c>, <c argument><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>y</n></c>, <c argument><k>optional</k> <t><p><k>double</k></p></t> <n>inf</n> = <k>Infinity</k></c>, <c argument><t><k>sequence</k>&lt;<t><tn>Foo</tn></t>&gt;</t>... <n>fooArg</n></c>) raises (hell);</c>
     <c method><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><s><k>DOMString</k></s></t> <n>string</n></c>, <c argument><k>optional</k> <t><tn>Foo</tn></t> <n>foo</n> = {}</c>);</c>
-    <c method><k>void</k> <n>abort</n>();</c>
-    <c method><k>void</k> <n>anotherMethod</n>(<c argument><t><p><k>short</k></p></t> <n>round</n></c>);</c>
+    <c method><t><p><k>undefined</k></p></t> <n>abort</n>();</c>
+    <c method><t><p><k>undefined</k></p></t> <n>anotherMethod</n>(<c argument><t><p><k>short</k></p></t> <n>round</n></c>);</c>
     <c attribute>[<c extended-attribute>ha!</c>] <k>attribute</k> <t><p><k>short</k></p></t> <n>bar</n> getraises (an, exception);</c>
     <c const><k>const</k> <t><p><k>short</k></p></t> <n>fortyTwo</n> = 42;</c>
     <c attribute><k>attribute</k> <t><p><k>long</k></p></t> <n>async</n>;</c>
     <c method><t><p><k>long</k></p></t> <n>foo</n>(<c argument><t><p><k>long</k></p></t> <n>x</n></c>, <c argument><t><p><k>long</k></p></t> <n>y</n></c>, <c argument><t><p><k>long</k></p></t> <n>async</n></c>);</c>
-    <c method><k>void</k> <n>bar</n>(<c argument><t><k>any</k></t> <n>constructor</n></c>);</c>
+    <c method><t><p><k>undefined</k></p></t> <n>bar</n>(<c argument><t><k>any</k></t> <n>constructor</n></c>);</c>
     <c method><t><p><k>long</k></p></t> <n>includes</n>();</c>
 }
 </c><c interface>[ <c extended-attribute><n>LegacyNoInterfaceObject</n></c> , <c extended-attribute><n>MapClass</n> (<p><k>short</k></p>, <tn>Foo</tn> )</c>] <k>interface</k> <n>LinkStyle</n> {

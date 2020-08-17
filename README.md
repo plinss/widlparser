@@ -218,7 +218,7 @@ A list of DictionaryMembers.
 
 **Callback.return_type**
 
-The ReturnType Production of the Callback.
+The return Type Production of the Callback.
 
 **Callback.arguments**
 

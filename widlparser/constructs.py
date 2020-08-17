@@ -17,7 +17,7 @@ from . import markup
 from . import protocols
 from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ChildProduction, ConstType, ConstValue, Constructor, Default,
                           EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Iterable,
-                          Maplike, MixinAttribute, Operation, ReturnType, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
+                          Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
                           Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
 from .tokenizer import Token, Tokenizer
 
@@ -1503,7 +1503,7 @@ class Callback(Construct):
 	WebIDL "callback".
 
 	Syntax:
-	[ExtendedAttributes] "callback" Identifier "=" ReturnType "(" [ArgumentList] ")" ";"
+	[ExtendedAttributes] "callback" Identifier "=" Type "(" [ArgumentList] ")" ";"
 	| [ExtendedAttributes] "callback" Interface
 	| [ExtendedAttributes] "callback" Mixin
 	"""
@@ -1511,7 +1511,7 @@ class Callback(Construct):
 	_callback: Symbol
 	_name: Identifier
 	_equals: Optional[Symbol]
-	return_type: Optional[ReturnType]
+	return_type: Optional[Type]
 	_open_paren: Optional[Symbol]
 	_arguments: Optional[ArgumentList]
 	_close_paren: Optional[Symbol]
@@ -1528,7 +1528,7 @@ class Callback(Construct):
 				return tokens.pop_position(True)
 			if (Identifier.peek(tokens)):
 				if (Symbol.peek(tokens, '=')):
-					if (ReturnType.peek(tokens)):
+					if (Type.peek(tokens)):
 						if (Symbol.peek(tokens, '(')):
 							ArgumentList.peek(tokens)
 							token = tokens.peek()
@@ -1542,7 +1542,7 @@ class Callback(Construct):
 		if (token.is_identifier()):
 			self._name = Identifier(tokens)
 			self._equals = Symbol(tokens, '=')
-			self.return_type = ReturnType(tokens, self)
+			self.return_type = Type(tokens, self)
 			self._open_paren = Symbol(tokens, '(')
 			self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
 			self._close_paren = Symbol(tokens, ')')
@@ -1674,7 +1674,7 @@ class Callback(Construct):
 			return self.interface._define_markup(generator)
 		self._name.define_markup(generator)
 		generator.add_text(self._equals)
-		cast(ReturnType, self.return_type).define_markup(generator)
+		generator.add_type(self.return_type)
 		generator.add_text(self._open_paren)
 		if (self._arguments):
 			self._arguments.define_markup(generator)
