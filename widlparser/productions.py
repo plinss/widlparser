@@ -1654,7 +1654,7 @@ class ArgumentList(Production):
 	@property   # get all possible variants of argument names
 	def argument_names(self) -> Sequence[str]:
 		if (self.arguments):
-			args = [argument for argument in self.arguments]
+			args = list(self.arguments)
 			names = []
 			name = ', '.join([('...' + argument.name) if (argument.variadic) else argument.name for argument in args if (argument.name)])
 			names.append(name)
