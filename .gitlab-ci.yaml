@@ -29,7 +29,22 @@ mypy:
     - mypy ${PACKAGE_NAME}
 
 
-test:
+test3.7:
+  image: python:3.7
+  stage: test
+  before_script:
+    - pip install -e .
+    - chmod a+x test.py
+  script:
+    - ./test.py > test-actual.txt
+    - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
+
+
+test3.8:
+  image: python:3.8
   stage: test
   before_script:
     - pip install -e .
