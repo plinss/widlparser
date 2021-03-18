@@ -336,7 +336,9 @@ interface Underscores {
   attribute DOMString _or;
   boolean _includes(DOMString value);
 };
-
+interface BigNumbers {
+  const BigInt biiig = 42;
+};
 """
 #    idl = idl.replace(' ', '  ')
     print("IDL >>>\n" + idl + "\n<<<")
