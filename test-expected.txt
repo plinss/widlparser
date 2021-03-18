@@ -191,7 +191,9 @@ interface Underscores {
   attribute DOMString _or;
   boolean _includes(DOMString value);
 };
-
+interface BigNumbers {
+  const BigInt biiig = 42;
+};
 
 <<<
 IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
@@ -429,6 +431,9 @@ IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
   [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString]]] [name: or]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [OperationRest: [name: [OperationName: _includes]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: value]]]]]]]
 ]]
+[Interface: [name: BigNumbers] [members: 
+  [Member: [Const: [ConstType: [PrimitiveType: BigInt]][name: biiig] = [value: 42]]]
+]]
 ]
 MARKED UP:
 <c dictionary><k>dictionary</k> <n>CSSFontFaceLoadEventInit</n> : <tn>EventInit</tn> { <c dict-member><t><k>sequence</k>&lt;<t><tn>CSSFontFaceRule</tn></t>&gt;</t> <n>fontfaces</n> = [ ];</c> };</c>
@@ -623,9 +628,11 @@ typedef   short    shorttype  = error this is;</c>
   <c attribute><k>attribute</k> <t><s><k>DOMString</k></s></t> <n>_or</n>;</c>
   <c method><t><p><k>boolean</k></p></t> <n>_includes</n>(<c argument><t><s><k>DOMString</k></s></t> <n>value</n></c>);</c>
 };</c>
+<c interface><k>interface</k> <n>BigNumbers</n> {
+  <c const><k>const</k> <t><p><k>BigInt</k></p></t> <n>biiig</n> = 42;</c>
+};</c>
 
-
-Complexity: 146
+Complexity: 148
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -778,6 +785,8 @@ interface: MixinCanNotIncludeSetlike
 interface: Underscores
     attribute: or (or)
     method: includes(value) (includes)
+interface: BigNumbers
+    const: biiig (biiig)
 FIND:
 callMe/round
 Foo/method(x, y, inf, ...fooArg)/y

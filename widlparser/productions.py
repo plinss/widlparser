@@ -399,14 +399,14 @@ class PrimitiveType(Production):
 	Primitive type production.
 
 	Syntax:
-	UnsignedIntegerType | UnrestrictedFloatType | "undefined" | "boolean" | "byte" | "octet"
+	UnsignedIntegerType | UnrestrictedFloatType | "undefined" | "boolean" | "byte" | "octet" | "BigInt"
 	"""
 
 	type: Union[UnsignedIntegerType, UnrestrictedFloatType, Symbol]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
-		return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('undefined', 'boolean', 'byte', 'octet')))
+		return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('undefined', 'boolean', 'byte', 'octet', 'BigInt')))
 
 	def __init__(self, tokens: Tokenizer) -> None:
 		Production.__init__(self, tokens)
