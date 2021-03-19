@@ -32,6 +32,8 @@ setuptools.setup(
 			'flake8-datetimez',
 			'flake8-docstrings',
 			'flake8-import-order',
+			'flake8-literal',
+			'flake8-noqa',
 			'flake8-polyfill',
 			'flake8-tabs',
 			'flake8-type-annotations',
