@@ -192,7 +192,7 @@ interface Underscores {
   boolean _includes(DOMString value);
 };
 interface BigNumbers {
-  const BigInt biiig = 42;
+  const bigint biiig = 42;
 };
 
 <<<
@@ -432,7 +432,7 @@ IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [OperationRest: [name: [OperationName: _includes]] [ArgumentList: [Argument: [type: DOMString ] [name: [ArgumentName: value]]]]]]]
 ]]
 [Interface: [name: BigNumbers] [members: 
-  [Member: [Const: [ConstType: [PrimitiveType: BigInt]][name: biiig] = [value: 42]]]
+  [Member: [Const: [ConstType: [PrimitiveType: bigint]][name: biiig] = [value: 42]]]
 ]]
 ]
 MARKED UP:
@@ -629,7 +629,7 @@ typedef   short    shorttype  = error this is;</c>
   <c method><t><p><k>boolean</k></p></t> <n>_includes</n>(<c argument><t><s><k>DOMString</k></s></t> <n>value</n></c>);</c>
 };</c>
 <c interface><k>interface</k> <n>BigNumbers</n> {
-  <c const><k>const</k> <t><p><k>BigInt</k></p></t> <n>biiig</n> = 42;</c>
+  <c const><k>const</k> <t><p><k>bigint</k></p></t> <n>biiig</n> = 42;</c>
 };</c>
 
 Complexity: 148

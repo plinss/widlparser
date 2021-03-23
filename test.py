@@ -337,7 +337,7 @@ interface Underscores {
   boolean _includes(DOMString value);
 };
 interface BigNumbers {
-  const BigInt biiig = 42;
+  const bigint biiig = 42;
 };
 """
 #    idl = idl.replace(' ', '  ')
