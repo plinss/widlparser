@@ -23,7 +23,7 @@ setuptools.setup(
 	],
 	extras_require={
 		'dev': [
-			'mypy',
+			'mypy<0.900',
 			'flake8',
 			'flake8-annotations',
 			'flake8-bugbear',
