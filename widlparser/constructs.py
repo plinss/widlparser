@@ -1042,7 +1042,7 @@ class NamespaceMember(Construct):
 	WebIDL namespace member.
 
 	Syntax:
-	[ExtendedAttributes] Operation | "readonly" Attribute
+	[ExtendedAttributes] Operation | "readonly" Attribute | Const
 	"""
 
 	member: protocols.ChildProduction
@@ -1053,13 +1053,15 @@ class NamespaceMember(Construct):
 		Construct.peek(tokens)
 		if (Symbol.peek(tokens, 'readonly')):
 			return tokens.pop_position(Attribute.peek(tokens))
-		return tokens.pop_position(Operation.peek(tokens))
+		return tokens.pop_position(Operation.peek(tokens) or Const.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: protocols.Construct) -> None:
 		Construct.__init__(self, tokens, parent)
 		token = cast(Token, tokens.sneak_peek())
 		if (token.is_symbol('readonly')):
 			self.member = Attribute(tokens, parent)
+		elif (Const.peek(tokens)):
+			self.member = Const(tokens, parent)
 		else:
 			self.member = Operation(tokens, parent)
 		self._did_parse(tokens)

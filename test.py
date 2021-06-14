@@ -276,6 +276,7 @@ namespace Namespace1 {
     [Two] unsigned long long method(short x, short y);
     readonly attribute long? value;
     attribute long error;   // error, must be readonly
+    const short fortyTwo = 42;
 };
 partial namespace Namespace2 {
     [One] unsigned long long method(short x);

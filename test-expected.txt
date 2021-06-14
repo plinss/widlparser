@@ -131,6 +131,7 @@ namespace Namespace1 {
     [Two] unsigned long long method(short x, short y);
     readonly attribute long? value;
     attribute long error;   // error, must be readonly
+    const short fortyTwo = 42;
 };
 partial namespace Namespace2 {
     [One] unsigned long long method(short x);
@@ -238,21 +239,21 @@ IGNORED LEGACY IDL LINE: 109 - "setraises (for the heck of it)"
 
 IDL SYNTAX ERROR LINE: 132 - skipped: "attribute long error"
 
-IDL ERROR LINE: 147 - Dictionary argument "optionalDict" without required members must be marked optional
-
 IDL ERROR LINE: 148 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 167 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
+IDL ERROR LINE: 149 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 170 - skipped: "getter long (unsigned long argument)"
+IDL SYNTAX ERROR LINE: 168 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
 
-IDL SYNTAX ERROR LINE: 174 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
+IDL SYNTAX ERROR LINE: 171 - skipped: "getter long (unsigned long argument)"
 
-IDL SYNTAX ERROR LINE: 178 - skipped: "iterable<long>"
+IDL SYNTAX ERROR LINE: 175 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
 
-IDL SYNTAX ERROR LINE: 182 - skipped: "readonly maplike<DOMString, DOMString>"
+IDL SYNTAX ERROR LINE: 179 - skipped: "iterable<long>"
 
-IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
+IDL SYNTAX ERROR LINE: 183 - skipped: "readonly maplike<DOMString, DOMString>"
+
+IDL SYNTAX ERROR LINE: 187 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [Dictionary: [name: CSSFontFaceLoadEventInit] [Inheritance: EventInit][members: 
   [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: '[]']]]
@@ -383,6 +384,7 @@ IDL SYNTAX ERROR LINE: 186 - skipped: "readonly setlike<DOMString>"
   [Member: [ExtendedAttributes: [ExtendedAttributeNoArgs: Two]] [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]] [Argument: [type: short ] [name: [ArgumentName: y]]]]]]]
   [Member: [Attribute: [AttributeRest: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: long]]][TypeSuffix: [null] ]]]] [name: value]]]]
   [Unknown:  tokens: [symbol:attribute][whitespace: ][symbol:long][whitespace: ][identifier:error][symbol:;]]
+  [Member: [Const: [ConstType: [PrimitiveType: [UnsignedIntegerType: [IntegerType: short]]]][name: fortyTwo] = [value: 42]]]
 ]]
 [Namespace: [partial] [name: Namespace2] [members: 
   [Member: [ExtendedAttributes: [ExtendedAttributeNoArgs: One]] [Operation: [Type: [SingleType: [NonAnyType: [PrimitiveType: [UnsignedIntegerType: [unsigned][IntegerType: long long]]]]]] [OperationRest: [name: [OperationName: method]] [ArgumentList: [Argument: [type: short ] [name: [ArgumentName: x]]]]]]]
@@ -568,6 +570,7 @@ typedef   short    shorttype  = error this is;</c>
     <c method>[<c extended-attribute><n>Two</n></c>] <t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><p><k>short</k></p></t> <n>x</n></c>, <c argument><t><p><k>short</k></p></t> <n>y</n></c>);</c>
     <c attribute><k>readonly</k> <k>attribute</k> <t><p><k>long</k></p>?</t> <n>value</n>;</c>
     <c unknown>attribute long error;</c>   // error, must be readonly
+    <c const><k>const</k> <t><p><k>short</k></p></t> <n>fortyTwo</n> = 42;</c>
 };</c>
 <c namespace><k>partial</k> <k>namespace</k> <n>Namespace2</n> {
     <c method>[<c extended-attribute><n>One</n></c>] <t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><p><k>short</k></p></t> <n>x</n></c>);</c>
@@ -632,7 +635,7 @@ typedef   short    shorttype  = error this is;</c>
   <c const><k>const</k> <t><p><k>bigint</k></p></t> <n>biiig</n> = 42;</c>
 };</c>
 
-Complexity: 148
+Complexity: 149
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -749,6 +752,7 @@ namespace: Namespace1
     method: method(x, y) (method)
     attribute: value (value)
     unknown: None (None)
+    const: fortyTwo (fortyTwo)
 namespace: Namespace2
     method: method(x) (method)
     method: method(x, y) (method)
