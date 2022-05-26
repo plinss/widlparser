@@ -36,7 +36,6 @@ setuptools.setup(
 			'flake8-noqa',
 			'flake8-polyfill',
 			'flake8-tabs',
-			'flake8-type-annotations',
 			'flake8-use-fstring',
 			'pep8-naming',
 		],
