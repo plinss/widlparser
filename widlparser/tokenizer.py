@@ -11,6 +11,8 @@
 #
 """Classes to convert input strings into tokens."""
 
+from __future__ import annotations
+
 import collections
 import enum
 import re

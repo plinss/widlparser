@@ -11,6 +11,8 @@
 #
 """Protocol definitions."""
 
+from __future__ import annotations
+
 from typing import Iterator, List, Optional, Sequence, Tuple, Union, TYPE_CHECKING
 
 from typing_extensions import Protocol
@@ -22,10 +24,10 @@ if TYPE_CHECKING:
 class SymbolTable(Protocol):
 	"""Protocol for symbol capture and lookup."""
 
-	def add_type(self, type: "Construct") -> None:
+	def add_type(self, type: Construct) -> None:
 		...
 
-	def get_type(self, name: str) -> Optional["Construct"]:
+	def get_type(self, name: str) -> Optional[Construct]:
 		...
 
 
@@ -35,59 +37,59 @@ class ConstructMap(Protocol):
 	def __len__(self) -> int:
 		...
 
-	def __getitem__(self, key: Union[str, int]) -> "Construct":
+	def __getitem__(self, key: Union[str, int]) -> Construct:
 		...
 
 	def __contains__(self, key: Union[str, int]) -> bool:
 		...
 
-	def __iter__(self) -> Iterator["Construct"]:
+	def __iter__(self) -> Iterator[Construct]:
 		...
 
 	def keys(self) -> Sequence[str]:
 		...
 
-	def values(self) -> Sequence["Construct"]:
+	def values(self) -> Sequence[Construct]:
 		...
 
-	def items(self) -> Sequence[Tuple[str, "Construct"]]:
+	def items(self) -> Sequence[Tuple[str, Construct]]:
 		...
 
-	def get(self, key: Union[str, int]) -> Optional["Construct"]:
+	def get(self, key: Union[str, int]) -> Optional[Construct]:
 		...
 
 
 class Marker(Protocol):
 	"""Protocol to provide markup."""
 
-	def markup_construct(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_construct(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_type(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_primitive_type(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_primitive_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_buffer_type(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_buffer_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_string_type(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_string_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_object_type(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_object_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_type_name(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_type_name(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_name(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_name(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_keyword(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_keyword(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
-	def markup_enum_value(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:
+	def markup_enum_value(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
 		...
 
 	def encode(self, text: str) -> str:
@@ -97,34 +99,34 @@ class Marker(Protocol):
 class LegacyMarker(Protocol):
 	"""Protocol to provide markup."""
 
-	def markupConstruct(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupConstruct(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupType(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupPrimitiveType(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupPrimitiveType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupBufferType(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupBufferType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupStringType(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupStringType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupObjectType(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupObjectType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupTypeName(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupTypeName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupName(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupKeyword(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupKeyword(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
-	def markupEnumValue(self, text: str, construct: "Construct") -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupEnumValue(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
 		...
 
 	def encode(self, text: str) -> str:

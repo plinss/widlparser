@@ -11,6 +11,8 @@
 #
 """Basic language productions for WebIDL."""
 
+from __future__ import annotations
+
 
 import itertools
 from typing import Any, Container, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
@@ -38,7 +40,7 @@ class Production(object):
 
 	leading_space: str
 	_tail: Optional[List[tokenizer.Token]]
-	semicolon: Union[str, "Production"]
+	semicolon: Union[str, Production]
 	trailing_space: str
 
 	def __init__(self, tokens: Tokenizer) -> None:
@@ -72,11 +74,11 @@ class Production(object):
 	def __str__(self) -> str:
 		return self.leading_space + self._str() + self.tail + str(self.semicolon) + self.trailing_space
 
-	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._str())
 		return self
 
-	def define_markup(self, generator: "MarkupGenerator") -> None:
+	def define_markup(self, generator: MarkupGenerator) -> None:
 		generator.add_text(self.leading_space)
 		target = self._define_markup(generator)
 		generator.add_text(target.tail)
@@ -129,7 +131,7 @@ class ChildProduction(Production):
 		return []
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	@property
@@ -160,7 +162,7 @@ class String(Production):
 	def _str(self) -> str:
 		return self.string
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self.string)
 		return self
 
@@ -193,7 +195,7 @@ class Symbol(Production):
 	def _str(self) -> str:
 		return self.symbol
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.symbol in tokenizer.Tokenizer.SYMBOL_IDENTS):
 			generator.add_keyword(self.symbol)
 		else:
@@ -227,7 +229,7 @@ class Integer(Production):
 	def _str(self) -> str:
 		return self.integer
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self.integer)
 		return self
 
@@ -276,7 +278,7 @@ class IntegerType(Production):
 			return self._space.join(self.type.split(' '))
 		return self.type
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self._space):
 			keywords = self.type.split(' ')
 			generator.add_keyword(keywords[0])
@@ -319,7 +321,7 @@ class UnsignedIntegerType(Production):
 	def _str(self) -> str:
 		return (str(self.unsigned) + self.type._str()) if (self.unsigned) else self.type._str()
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.unsigned):
 			self.unsigned.define_markup(generator)
 		return self.type._define_markup(generator)
@@ -352,7 +354,7 @@ class FloatType(Production):
 	def _str(self) -> str:
 		return self.type
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_keyword(self.type)
 		return self
 
@@ -389,7 +391,7 @@ class UnrestrictedFloatType(Production):
 	def _str(self) -> str:
 		return (str(self.unrestricted) + str(self.type)) if (self.unrestricted) else str(self.type)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.unrestricted):
 			self.unrestricted.define_markup(generator)
 		return self.type._define_markup(generator)
@@ -429,7 +431,7 @@ class PrimitiveType(Production):
 	def _str(self) -> str:
 		return self.type._str()
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		return self.type._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -463,7 +465,7 @@ class Identifier(Production):
 	def _str(self) -> str:
 		return str(self._name)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_name(self._name)
 		return self
 
@@ -502,7 +504,7 @@ class TypeIdentifier(Production):
 	def _str(self) -> str:
 		return str(self._name)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_type_name(self._name)
 		return self
 
@@ -548,7 +550,7 @@ class ConstType(Production):
 	def _str(self) -> str:
 		return str(self.type) + (str(self.null) if (self.null) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (isinstance(self.type, TypeIdentifier)):
 			self.type.define_markup(generator)
 			if (self.null):
@@ -589,7 +591,7 @@ class FloatLiteral(Production):
 	def _str(self) -> str:
 		return self.value
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.value in tokenizer.Tokenizer.SYMBOL_IDENTS):
 			generator.add_keyword(self.value)
 		else:
@@ -630,7 +632,7 @@ class ConstValue(Production):
 	def _str(self) -> str:
 		return str(self.value)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (isinstance(self.value, str)):
 			if (self.value in tokenizer.Tokenizer.SYMBOL_IDENTS):
 				generator.add_keyword(self.value)
@@ -663,7 +665,7 @@ class EnumValue(Production):
 		self.value = next(tokens).text
 		self._did_parse(tokens)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_enum_value(self.value)
 		return self
 
@@ -715,7 +717,7 @@ class EnumValueList(Production):
 			break
 		self._did_parse(tokens)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		for value, _comma in itertools.zip_longest(self.values, self._commas, fillvalue=''):
 			value.define_markup(generator)
 			if (_comma):
@@ -852,7 +854,7 @@ class AnyType(Production):
 	def _str(self) -> str:
 		return str(self.any) + (str(self.suffix) if (self.suffix) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self.any.define_markup(generator)
 		if (self.suffix):
 			self.suffix.define_markup(generator)
@@ -895,7 +897,7 @@ class SingleType(ChildProduction):
 	def _str(self) -> str:
 		return str(self.type)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self.type._define_markup(generator)
 		return self
 
@@ -1033,7 +1035,7 @@ class NonAnyType(ChildProduction):
 		output = output + (str(self.null) if (self.null) else '')
 		return output + (str(self.suffix) if (self.suffix) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.sequence):
 			self.sequence.define_markup(generator)
 			generator.add_text(self._open_type)
@@ -1097,7 +1099,7 @@ class UnionMemberType(ChildProduction):
 
 	type: Union[NonAnyType, 'UnionType', AnyType]
 	suffix: Optional[TypeSuffix]
-	_extended_attributes: Optional['ExtendedAttributeList']
+	_extended_attributes: Optional[ExtendedAttributeList]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1125,7 +1127,7 @@ class UnionMemberType(ChildProduction):
 		self._did_parse(tokens, False)
 
 	@property
-	def extended_attributes(self) -> Optional['ExtendedAttributeList']:
+	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
 		return self._extended_attributes
 
 	@property
@@ -1141,7 +1143,7 @@ class UnionMemberType(ChildProduction):
 		output += str(self.type)
 		return output + (str(self.suffix) if (self.suffix) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self._extended_attributes):
 			self._extended_attributes.define_markup(generator)
 		self.type.define_markup(generator)
@@ -1211,7 +1213,7 @@ class UnionType(ChildProduction):
 		output += ''.join([str(type) + str(_or) for type, _or in itertools.zip_longest(self.types, self._ors, fillvalue='')])
 		return output + str(self._close_paren)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._open_paren)
 		for type, _or in itertools.zip_longest(self.types, self._ors, fillvalue=''):
 			generator.add_type(type)
@@ -1261,7 +1263,7 @@ class Type(ChildProduction):
 	def _str(self) -> str:
 		return str(self.type) + (self.suffix._str() if (self.suffix) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self.type.define_markup(generator)
 		generator.add_text(self.suffix)
 		return self
@@ -1278,7 +1280,7 @@ class TypeWithExtendedAttributes(ChildProduction):
 	[ExtendedAttributeList] SingleType | UnionType [TypeSuffix]
 	"""
 
-	_extended_attributes: Optional['ExtendedAttributeList']
+	_extended_attributes: Optional[ExtendedAttributeList]
 	type: Union[SingleType, UnionType]
 	suffix: Optional[TypeSuffix]
 
@@ -1308,13 +1310,13 @@ class TypeWithExtendedAttributes(ChildProduction):
 		return self.type.type_names
 
 	@property
-	def extended_attributes(self) -> Optional['ExtendedAttributeList']:
+	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
 		return self._extended_attributes
 
 	def _str(self) -> str:
 		return (str(self._extended_attributes) if (self._extended_attributes) else '') + str(self.type) + (self.suffix._str() if (self.suffix) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self._extended_attributes):
 			self._extended_attributes.define_markup(generator)
 		self.type.define_markup(generator)
@@ -1435,7 +1437,7 @@ class IgnoreMultipleInheritance(Production):
 	def inherit(self) -> str:
 		return _name(self._inherit)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._comma)
 		self._inherit.define_markup(generator)
 		if (self.next):
@@ -1478,7 +1480,7 @@ class Inheritance(Production):
 	def _str(self) -> str:
 		return str(self._colon) + str(self._base) + (str(self._ignore) if (self._ignore) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._colon)
 		self._base.define_markup(generator)
 		if (self._ignore):
@@ -1542,7 +1544,7 @@ class Default(Production):
 	def _str(self) -> str:
 		return str(self._equals) + (str(self._value) if (self._value) else str(self._open) + str(self._close))
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._equals.define_markup(generator)
 		if (self._value):
 			return self._value._define_markup(generator)
@@ -1589,7 +1591,7 @@ class ArgumentName(Production):
 	def _str(self) -> str:
 		return str(self._name)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._name.define_markup(generator)
 		return self
 
@@ -1681,7 +1683,7 @@ class ArgumentList(Production):
 	def __len__(self) -> int:
 		return len(self.arguments)
 
-	def __getitem__(self, key: Union[str, int]) -> "Construct":
+	def __getitem__(self, key: Union[str, int]) -> Construct:
 		if (isinstance(key, str)):
 			for argument in self.arguments:
 				if (argument.name == key):
@@ -1697,19 +1699,19 @@ class ArgumentList(Production):
 			return False
 		return (key in self.arguments)
 
-	def __iter__(self) -> Iterator["Construct"]:
+	def __iter__(self) -> Iterator[Construct]:
 		return iter(self.arguments)
 
 	def keys(self) -> Sequence[str]:
 		return [argument.name for argument in self.arguments if (argument.name)]
 
-	def values(self) -> Sequence["Construct"]:
+	def values(self) -> Sequence[Construct]:
 		return [argument for argument in self.arguments if (argument.name)]
 
-	def items(self) -> Sequence[Tuple[str, "Construct"]]:
+	def items(self) -> Sequence[Tuple[str, Construct]]:
 		return [(argument.name, argument) for argument in self.arguments if (argument.name)]
 
-	def get(self, key: Union[str, int]) -> Optional["Construct"]:
+	def get(self, key: Union[str, int]) -> Optional[Construct]:
 		try:
 			return self[key]
 		except IndexError:
@@ -1718,7 +1720,7 @@ class ArgumentList(Production):
 	def _str(self) -> str:
 		return ''.join([str(argument) + str(comma) for argument, comma in itertools.zip_longest(self.arguments, self._commas, fillvalue='')])
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		for argument, comma in itertools.zip_longest(self.arguments, self._commas, fillvalue=''):
 			argument.define_markup(generator)
 			generator.add_text(comma)
@@ -1757,7 +1759,7 @@ class Special(Production):
 	def _str(self) -> str:
 		return self._name
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_keyword(self._name)
 		return self
 
@@ -1794,7 +1796,7 @@ class AttributeName(Production):
 	def _str(self) -> str:
 		return str(self._name)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._name.define_markup(generator)
 		return self
 
@@ -1846,7 +1848,7 @@ class AttributeRest(ChildProduction):
 		output += str(self._name)
 		return output + (str(self._ignore) if (self._ignore) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.readonly):
 			self.readonly.define_markup(generator)
 		self._attribute.define_markup(generator)
@@ -1896,13 +1898,13 @@ class MixinAttribute(ChildProduction):
 		return self.attribute.name
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	def _str(self) -> str:
 		return str(self.attribute)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		return self.attribute._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -1946,14 +1948,14 @@ class Attribute(ChildProduction):
 		return self.attribute.name
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	def _str(self) -> str:
 		output = str(self.inherit) if (self.inherit) else ''
 		return output + str(self.attribute)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.inherit):
 			self.inherit.define_markup(generator)
 		return self.attribute._define_markup(generator)
@@ -1993,7 +1995,7 @@ class OperationName(Production):
 	def _str(self) -> str:
 		return str(self._name)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._name.define_markup(generator)
 		return self
 
@@ -2011,7 +2013,7 @@ class OperationRest(ChildProduction):
 
 	_name: Optional[OperationName]
 	_open_paren: Symbol
-	_arguments: Optional["ArgumentList"]
+	_arguments: Optional[ArgumentList]
 	_close_paren: Symbol
 	_ignore: Optional[Ignore]
 
@@ -2045,7 +2047,7 @@ class OperationRest(ChildProduction):
 		return self._name.name if (self._name) else None
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self._arguments
 
 	@property
@@ -2057,7 +2059,7 @@ class OperationRest(ChildProduction):
 		output += str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 		return output + (str(self._ignore) if (self._ignore) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self._name):
 			self._name.define_markup(generator)
 		generator.add_text(self._open_paren)
@@ -2134,7 +2136,7 @@ class Iterable(ChildProduction):
 		return '__iterable__'
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	def _str(self) -> str:
@@ -2145,7 +2147,7 @@ class Iterable(ChildProduction):
 			output += str(self.key_type) + str(self._comma) + str(self.value_type)
 		return output + str(self._close_type)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._iterable.define_markup(generator)
 		generator.add_text(self._open_type)
 		if (self.type):
@@ -2183,7 +2185,7 @@ class AsyncIterable(ChildProduction):
 	value_type: Optional[TypeWithExtendedAttributes]
 	_close_type: Symbol
 	_open_paren: Optional[Symbol]
-	_arguments: Optional["ArgumentList"]
+	_arguments: Optional[ArgumentList]
 	_close_paren: Optional[Symbol]
 
 	@classmethod
@@ -2244,7 +2246,7 @@ class AsyncIterable(ChildProduction):
 		return '__async_iterable__'
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self._arguments
 
 	def _str(self) -> str:
@@ -2258,7 +2260,7 @@ class AsyncIterable(ChildProduction):
 			output += str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 		return output
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._async.define_markup(generator)
 		self._iterable.define_markup(generator)
 		generator.add_text(self._open_type)
@@ -2336,7 +2338,7 @@ class Maplike(ChildProduction):
 		return '__maplike__'
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	def _str(self) -> str:
@@ -2344,7 +2346,7 @@ class Maplike(ChildProduction):
 		output += str(self._maplike) + str(self._open_type) + str(self.key_type) + str(self._comma)
 		return output + str(self.value_type) + str(self._close_type)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.readonly):
 			self.readonly.define_markup(generator)
 		self._maplike.define_markup(generator)
@@ -2404,14 +2406,14 @@ class Setlike(ChildProduction):
 		return '__setlike__'
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return None
 
 	def _str(self) -> str:
 		output = str(self.readonly) if (self.readonly) else ''
 		return output + str(self._setlike) + str(self._open_type) + str(self.type) + str(self._close_type)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.readonly):
 			self.readonly.define_markup(generator)
 		self._setlike.define_markup(generator)
@@ -2465,7 +2467,7 @@ class SpecialOperation(ChildProduction):
 		return self.operation.name if (self.operation.name) else ('__' + _name(self.specials[0]) + '__')
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self.operation.arguments
 
 	@property
@@ -2485,7 +2487,7 @@ class SpecialOperation(ChildProduction):
 		output = ''.join([str(special) for special in self.specials])
 		return output + str(self.return_type) + str(self.operation)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		for special in self.specials:
 			special.define_markup(generator)
 		generator.add_type(self.return_type)
@@ -2529,7 +2531,7 @@ class Operation(ChildProduction):
 		return self.operation.name
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self.operation.arguments
 
 	@property
@@ -2548,7 +2550,7 @@ class Operation(ChildProduction):
 	def _str(self) -> str:
 		return str(self.return_type) + str(self.operation)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_type(self.return_type)
 		return self.operation._define_markup(generator)
 
@@ -2609,7 +2611,7 @@ class Stringifier(ChildProduction):
 		return self.attribute.name if (self.attribute and self.attribute.name) else '__stringifier__'
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self.operation.arguments if (self.operation) else None
 
 	@property
@@ -2635,7 +2637,7 @@ class Stringifier(ChildProduction):
 		output += (str(self.return_type) + str(self.operation)) if (self.operation) else ''
 		return output + (str(self.attribute) if (self.attribute) else '')
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._stringifier.define_markup(generator)
 		if (self.operation):
 			generator.add_type(self.return_type)
@@ -2782,7 +2784,7 @@ class StaticMember(ChildProduction):
 		return self.operation.name if (self.operation) else cast(AttributeRest, self.attribute).name
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self.operation.arguments if (self.operation) else None
 
 	@property
@@ -2809,7 +2811,7 @@ class StaticMember(ChildProduction):
 			return output + str(self.return_type) + str(self.operation)
 		return output + str(self.attribute)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		self._static.define_markup(generator)
 		if (self.operation):
 			generator.add_type(self.return_type)
@@ -2833,7 +2835,7 @@ class Constructor(ChildProduction):
 
 	_constructor: Identifier
 	_open_paren: Symbol
-	_arguments: Optional["ArgumentList"]
+	_arguments: Optional[ArgumentList]
 	_close_paren: Symbol
 
 	@classmethod
@@ -2868,7 +2870,7 @@ class Constructor(ChildProduction):
 		return False
 
 	@property
-	def arguments(self) -> Optional["ArgumentList"]:
+	def arguments(self) -> Optional[ArgumentList]:
 		return self._arguments
 
 	@property
@@ -2892,7 +2894,7 @@ class Constructor(ChildProduction):
 		output = self.name if (self.name) else ''
 		return output + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self._constructor):
 			self._constructor.define_markup(generator)
 		generator.add_text(self._open_paren)
@@ -2945,7 +2947,7 @@ class ExtendedAttributeList(ChildProduction):
 	def __len__(self) -> int:
 		return len(self.attributes)
 
-	def __getitem__(self, key: Union[str, int]) -> "Construct":
+	def __getitem__(self, key: Union[str, int]) -> Construct:
 		if (isinstance(key, str)):
 			for attribute in self.attributes:
 				if (key == attribute.name):
@@ -2961,19 +2963,19 @@ class ExtendedAttributeList(ChildProduction):
 			return False
 		return (key in self.attributes)
 
-	def __iter__(self) -> Iterator["Construct"]:
+	def __iter__(self) -> Iterator[Construct]:
 		return iter(self.attributes)
 
 	def keys(self) -> Sequence[str]:
 		return [attribute.name for attribute in self.attributes if (attribute.name)]
 
-	def values(self) -> Sequence["Construct"]:
+	def values(self) -> Sequence[Construct]:
 		return [attribute for attribute in self.attributes if (attribute.name)]
 
-	def items(self) -> Sequence[Tuple[str, "Construct"]]:
+	def items(self) -> Sequence[Tuple[str, Construct]]:
 		return [(attribute.name, attribute) for attribute in self.attributes if (attribute.name)]
 
-	def get(self, key: Union[str, int]) -> Optional["Construct"]:
+	def get(self, key: Union[str, int]) -> Optional[Construct]:
 		try:
 			return self[key]
 		except IndexError:
@@ -2984,7 +2986,7 @@ class ExtendedAttributeList(ChildProduction):
 		output += ''.join([str(attribute) + str(comma) for attribute, comma in itertools.zip_longest(self.attributes, self._commas, fillvalue='')])
 		return output + str(self._close_bracket)
 
-	def _define_markup(self, generator: "MarkupGenerator") -> Production:
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._open_bracket)
 		for attribute, comma in itertools.zip_longest(self.attributes, self._commas, fillvalue=''):
 			attribute.define_markup(generator)
