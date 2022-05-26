@@ -11,84 +11,23 @@
 #
 """Protocol definitions."""
 
-from typing import Iterator, List, Optional, Sequence, Tuple, Union
+from __future__ import annotations
+
+from typing import Iterator, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
 from typing_extensions import Protocol
+
+if (TYPE_CHECKING):
+	from .constructs import Construct
 
 
 class SymbolTable(Protocol):
 	"""Protocol for symbol capture and lookup."""
 
-	def add_type(self, type: 'Construct') -> None:
+	def add_type(self, type: Construct) -> None:
 		...
 
-	def get_type(self, name: str) -> Optional['Construct']:
-		...
-
-
-class Production(Protocol):
-	"""Protocol for all productions."""
-
-	leading_space: str
-	semicolon: Union[str, 'Production']
-	trailing_space: str
-
-	@property
-	def tail(self) -> str:
-		...
-
-	def __str__(self) -> str:
-		...
-
-	def _define_markup(self, generator: 'MarkupGenerator') -> 'Production':
-		...
-
-	def define_markup(self, generator: 'MarkupGenerator') -> None:
-		...
-
-
-class ChildProduction(Protocol):
-	"""Protocol for productions that have parents."""
-
-	@property
-	def idl_type(self) -> str:
-		...
-
-	@property
-	def name(self) -> Optional[str]:
-		...
-
-	@property
-	def normal_name(self) -> Optional[str]:
-		...
-
-	@property
-	def full_name(self) -> Optional[str]:
-		...
-
-	def _define_markup(self, generator: 'MarkupGenerator') -> 'Production':
-		...
-
-	def define_markup(self, generator: 'MarkupGenerator') -> None:
-		...
-
-	@property
-	def method_name(self) -> Optional[str]:
-		...
-
-	@property
-	def method_names(self) -> List[str]:
-		...
-
-	@property
-	def arguments(self) -> Optional['ArgumentList']:
-		...
-
-	@property
-	def symbol_table(self) -> Optional[SymbolTable]:
-		...
-
-	def __str__(self) -> str:
+	def get_type(self, name: str) -> Optional[Construct]:
 		...
 
 
@@ -98,171 +37,25 @@ class ConstructMap(Protocol):
 	def __len__(self) -> int:
 		...
 
-	def __getitem__(self, key: Union[str, int]) -> 'Construct':
+	def __getitem__(self, key: Union[str, int]) -> Construct:
 		...
 
 	def __contains__(self, key: Union[str, int]) -> bool:
 		...
 
-	def __iter__(self) -> Iterator['Construct']:
+	def __iter__(self) -> Iterator[Construct]:
 		...
 
 	def keys(self) -> Sequence[str]:
 		...
 
-	def values(self) -> Sequence['Construct']:
+	def values(self) -> Sequence[Construct]:
 		...
 
-	def items(self) -> Sequence[Tuple[str, 'Construct']]:
+	def items(self) -> Sequence[Tuple[str, Construct]]:
 		...
 
-	def get(self, key: Union[str, int]) -> Optional['Construct']:
-		...
-
-
-class ArgumentList(Protocol):
-	"""List of arguments."""
-
-	def __len__(self) -> int:
-		...
-
-	def __getitem__(self, key: Union[str, int]) -> 'Construct':
-		...
-
-	def __contains__(self, key: Union[str, int]) -> bool:
-		...
-
-	def __iter__(self) -> Iterator['Construct']:
-		...
-
-	def keys(self) -> Sequence[str]:
-		...
-
-	def values(self) -> Sequence['Construct']:
-		...
-
-	def items(self) -> Sequence[Tuple[str, 'Construct']]:
-		...
-
-	def get(self, key: Union[str, int]) -> Optional['Construct']:
-		...
-
-	@property
-	def argument_names(self) -> Sequence[str]:
-		...
-
-	def matches_names(self, argument_names: Sequence[str]) -> bool:
-		...
-
-
-class Construct(Protocol):
-	"""Base class for high-level language constructs."""
-
-	@property
-	def idl_type(self) -> str:
-		...
-
-	@property
-	def name(self) -> Optional[str]:
-		...
-
-	@property
-	def normal_name(self) -> Optional[str]:
-		...
-
-	@property
-	def full_name(self) -> Optional[str]:
-		...
-
-	@property
-	def constructors(self) -> List['Construct']:
-		...
-
-	@property
-	def method_name(self) -> Optional[str]:
-		...
-
-	@property
-	def method_names(self) -> List[str]:
-		...
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		...
-
-	@property
-	def symbol_table(self) -> Optional[SymbolTable]:
-		...
-
-	@property
-	def extended_attributes(self) -> Optional[ConstructMap]:
-		...
-
-	def __bool__(self) -> bool:
-		...
-
-	def __len__(self) -> int:
-		...
-
-	def __getitem__(self, key: Union[str, int]) -> 'Construct':
-		...
-
-	def __contains__(self, key: Union[str, int]) -> bool:
-		...
-
-	def __iter__(self) -> Iterator['Construct']:
-		...
-
-	def __reversed__(self) -> Iterator['Construct']:
-		...
-
-	def keys(self) -> Sequence[str]:
-		...
-
-	def values(self) -> Sequence['Construct']:
-		...
-
-	def items(self) -> Sequence[Tuple[str, 'Construct']]:
-		...
-
-	def get(self, key: Union[str, int]) -> Optional['Construct']:
-		...
-
-	def find_member(self, name: str) -> Optional['Construct']:
-		...
-
-	def find_members(self, name: str) -> List['Construct']:
-		...
-
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional['Construct']:
-		...
-
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List['Construct']:
-		...
-
-	def find_argument(self, name: str, search_members: bool = True) -> Optional['Construct']:
-		...
-
-	def find_arguments(self, name: str, search_members: bool = True) -> List['Construct']:
-		...
-
-	def matches_argument_names(self, argument_names: Sequence[str]) -> bool:
-		...
-
-	@property
-	def complexity_factor(self) -> int:
-		...
-
-	def __repr__(self) -> str:
-		...
-
-	def _define_markup(self, generator: 'MarkupGenerator') -> 'Production':
-		...
-
-	def define_markup(self, generator: 'MarkupGenerator') -> None:
-		...
-
-	def markup(self, marker: 'Marker') -> str:
+	def get(self, key: Union[str, int]) -> Optional[Construct]:
 		...
 
 
@@ -337,51 +130,4 @@ class LegacyMarker(Protocol):
 		...
 
 	def encode(self, text: str) -> str:
-		...
-
-
-class MarkupGenerator(Protocol):
-	"""MarkupGenerator controls the markup process for a construct."""
-
-	def __init__(self, construct: Construct) -> None:
-		...
-
-	def add_generator(self, generator: 'MarkupGenerator') -> None:
-		...
-
-	def add_type(self, type: Optional[Production]) -> None:
-		...
-
-	def add_primitive_type(self, type: Optional[Production]) -> None:
-		...
-
-	def add_string_type(self, type: Optional[Production]) -> None:
-		...
-
-	def add_buffer_type(self, type: Optional[Production]) -> None:
-		...
-
-	def add_object_type(self, type: Optional[Production]) -> None:
-		...
-
-	def add_type_name(self, type_name: Optional[Union[str, Production]]) -> None:
-		...
-
-	def add_name(self, name: Optional[Union[str, Production]]) -> None:
-		...
-
-	def add_keyword(self, keyword: Optional[Union[str, Production]]) -> None:
-		...
-
-	def add_enum_value(self, enum_value: Optional[Union[str, Production]]) -> None:
-		...
-
-	def add_text(self, text: Optional[Union[str, Production]]) -> None:
-		...
-
-	@property
-	def text(self) -> str:
-		...
-
-	def markup(self, marker: Marker, construct: Construct = None) -> str:
 		...

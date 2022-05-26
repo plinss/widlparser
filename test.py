@@ -14,8 +14,10 @@
 import html
 import itertools
 import sys
+from typing import cast
 
 import widlparser
+from widlparser import Construct
 
 
 def debug_hook(type, value, tb):
@@ -363,15 +365,15 @@ interface BigNumbers {
             print('    ' + member.idl_type + ': ' + str(member.normal_name) + ' (' + str(member.name) + ')')
 
     print("FIND:")
-    print(parser.find('round').full_name)
-    print(parser.find('Foo/method/y').full_name)
-    print(parser.find('Foo.method').full_name)
-    print(parser.find('Foo(constructor)').full_name)
-    print(parser.find('longest').full_name)
-    print(parser.find('fooArg').full_name)
-    print(parser.find('Window').full_name)
-    print(parser.find('mediaText').full_name)
-    print(parser.find('Foo.method').markup(Marker()))
+    print(cast(Construct, parser.find('round')).full_name)
+    print(cast(Construct, parser.find('Foo/method/y')).full_name)
+    print(cast(Construct, parser.find('Foo.method')).full_name)
+    print(cast(Construct, parser.find('Foo(constructor)')).full_name)
+    print(cast(Construct, parser.find('longest')).full_name)
+    print(cast(Construct, parser.find('fooArg')).full_name)
+    print(cast(Construct, parser.find('Window')).full_name)
+    print(cast(Construct, parser.find('mediaText')).full_name)
+    print(cast(Construct, parser.find('Foo.method')).markup(Marker()))
     for method in parser.find_all('Foo.method'):
         print(method.full_name)
 
