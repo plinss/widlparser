@@ -57,6 +57,34 @@ test3.8:
         - test.py
 
 
+test3.9:
+  image: python:3.9
+  stage: test
+  before_script:
+    - pip install -e .
+    - chmod a+x test.py
+  script:
+    - ./test.py > test-actual.txt
+    - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
+
+
+test3.10:
+  image: python:3.10
+  stage: test
+  before_script:
+    - pip install -e .
+    - chmod a+x test.py
+  script:
+    - ./test.py > test-actual.txt
+    - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
+
+
 package:
   stage: package
   before_script:
