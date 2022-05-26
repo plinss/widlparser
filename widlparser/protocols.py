@@ -17,7 +17,7 @@ from typing import Iterator, List, Optional, Sequence, Tuple, Union, TYPE_CHECKI
 
 from typing_extensions import Protocol
 
-if TYPE_CHECKING:
+if (TYPE_CHECKING):
 	from .constructs import Construct
 
 

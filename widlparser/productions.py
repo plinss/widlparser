@@ -21,7 +21,7 @@ from . import constructs, tokenizer
 from . import protocols
 from .tokenizer import Token, Tokenizer
 
-if TYPE_CHECKING:
+if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
 	from .constructs import Construct
 

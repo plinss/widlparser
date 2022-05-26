@@ -23,7 +23,7 @@ from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, 
                           Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
 from .tokenizer import Token, Tokenizer
 
-if TYPE_CHECKING:
+if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
 	from .productions import Production, ArgumentList
 

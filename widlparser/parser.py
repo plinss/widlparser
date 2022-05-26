@@ -22,7 +22,7 @@ from . import markup
 from . import protocols
 from . import tokenizer
 
-if TYPE_CHECKING:
+if (TYPE_CHECKING):
 	from .constructs import Construct
 
 

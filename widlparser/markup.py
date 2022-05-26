@@ -18,7 +18,7 @@ from typing import List, Optional, Tuple, Union, cast, TYPE_CHECKING
 
 from . import protocols
 
-if TYPE_CHECKING:
+if (TYPE_CHECKING):
 	from .productions import Production
 	from .constructs import Construct
 
