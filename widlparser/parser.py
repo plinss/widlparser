@@ -18,6 +18,7 @@ import re
 from typing import Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import constructs
+from . import productions
 from . import markup
 from . import protocols
 from . import tokenizer
@@ -270,8 +271,8 @@ class Parser(object):
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
 			tokens = tokenizer.Tokenizer(match.group(2))
-			if (constructs.ArgumentList.peek(tokens)):
-				arguments = constructs.ArgumentList(tokens, None)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
 				return match.group(1).strip() + '(' + arguments.argument_names[0] + ')'
 			name = match.group(1).strip() + match.group(3)
 			argument_names = [argument.strip() for argument in match.group(2).split(',')]
@@ -304,8 +305,8 @@ class Parser(object):
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
 			tokens = tokenizer.Tokenizer(match.group(2))
-			if (constructs.ArgumentList.peek(tokens)):
-				arguments = constructs.ArgumentList(tokens, None)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
 				return [match.group(1).strip() + '(' + argument_name + ')' for argument_name in arguments.argument_names]
 			name = match.group(1).strip() + match.group(3)
 			argument_names = [argument.strip() for argument in match.group(2).split(',')]
