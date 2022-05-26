@@ -11,7 +11,7 @@
 #
 """High-level WebIDL constructs."""
 
-from typing import Any, Iterator, List, Optional, Sequence, Tuple, Union, cast
+from typing import Any, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
 
 from . import markup
 from . import protocols
@@ -20,6 +20,10 @@ from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, 
                           Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
                           Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
 from .tokenizer import Token, Tokenizer
+
+if TYPE_CHECKING:
+	from .markup import MarkupGenerator
+	from .productions import Production, ArgumentList
 
 
 def _name(thing: Any) -> str:
@@ -37,13 +41,13 @@ class Construct(ChildProduction):
 		"""Check if construct is next in token stream."""
 		return ExtendedAttributeList.peek(tokens)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction = None, parse_extended_attributes: bool = True,
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction = None, parse_extended_attributes: bool = True,
 	             symbol_table: protocols.SymbolTable = None) -> None:
 		ChildProduction.__init__(self, tokens, parent)
 		self._symbol_table = symbol_table
 		self._extended_attributes = self._parse_extended_attributes(tokens, self) if (parse_extended_attributes) else None
 
-	def _parse_extended_attributes(self, tokens: Tokenizer, parent: protocols.Construct) -> Optional[ExtendedAttributeList]:
+	def _parse_extended_attributes(self, tokens: Tokenizer, parent: "Construct") -> Optional[ExtendedAttributeList]:
 		return ExtendedAttributeList(tokens, parent) if (ExtendedAttributeList.peek(tokens)) else None
 
 	@property
@@ -56,7 +60,7 @@ class Construct(ChildProduction):
 		return None
 
 	@property
-	def constructors(self) -> List[protocols.Construct]:
+	def constructors(self) -> List["Construct"]:
 		"""Get constructors."""
 		return [attribute for attribute in self._extended_attributes if ('constructor' == attribute.idl_type)] if (self._extended_attributes) else []
 
@@ -80,7 +84,7 @@ class Construct(ChildProduction):
 		"""Number of children."""
 		return 0
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		"""Access child by index."""
 		raise IndexError
 
@@ -88,11 +92,11 @@ class Construct(ChildProduction):
 		"""Test if child is present."""
 		return False
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		"""Iterate over children."""
 		return iter(())
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		"""Iterate over children backwards."""
 		return iter(())
 
@@ -100,36 +104,36 @@ class Construct(ChildProduction):
 		"""Names of children."""
 		return []
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return []
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return []
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		"""Search for child member of a given name."""
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		"""Search for all child members of a given name."""
 		return []
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[protocols.Construct]:
+	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional["Construct"]:
 		"""Search for a method of a given name."""
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[protocols.Construct]:
+	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List["Construct"]:
 		"""Search for all methods of a given name."""
 		return []
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		"""Search for an argument of a given name."""
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		"""Search for all arguments of a given name."""
 		return []
 
@@ -150,7 +154,7 @@ class Construct(ChildProduction):
 		"""Debug info."""
 		return repr(self._extended_attributes) if (self._extended_attributes) else ''
 
-	def define_markup(self, generator: protocols.MarkupGenerator) -> None:
+	def define_markup(self, generator: "MarkupGenerator") -> None:
 		"""Define marked up version of self."""
 		generator.add_text(self.leading_space)
 
@@ -205,7 +209,7 @@ class Const(Construct):
 						return tokens.pop_position(ConstValue.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, False, symbol_table=symbol_table)
 		self._const = Symbol(tokens, 'const')
 		self.type = ConstType(tokens)
@@ -244,7 +248,7 @@ class Const(Construct):
 		"""Convert to string."""
 		return str(self._const) + str(self.type) + str(self._name) + str(self._equals) + str(self.value)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._const.define_markup(generator)
 		generator.add_type(self.type)
 		self._name.define_markup(generator)
@@ -286,7 +290,7 @@ class Enum(Construct):
 						return tokens.pop_position((token is not None) and token.is_symbol('}'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self._enum = Symbol(tokens, 'enum')
 		self._name = Identifier(tokens)
@@ -313,7 +317,7 @@ class Enum(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self._enum) + str(self._name) + str(self._open_brace) + str(self._enum_values) + str(self._close_brace)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._enum.define_markup(generator)
 		self._name.define_markup(generator)
 		generator.add_text(self._open_brace)
@@ -347,7 +351,7 @@ class Typedef(Construct):
 				return tokens.pop_position(Identifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self._typedef = Symbol(tokens, 'typedef')
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -369,7 +373,7 @@ class Typedef(Construct):
 		output = Construct._str(self) + str(self._typedef)
 		return output + str(self.type) + str(self._name)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._typedef.define_markup(generator)
 		generator.add_type(self.type)
 		self._name.define_markup(generator)
@@ -413,7 +417,7 @@ class Argument(Construct):
 						return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction = None) -> None:
 		Construct.__init__(self, tokens, parent)
 		if (Symbol.peek(tokens, 'optional')):
 			self.optional = Symbol(tokens, 'optional')
@@ -451,7 +455,7 @@ class Argument(Construct):
 		output += str(self.variadic) if (self.variadic) else ''
 		return output + str(self._name) + (str(self.default) if (self.default) else '')
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.optional):
 			self.optional.define_markup(generator)
 		if (self._ignore):
@@ -481,7 +485,7 @@ class InterfaceMember(Construct):
 	| Iterable | Attribute | Maplike | Setlike
 	"""
 
-	member: protocols.ChildProduction
+	member: ChildProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -494,7 +498,7 @@ class InterfaceMember(Construct):
 		                           or Attribute.peek(tokens)
 		                           or SpecialOperation.peek(tokens) or Operation.peek(tokens))
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct") -> None:
 		Construct.__init__(self, tokens, parent)
 		if (Constructor.peek(tokens)):
 			self.member = Constructor(tokens, parent)
@@ -541,17 +545,17 @@ class InterfaceMember(Construct):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -564,7 +568,7 @@ class InterfaceMember(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self.member)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		return self.member._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -580,7 +584,7 @@ class MixinMember(Construct):
 	[ExtendedAttributes] Const | Operation | Stringifier | ReadOnly AttributeRest
 	"""
 
-	member: protocols.ChildProduction
+	member: ChildProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -589,7 +593,7 @@ class MixinMember(Construct):
 		return tokens.pop_position(Const.peek(tokens) or Stringifier.peek(tokens)
 		                           or MixinAttribute.peek(tokens) or Operation.peek(tokens))
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct") -> None:
 		Construct.__init__(self, tokens, parent)
 		if (Const.peek(tokens)):
 			self.member = Const(tokens, parent)
@@ -622,17 +626,17 @@ class MixinMember(Construct):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -645,7 +649,7 @@ class MixinMember(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self.member)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		return self.member._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -663,7 +667,7 @@ class SyntaxError(Construct):
 
 	tokens: List[Token]
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, False, symbol_table=symbol_table)
 		self.tokens = tokens.syntax_error((';', '}'), False)
 		if ((1 < len(self.tokens)) and self.tokens[-1].is_symbol('}')):
@@ -700,7 +704,7 @@ class Interface(Construct):
 	_name: Identifier
 	inheritance: Optional[Inheritance]
 	_open_brace: Symbol
-	members: List[protocols.Construct]
+	members: List["Construct"]
 	_close_brace: Optional[Symbol]
 
 	@classmethod
@@ -715,7 +719,7 @@ class Interface(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
@@ -752,7 +756,7 @@ class Interface(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -768,48 +772,48 @@ class Interface(Construct):
 			return False
 		return (key in self.members)
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		return iter(self.members)
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		return reversed(self.members)
 
 	def keys(self) -> Sequence[str]:
 		return [member.name for member in self.members if (member.name)]
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[protocols.Construct]:
+	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[protocols.Construct]:
+	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List["Construct"]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -817,8 +821,8 @@ class Interface(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
-		result: List[protocols.Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
+		result: List["Construct"] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -835,7 +839,7 @@ class Interface(Construct):
 				output += str(member)
 		return output + str(self._close_brace) if (self._close_brace) else output
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.partial):
 			self.partial.define_markup(generator)
 		self._interface.define_markup(generator)
@@ -874,7 +878,7 @@ class Mixin(Construct):
 	_name: Identifier
 	inheritance: Optional[Inheritance]
 	_open_brace: Symbol
-	members: List[protocols.Construct]
+	members: List["Construct"]
 	_close_brace: Optional[Symbol]
 
 	@classmethod
@@ -889,7 +893,7 @@ class Mixin(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
@@ -927,7 +931,7 @@ class Mixin(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -943,48 +947,48 @@ class Mixin(Construct):
 			return False
 		return (key in self.members)
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		return iter(self.members)
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		return reversed(self.members)
 
 	def keys(self) -> Sequence[str]:
 		return [member.name for member in self.members if (member.name)]
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[protocols.Construct]:
+	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[protocols.Construct]:
+	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List["Construct"]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -992,8 +996,8 @@ class Mixin(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
-		result: List[protocols.Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
+		result: List["Construct"] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -1010,7 +1014,7 @@ class Mixin(Construct):
 				output += str(member)
 		return output + str(self._close_brace) if (self._close_brace) else output
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.partial):
 			self.partial.define_markup(generator)
 		self._interface.define_markup(generator)
@@ -1045,7 +1049,7 @@ class NamespaceMember(Construct):
 	[ExtendedAttributes] Operation | "readonly" Attribute | Const
 	"""
 
-	member: protocols.ChildProduction
+	member: ChildProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1055,7 +1059,7 @@ class NamespaceMember(Construct):
 			return tokens.pop_position(Attribute.peek(tokens))
 		return tokens.pop_position(Operation.peek(tokens) or Const.peek(tokens))
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct") -> None:
 		Construct.__init__(self, tokens, parent)
 		token = cast(Token, tokens.sneak_peek())
 		if (token.is_symbol('readonly')):
@@ -1087,17 +1091,17 @@ class NamespaceMember(Construct):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -1110,7 +1114,7 @@ class NamespaceMember(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self.member)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		return self.member._define_markup(generator)
 
 	def __repr__(self) -> str:
@@ -1144,7 +1148,7 @@ class Namespace(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._namespace = Symbol(tokens, 'namespace')
@@ -1180,7 +1184,7 @@ class Namespace(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1196,48 +1200,48 @@ class Namespace(Construct):
 			return False
 		return (key in self.members)
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		return iter(self.members)
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		return reversed(self.members)
 
 	def keys(self) -> Sequence[str]:
 		return [member.name for member in self.members if (member.name)]
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[protocols.Construct]:
+	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[protocols.Construct]:
+	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List["Construct"]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -1245,8 +1249,8 @@ class Namespace(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
-		result: List[protocols.Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
+		result: List["Construct"] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -1261,7 +1265,7 @@ class Namespace(Construct):
 			output += str(member)
 		return output + str(self._close_brace) if (self._close_brace) else output
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.partial):
 			self.partial.define_markup(generator)
 		self._namespace.define_markup(generator)
@@ -1306,7 +1310,7 @@ class DictionaryMember(Construct):
 				return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None) -> None:
 		Construct.__init__(self, tokens, parent)
 		self.required = Symbol(tokens, 'required') if (Symbol.peek(tokens, 'required')) else None
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -1329,7 +1333,7 @@ class DictionaryMember(Construct):
 		output += str(self.type) + str(self._name)
 		return output + (str(self.default) if (self.default) else '')
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.required):
 			self.required.define_markup(generator)
 		generator.add_type(self.type)
@@ -1376,7 +1380,7 @@ class Dictionary(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._dictionary = Symbol(tokens, 'dictionary')
@@ -1420,7 +1424,7 @@ class Dictionary(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1436,34 +1440,34 @@ class Dictionary(Construct):
 			return False
 		return (key in self.members)
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		return iter(self.members)
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		return reversed(self.members)
 
 	def keys(self) -> Sequence[str]:
 		return [member.name for member in self.members if (member.name)]
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		return [member for member in self.members if (name == member.name)]
 
 	def _str(self) -> str:
@@ -1476,7 +1480,7 @@ class Dictionary(Construct):
 			output += str(member)
 		return output + str(self._close_brace) if (self._close_brace) else output
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		if (self.partial):
 			self.partial.define_markup(generator)
 		self._dictionary.define_markup(generator)
@@ -1537,7 +1541,7 @@ class Callback(Construct):
 							return tokens.pop_position((token is not None) and token.is_symbol(')'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self._callback = Symbol(tokens, 'callback')
 		token = cast(Token, tokens.sneak_peek())
@@ -1574,7 +1578,7 @@ class Callback(Construct):
 		return self._name.name
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		return self._arguments
 
 	@property
@@ -1584,7 +1588,7 @@ class Callback(Construct):
 	def __len__(self) -> int:
 		return len(self.interface.members) if (self.interface) else 0
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		if (self.interface):
 			if (isinstance(key, str)):
 				for member in self.interface.members:
@@ -1604,12 +1608,12 @@ class Callback(Construct):
 			return (key in self.interface.members)
 		return False
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		if (self.interface):
 			return iter(self.interface.members)
 		return iter(())
 
-	def __reversed__(self) -> Iterator[protocols.Construct]:
+	def __reversed__(self) -> Iterator["Construct"]:
 		if (self.interface):
 			return reversed(self.interface.members)
 		return iter(())
@@ -1617,32 +1621,32 @@ class Callback(Construct):
 	def keys(self) -> Sequence[str]:
 		return [member.name for member in self.interface.members if (member.name)] if (self.interface) else []
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [member for member in self.interface.members if (member.name)] if (self.interface) else []
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(member.name, member) for member in self.interface.members if (member.name)] if (self.interface) else []
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[protocols.Construct]:
+	def find_member(self, name: str) -> Optional["Construct"]:
 		if (self.interface):
 			for member in reversed(self.interface.members):
 				if (name == member.name):
 					return member
 		return None
 
-	def find_members(self, name: str) -> List[protocols.Construct]:
+	def find_members(self, name: str) -> List["Construct"]:
 		if (self.interface):
 			return [member for member in self.interface.members if (name == member.name)]
 		return []
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
-		argument: Optional[protocols.Construct]
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
+		argument: Optional["Construct"]
 		if (self._arguments):
 			for argument in self._arguments:
 				if (name == argument.name):
@@ -1654,7 +1658,7 @@ class Callback(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		result = []
 		if (self._arguments):
 			result = [argument for argument in self._arguments if (name == argument.name)]
@@ -1670,7 +1674,7 @@ class Callback(Construct):
 		output += str(self._name) + str(self._equals) + str(self.return_type)
 		return output + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._callback.define_markup(generator)
 		if (self.interface):
 			return self.interface._define_markup(generator)
@@ -1712,7 +1716,7 @@ class ImplementsStatement(Construct):
 				return tokens.pop_position(TypeIdentifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._implements_symbol = Symbol(tokens, 'implements')
@@ -1735,7 +1739,7 @@ class ImplementsStatement(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self._name) + str(self._implements_symbol) + str(self._implements)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._name.define_markup(generator)
 		self._implements_symbol.define_markup(generator)
 		self._implements.define_markup(generator)
@@ -1765,7 +1769,7 @@ class IncludesStatement(Construct):
 				return tokens.pop_position(TypeIdentifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: "Construct" = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._includes_symbol = Symbol(tokens, 'includes')
@@ -1788,7 +1792,7 @@ class IncludesStatement(Construct):
 	def _str(self) -> str:
 		return Construct._str(self) + str(self._name) + str(self._includes_symbol) + str(self._includes)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._name.define_markup(generator)
 		self._includes_symbol.define_markup(generator)
 		self._includes.define_markup(generator)
@@ -1808,7 +1812,7 @@ class ExtendedAttributeUnknown(Construct):
 
 	tokens: List[Token]
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		skipped = tokens.seek_symbol((',', ']'))
 		self.tokens = skipped[:-1]
@@ -1848,7 +1852,7 @@ class ExtendedAttributeNoArgs(Construct):
 			return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._did_parse(tokens)
@@ -1872,7 +1876,7 @@ class ExtendedAttributeNoArgs(Construct):
 	def _str(self) -> str:
 		return str(self._attribute)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		return self
 
@@ -1904,7 +1908,7 @@ class ExtendedAttributeArgList(Construct):
 					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
@@ -1934,7 +1938,7 @@ class ExtendedAttributeArgList(Construct):
 	def _str(self) -> str:
 		return str(self._attribute) + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		generator.add_text(self._open_paren)
 		if (self._arguments):
@@ -1969,7 +1973,7 @@ class ExtendedAttributeIdent(Construct):
 					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -1999,7 +2003,7 @@ class ExtendedAttributeIdent(Construct):
 	def _str(self) -> str:
 		return str(self._attribute) + str(self._equals) + str(self._value)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		generator.add_text(self._equals)
 		self._value.define_markup(generator)
@@ -2037,7 +2041,7 @@ class ExtendedAttributeIdentList(Construct):
 							return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -2071,7 +2075,7 @@ class ExtendedAttributeIdentList(Construct):
 		return (str(self._attribute) + str(self._equals) + str(self._open_paren) + str(self._value)
 		        + (str(self.next) if (self.next) else '') + str(self._close_paren))
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		generator.add_text(self._equals)
 		generator.add_text(self._open_paren)
@@ -2117,7 +2121,7 @@ class ExtendedAttributeNamedArgList(Construct):
 							return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -2150,14 +2154,14 @@ class ExtendedAttributeNamedArgList(Construct):
 		return self.attribute
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		return self._arguments
 
 	def _str(self) -> str:
 		output = str(self._attribute) + str(self._equals) + str(self._value)
 		return output + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		generator.add_text(self._equals)
 		self._value.define_markup(generator)
@@ -2200,7 +2204,7 @@ class ExtendedAttributeTypePair(Construct):
 								return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
@@ -2226,7 +2230,7 @@ class ExtendedAttributeTypePair(Construct):
 		output = str(self._attribute) + str(self._open_paren) + str(self.key_type) + str(self._comma)
 		return output + str(self.value_type) + str(self._close_paren)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		self._attribute.define_markup(generator)
 		generator.add_text(self._open_paren)
 		self.key_type.define_markup(generator)
@@ -2250,7 +2254,7 @@ class ExtendedAttribute(Construct):
 	| ExtendedAttributeIdentList | ExtendedAttributeTypePair
 	"""
 
-	attribute: protocols.Construct
+	attribute: "Construct"
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2261,7 +2265,7 @@ class ExtendedAttribute(Construct):
 		        or ExtendedAttributeIdentList.peek(tokens)
 		        or ExtendedAttributeIdent.peek(tokens))
 
-	def __init__(self, tokens: Tokenizer, parent: protocols.ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		if (ExtendedAttributeNamedArgList.peek(tokens)):
 			self.attribute = ExtendedAttributeNamedArgList(tokens, parent)
@@ -2292,19 +2296,19 @@ class ExtendedAttribute(Construct):
 		return self.attribute.normal_name
 
 	@property
-	def arguments(self) -> Optional[protocols.ArgumentList]:
+	def arguments(self) -> Optional["ArgumentList"]:
 		if (hasattr(self.attribute, 'arguments')):
 			return self.attribute.arguments
 		return None
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[protocols.Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> Optional["Construct"]:
 		if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
 			for argument in self.attribute.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[protocols.Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> List["Construct"]:
 		if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
 			return [argument for argument in self.attribute.arguments if (name == argument.name)]
 		return []
@@ -2317,7 +2321,7 @@ class ExtendedAttribute(Construct):
 	def _str(self) -> str:
 		return str(self.attribute)
 
-	def _define_markup(self, generator: protocols.MarkupGenerator) -> protocols.Production:
+	def _define_markup(self, generator: "MarkupGenerator") -> "Production":
 		return self.attribute._define_markup(generator)
 
 	def __repr__(self) -> str:

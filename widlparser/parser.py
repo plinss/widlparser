@@ -13,20 +13,23 @@
 
 import itertools
 import re
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Union, cast
+from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
 
 from . import constructs
 from . import markup
 from . import protocols
 from . import tokenizer
 
+if TYPE_CHECKING:
+	from .constructs import Construct
+
 
 class Parser(object):
 	"""Class to parse WebIDL."""
 
 	ui: Optional[tokenizer.UserInterface]
-	symbol_table: Dict[str, protocols.Construct]
-	constructs: List[protocols.Construct]
+	symbol_table: Dict[str, "Construct"]
+	constructs: List["Construct"]
 
 	def __init__(self, text: str = None, ui: tokenizer.UserInterface = None, symbol_table: dict = None) -> None:
 		self.ui = ui
@@ -95,7 +98,7 @@ class Parser(object):
 		"""Number of parsed constucts."""
 		return len(self.constructs)
 
-	def __getitem__(self, key: Union[str, int]) -> protocols.Construct:
+	def __getitem__(self, key: Union[str, int]) -> "Construct":
 		"""Access a construct by name or index."""
 		if (isinstance(key, str)):
 			for construct in self.constructs:
@@ -113,7 +116,7 @@ class Parser(object):
 			return False
 		return (key in self.constructs)
 
-	def __iter__(self) -> Iterator[protocols.Construct]:
+	def __iter__(self) -> Iterator["Construct"]:
 		"""Get an iterator for the constructs."""
 		return iter(self.constructs)
 
@@ -121,28 +124,28 @@ class Parser(object):
 		"""Names of all constructs."""
 		return [construct.name for construct in self.constructs if (construct.name)]
 
-	def values(self) -> Sequence[protocols.Construct]:
+	def values(self) -> Sequence["Construct"]:
 		return [construct for construct in self.constructs if (construct.name)]
 
-	def items(self) -> Sequence[Tuple[str, protocols.Construct]]:
+	def items(self) -> Sequence[Tuple[str, "Construct"]]:
 		return [(construct.name, construct) for construct in self.constructs if (construct.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[protocols.Construct]:
+	def get(self, key: Union[str, int]) -> Optional["Construct"]:
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def add_type(self, type: protocols.Construct) -> None:
+	def add_type(self, type: "Construct") -> None:
 		"""Add a type to the symbol table."""
 		if (type.name):
 			self.symbol_table[type.name] = type
 
-	def get_type(self, name: str) -> Optional[protocols.Construct]:
+	def get_type(self, name: str) -> Optional["Construct"]:
 		"""Lookup a type in the symbol table."""
 		return self.symbol_table.get(name)
 
-	def find(self, name: str) -> Optional[protocols.Construct]:
+	def find(self, name: str) -> Optional["Construct"]:
 		"""
 		Find a construct by name.
 
@@ -159,8 +162,8 @@ class Parser(object):
 		elif ('.' in name):
 			path = name.split('.')
 
-		construct: Optional[protocols.Construct]
-		member: Optional[protocols.Construct]
+		construct: Optional["Construct"]
+		member: Optional["Construct"]
 		if (path):
 			construct_name = path[0]
 			member_name = path[1]
@@ -202,7 +205,7 @@ class Parser(object):
 
 		return None
 
-	def find_all(self, name: str) -> List[protocols.Construct]:
+	def find_all(self, name: str) -> List["Construct"]:
 		"""
 		Find all constructs with a given name.
 
@@ -282,7 +285,7 @@ class Parser(object):
 					return cast(str, method.method_name)
 			return name + '(' + ', '.join(argument_names or []) + ')'
 
-		construct: Optional[protocols.Construct]
+		construct: Optional["Construct"]
 		for construct in self.constructs:
 			method = construct.find_method(name, argument_names)
 			if (method):
@@ -316,7 +319,7 @@ class Parser(object):
 					return list(itertools.chain(*[method.method_names for method in methods]))
 			return [name + '(' + ', '.join(argument_names or []) + ')']
 
-		construct: Optional[protocols.Construct]
+		construct: Optional["Construct"]
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (methods):
