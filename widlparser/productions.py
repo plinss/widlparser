@@ -453,7 +453,7 @@ class Identifier(Production):
 		self._did_parse(tokens, False)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name[1:] if ('_' == self._name[0]) else self._name
 
 	def _str(self) -> str:
