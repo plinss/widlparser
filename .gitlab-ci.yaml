@@ -62,9 +62,9 @@ package:
   before_script:
     - chmod a+x tools/set_version
     - tools/set_version
-    - pip install --upgrade wheel
+    - pip install --upgrade build
   script:
-    - python setup.py bdist_wheel
+    - python -m build --no-isolation --outdir dist
   artifacts:
     paths:
       - dist
