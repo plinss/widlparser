@@ -15,7 +15,7 @@ from __future__ import annotations
 
 
 import itertools
-from typing import Any, Container, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
+from typing import Any, Container, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import constructs, tokenizer
 from . import protocols
@@ -106,9 +106,9 @@ class Production(object):
 class ChildProduction(Production):
 	"""Base class for productions that have parents."""
 
-	parent: Optional["ChildProduction"]
+	parent: Optional[ChildProduction]
 
-	def __init__(self, tokens: Tokenizer, parent: Optional["ChildProduction"]) -> None:
+	def __init__(self, tokens: Tokenizer, parent: Optional[ChildProduction]) -> None:
 		Production.__init__(self, tokens)
 		self.parent = parent
 

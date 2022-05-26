@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from typing import Iterator, List, Optional, Sequence, Tuple, Union, TYPE_CHECKING
+from typing import Iterator, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
 from typing_extensions import Protocol
 

@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
+from typing import Any, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import markup
 from . import protocols
@@ -25,7 +25,7 @@ from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
-	from .productions import Production, ArgumentList
+	from .productions import Production
 
 
 def _name(thing: Any) -> str:

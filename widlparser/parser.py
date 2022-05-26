@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import itertools
 import re
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Union, cast, TYPE_CHECKING
+from typing import Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import constructs
 from . import markup

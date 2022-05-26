@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import sys
-from typing import List, Optional, Tuple, Union, cast, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 from . import protocols
 
@@ -94,7 +94,7 @@ class MarkupGenerator(object):
 		"""Add plain text."""
 		if (text):
 			if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
-				cast("MarkupText", self.children[-1])._append_text(str(text))
+				cast('MarkupText', self.children[-1])._append_text(str(text))
 			else:
 				self.children.append(MarkupText(self.construct, str(text)))
 
@@ -111,7 +111,7 @@ class MarkupGenerator(object):
 			return marker.markup_construct(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupConstruct')):
 			warning('markupConstruct')
-			return cast("protocols.LegacyMarker", marker).markupConstruct(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupConstruct(self.text, self.construct)
 		return (None, None)
 
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
@@ -134,7 +134,7 @@ class MarkupType(MarkupGenerator):
 			return marker.markup_type(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupType')):
 			warning('markupType')
-			return cast("protocols.LegacyMarker", marker).markupType(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupType(self.text, self.construct)
 		return (None, None)
 
 
@@ -150,7 +150,7 @@ class MarkupPrimitiveType(MarkupGenerator):
 			return marker.markup_primitive_type(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupPrimitiveType')):
 			warning('markupPrimitiveType')
-			return cast("protocols.LegacyMarker", marker).markupPrimitiveType(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupPrimitiveType(self.text, self.construct)
 		return (None, None)
 
 
@@ -166,7 +166,7 @@ class MarkupBufferType(MarkupGenerator):
 			return marker.markup_buffer_type(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupBufferType')):
 			warning('markupBufferType')
-			return cast("protocols.LegacyMarker", marker).markupBufferType(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupBufferType(self.text, self.construct)
 		return (None, None)
 
 
@@ -182,7 +182,7 @@ class MarkupStringType(MarkupGenerator):
 			return marker.markup_string_type(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupStringType')):
 			warning('markupStringType')
-			return cast("protocols.LegacyMarker", marker).markupStringType(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupStringType(self.text, self.construct)
 		return (None, None)
 
 
@@ -198,7 +198,7 @@ class MarkupObjectType(MarkupGenerator):
 			return marker.markup_object_type(self.text, self.construct)
 		if (self.construct and hasattr(marker, 'markupObjectType')):
 			warning('markupObjectType')
-			return cast("protocols.LegacyMarker", marker).markupObjectType(self.text, self.construct)
+			return cast('protocols.LegacyMarker', marker).markupObjectType(self.text, self.construct)
 		return (None, None)
 
 
@@ -232,10 +232,10 @@ class MarkupTypeName(MarkupText):
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up type name."""
 		if (hasattr(marker, 'markup_type_name')):
-			head, tail = marker.markup_type_name(self.text, cast("Construct", construct))
+			head, tail = marker.markup_type_name(self.text, cast('Construct', construct))
 		elif (hasattr(marker, 'markupTypeName')):
 			warning('markupTypeName')
-			head, tail = cast("protocols.LegacyMarker", marker).markupTypeName(self.text, cast("Construct", construct))
+			head, tail = cast('protocols.LegacyMarker', marker).markupTypeName(self.text, cast('Construct', construct))
 		else:
 			head, tail = (None, None)
 		output = str(head) if (head) else ''
@@ -252,10 +252,10 @@ class MarkupName(MarkupText):
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up name."""
 		if (hasattr(marker, 'markup_name')):
-			head, tail = marker.markup_name(self.text, cast("Construct", construct))
+			head, tail = marker.markup_name(self.text, cast('Construct', construct))
 		elif (hasattr(marker, 'markupName')):
 			warning('markupName')
-			head, tail = cast("protocols.LegacyMarker", marker).markupName(self.text, cast("Construct", construct))
+			head, tail = cast('protocols.LegacyMarker', marker).markupName(self.text, cast('Construct', construct))
 		else:
 			head, tail = (None, None)
 		output = str(head) if (head) else ''
@@ -272,10 +272,10 @@ class MarkupKeyword(MarkupText):
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up keyword."""
 		if (hasattr(marker, 'markup_keyword')):
-			head, tail = marker.markup_keyword(self.text, cast("Construct", construct))
+			head, tail = marker.markup_keyword(self.text, cast('Construct', construct))
 		elif (hasattr(marker, 'markupKeyword')):
 			warning('markupKeyword')
-			head, tail = cast("protocols.LegacyMarker", marker).markupKeyword(self.text, cast("Construct", construct))
+			head, tail = cast('protocols.LegacyMarker', marker).markupKeyword(self.text, cast('Construct', construct))
 		else:
 			head, tail = (None, None)
 		output = str(head) if (head) else ''
@@ -292,10 +292,10 @@ class MarkupEnumValue(MarkupText):
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up enum value."""
 		if (hasattr(marker, 'markup_enum_value')):
-			head, tail = marker.markup_enum_value(self.text, cast("Construct", construct))
+			head, tail = marker.markup_enum_value(self.text, cast('Construct', construct))
 		elif (hasattr(marker, 'markupEnumValue')):
 			warning('markupEnumValue')
-			head, tail = cast("protocols.LegacyMarker", marker).markupEnumValue(self.text, cast("Construct", construct))
+			head, tail = cast('protocols.LegacyMarker', marker).markupEnumValue(self.text, cast('Construct', construct))
 		else:
 			head, tail = (None, None)
 		output = str(head) if (head) else ''
