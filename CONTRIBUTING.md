@@ -3,6 +3,15 @@ Contributing to widlparser
 
 All contributions are welcome!
 
+Linting
+-------
+
+Please install all the dev requirements, e.g.:
+
+    pip install -e '.[dev]'
+
+and ensure that `flake8 widlparser` and `mypy widlparser` do not return any errors.
+
 
 Testing
 -------
