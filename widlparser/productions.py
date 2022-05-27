@@ -110,17 +110,21 @@ class ComplexProduction(Production):
 		Also, all Constructs.
 	"""
 
-	_parent: Optional[ChildProduction]
+	_parent: Optional[ComplexProduction]
 
 	def __init__(self, tokens: Tokenizer, parent: Optional[ComplexProduction]) -> None:
 		Production.__init__(self, tokens)
 		self._parent = parent
 
 	@property
-	def parent(self) -> ChildProduction:
+	def parent(self) -> ComplexProduction:
 		if self._parent is not None:
 			return self._parent
 		raise KeyError()
+
+	@parent.setter
+	def parent(self, parent: ComplexProduction) -> None:
+		self._parent = parent
 
 	@property
 	def hasParent(self) -> bool:
