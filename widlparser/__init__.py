@@ -47,7 +47,7 @@ from .productions import (
 	Attribute,
 	AttributeName,
 	AttributeRest,
-	ChildProduction,
+	ComplexProduction,
 	ConstType,
 	ConstValue,
 	Constructor,
@@ -111,7 +111,7 @@ __all__ = [
 
 	# productions
 	'Production',
-	'ChildProduction',
+	'ComplexProduction',
 	'String',
 	'Symbol',
 	'Integer',
