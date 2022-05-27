@@ -23,7 +23,7 @@ from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
-	from .constructs import Construct
+	from .constructs import Construct, Argument
 
 
 def _name(thing: Any) -> str:
@@ -1607,7 +1607,7 @@ class ArgumentList(Production):
 	Argument ["," Argument]...
 	"""
 
-	arguments: List['constructs.Argument']
+	arguments: List[Argument]
 	_commas: List[Symbol]
 
 	@classmethod
