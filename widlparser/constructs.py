@@ -1552,7 +1552,7 @@ class Callback(Construct):
 			self._equals = Symbol(tokens, '=')
 			self.return_type = Type(tokens, self)
 			self._open_paren = Symbol(tokens, '(')
-			self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
+			self._arguments = ArgumentList(tokens, self)
 			self._close_paren = Symbol(tokens, ')')
 			self.interface = None
 			self._consume_semicolon(tokens)
@@ -1896,7 +1896,7 @@ class ExtendedAttributeArgList(Construct):
 
 	_attribute: Identifier
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 
 	@classmethod
@@ -1914,7 +1914,7 @@ class ExtendedAttributeArgList(Construct):
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, self)
 		self._close_paren = Symbol(tokens, ')')
 		self._did_parse(tokens)
 
@@ -1950,7 +1950,7 @@ class ExtendedAttributeArgList(Construct):
 
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeArgList: ' + repr(self._attribute)
-		        + ' [arguments: ' + (repr(self._arguments) if (self._arguments) else '') + ']]')
+		        + ' [arguments: ' + repr(self._arguments) + ']]')
 
 
 class ExtendedAttributeIdent(Construct):
@@ -2107,7 +2107,7 @@ class ExtendedAttributeNamedArgList(Construct):
 	_equals: Symbol
 	_value: TypeIdentifier
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 
 	@classmethod
@@ -2129,7 +2129,7 @@ class ExtendedAttributeNamedArgList(Construct):
 		self._equals = Symbol(tokens, '=')
 		self._value = TypeIdentifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, self)
 		self._close_paren = Symbol(tokens, ')')
 		self._did_parse(tokens)
 
@@ -2156,7 +2156,7 @@ class ExtendedAttributeNamedArgList(Construct):
 		return self.attribute
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self._arguments
 
 	def _str(self) -> str:
@@ -2175,7 +2175,7 @@ class ExtendedAttributeNamedArgList(Construct):
 
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeNamedArgList: ' + repr(self._attribute) + ' [value: ' + repr(self._value) + ']'
-		        + ' [arguments: ' + (repr(self._arguments) if (self._arguments) else '') + ']]')
+		        + ' [arguments: ' + repr(self._arguments) + ']]')
 
 
 class ExtendedAttributeTypePair(Construct):

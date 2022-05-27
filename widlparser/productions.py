@@ -1625,6 +1625,8 @@ class ArgumentList(Production):
 		Production.__init__(self, tokens)
 		self.arguments = []
 		self._commas = []
+		if (not ArgumentList.peek(tokens)):
+			return
 		self.arguments.append(constructs.Argument(tokens, parent))
 		token = tokens.sneak_peek()
 		while (token and token.is_symbol(',')):
@@ -1655,7 +1657,9 @@ class ArgumentList(Production):
 
 	@property
 	def name(self) -> Optional[str]:
-		return self.arguments[0].name
+		if (self.arguments):
+			return self.arguments[0].name
+		return None
 
 	@property   # get all possible variants of argument names
 	def argument_names(self) -> Sequence[str]:
@@ -2013,7 +2017,7 @@ class OperationRest(ChildProduction):
 
 	_name: Optional[OperationName]
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 	_ignore: Optional[Ignore]
 
@@ -2032,7 +2036,7 @@ class OperationRest(ChildProduction):
 		ChildProduction.__init__(self, tokens, parent)
 		self._name = OperationName(tokens) if (OperationName.peek(tokens)) else None
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, parent)
 		self._close_paren = Symbol(tokens, ')')
 		self._ignore = Ignore(tokens) if (Ignore.peek(tokens)) else None
 		self._consume_semicolon(tokens)
@@ -2047,7 +2051,7 @@ class OperationRest(ChildProduction):
 		return self._name.name if (self._name) else None
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self._arguments
 
 	@property
@@ -2073,7 +2077,7 @@ class OperationRest(ChildProduction):
 	def __repr__(self) -> str:
 		output = '[OperationRest: '
 		output += ('[name: ' + repr(self._name) + '] ') if (self._name) else ''
-		return output + '[ArgumentList: ' + (repr(self._arguments) if (self._arguments) else '') + ']]'
+		return output + '[ArgumentList: ' + repr(self._arguments) + ']]'
 
 
 class Iterable(ChildProduction):
@@ -2228,7 +2232,7 @@ class AsyncIterable(ChildProduction):
 
 		if (Symbol.peek(tokens, '(')):
 			self._open_paren = Symbol(tokens, '(')
-			self._arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+			self._arguments = ArgumentList(tokens, parent)
 			self._close_paren = Symbol(tokens, ')')
 		else:
 			self._open_paren = None
@@ -2467,7 +2471,7 @@ class SpecialOperation(ChildProduction):
 		return self.operation.name if (self.operation.name) else ('__' + _name(self.specials[0]) + '__')
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self.operation.arguments
 
 	@property
@@ -2531,7 +2535,7 @@ class Operation(ChildProduction):
 		return self.operation.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self.operation.arguments
 
 	@property
@@ -2835,7 +2839,7 @@ class Constructor(ChildProduction):
 
 	_constructor: Identifier
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 
 	@classmethod
@@ -2852,7 +2856,7 @@ class Constructor(ChildProduction):
 		ChildProduction.__init__(self, tokens, parent)
 		self._constructor = Identifier(tokens)  # treat 'constructor' as a name
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, self)
 		self._close_paren = Symbol(tokens, ')')
 		self._consume_semicolon(tokens)
 		self._did_parse(tokens)
@@ -2870,7 +2874,7 @@ class Constructor(ChildProduction):
 		return False
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self._arguments
 
 	@property
@@ -2905,7 +2909,7 @@ class Constructor(ChildProduction):
 
 	def __repr__(self) -> str:
 		output = '[Constructor: '
-		return output + '[ArgumentList: ' + (repr(self._arguments) if (self._arguments) else '') + ']]'
+		return output + '[ArgumentList: ' + repr(self._arguments) + ']]'
 
 
 class ExtendedAttributeList(ChildProduction):
