@@ -45,7 +45,7 @@ class Construct(ComplexProduction):
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None, parse_extended_attributes: bool = True,
 	             symbol_table: protocols.SymbolTable = None) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._symbol_table = symbol_table
 		self._extended_attributes = self._parse_extended_attributes(tokens, self) if (parse_extended_attributes) else None
 
@@ -212,7 +212,7 @@ class Const(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, False, symbol_table=symbol_table)
+		super().__init__(tokens, parent, False, symbol_table=symbol_table)
 		self._const = Symbol(tokens, 'const')
 		self.type = ConstType(tokens)
 		self._name = Identifier(tokens)
@@ -293,7 +293,7 @@ class Enum(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._enum = Symbol(tokens, 'enum')
 		self._name = Identifier(tokens)
 		self._open_brace = Symbol(tokens, '{')
@@ -354,7 +354,7 @@ class Typedef(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._typedef = Symbol(tokens, 'typedef')
 		self.type = TypeWithExtendedAttributes(tokens, self)
 		self._name = Identifier(tokens)
@@ -420,7 +420,7 @@ class Argument(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None) -> None:
-		Construct.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		if (Symbol.peek(tokens, 'optional')):
 			self.optional = Symbol(tokens, 'optional')
 			self._ignore = IgnoreInOut(tokens) if (IgnoreInOut.peek(tokens)) else None
@@ -501,7 +501,7 @@ class InterfaceMember(Construct):
 		                           or SpecialOperation.peek(tokens) or Operation.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: Construct) -> None:
-		Construct.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		if (Constructor.peek(tokens)):
 			self.member = Constructor(tokens, parent)
 		elif (Const.peek(tokens)):
@@ -596,7 +596,7 @@ class MixinMember(Construct):
 		                           or MixinAttribute.peek(tokens) or Operation.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: Construct) -> None:
-		Construct.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		if (Const.peek(tokens)):
 			self.member = Const(tokens, parent)
 		elif (Stringifier.peek(tokens)):
@@ -670,7 +670,7 @@ class SyntaxError(Construct):
 	tokens: List[Token]
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, False, symbol_table=symbol_table)
+		super().__init__(tokens, parent, False, symbol_table=symbol_table)
 		self.tokens = tokens.syntax_error((';', '}'), False)
 		if ((1 < len(self.tokens)) and self.tokens[-1].is_symbol('}')):
 			tokens.restore(self.tokens[-1])
@@ -722,7 +722,7 @@ class Interface(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
+		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
 		self._name = Identifier(tokens)
@@ -896,7 +896,7 @@ class Mixin(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
+		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
 		self._mixin = Symbol(tokens, 'mixin')
@@ -1062,7 +1062,7 @@ class NamespaceMember(Construct):
 		return tokens.pop_position(Operation.peek(tokens) or Const.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: Construct) -> None:
-		Construct.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		token = cast(Token, tokens.sneak_peek())
 		if (token.is_symbol('readonly')):
 			self.member = Attribute(tokens, parent)
@@ -1151,7 +1151,7 @@ class Namespace(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, (not parent), symbol_table=symbol_table)
+		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._namespace = Symbol(tokens, 'namespace')
 		self._name = Identifier(tokens)
@@ -1313,7 +1313,7 @@ class DictionaryMember(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None) -> None:
-		Construct.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.required = Symbol(tokens, 'required') if (Symbol.peek(tokens, 'required')) else None
 		self.type = TypeWithExtendedAttributes(tokens, self)
 		self._name = Identifier(tokens)
@@ -1383,7 +1383,7 @@ class Dictionary(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._dictionary = Symbol(tokens, 'dictionary')
 		self._name = Identifier(tokens)
@@ -1544,7 +1544,7 @@ class Callback(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._callback = Symbol(tokens, 'callback')
 		token = cast(Token, tokens.sneak_peek())
 		if (token.is_identifier()):
@@ -1719,7 +1719,7 @@ class ImplementsStatement(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._implements_symbol = Symbol(tokens, 'implements')
 		self._implements = TypeIdentifier(tokens)
@@ -1772,7 +1772,7 @@ class IncludesStatement(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
-		Construct.__init__(self, tokens, parent, symbol_table=symbol_table)
+		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._includes_symbol = Symbol(tokens, 'includes')
 		self._includes = TypeIdentifier(tokens)
@@ -1815,7 +1815,7 @@ class ExtendedAttributeUnknown(Construct):
 	tokens: List[Token]
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		skipped = tokens.seek_symbol((',', ']'))
 		self.tokens = skipped[:-1]
 		tokens.restore(skipped[-1])
@@ -1855,7 +1855,7 @@ class ExtendedAttributeNoArgs(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._did_parse(tokens)
 
@@ -1911,7 +1911,7 @@ class ExtendedAttributeArgList(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
 		self._arguments = ArgumentList(tokens, self)
@@ -1976,7 +1976,7 @@ class ExtendedAttributeIdent(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
 		self._value = TypeIdentifier(tokens)
@@ -2044,7 +2044,7 @@ class ExtendedAttributeIdentList(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
 		self._open_paren = Symbol(tokens, '(')
@@ -2124,7 +2124,7 @@ class ExtendedAttributeNamedArgList(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
 		self._value = TypeIdentifier(tokens)
@@ -2207,7 +2207,7 @@ class ExtendedAttributeTypePair(Construct):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
 		self.key_type = Type(tokens, self)
@@ -2268,7 +2268,7 @@ class ExtendedAttribute(Construct):
 		        or ExtendedAttributeIdent.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		Construct.__init__(self, tokens, parent, False)
+		super().__init__(tokens, parent, False)
 		if (ExtendedAttributeNamedArgList.peek(tokens)):
 			self.attribute = ExtendedAttributeNamedArgList(tokens, parent)
 		elif (ExtendedAttributeArgList.peek(tokens)):

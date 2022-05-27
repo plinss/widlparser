@@ -26,7 +26,6 @@ if (TYPE_CHECKING):
 	from .protocols import SymbolTable
 
 
-
 def _name(thing: Any) -> str:
 	return getattr(thing, 'name', '') if (thing) else ''
 
@@ -115,7 +114,7 @@ class ComplexProduction(Production):
 	_parent: Optional[ComplexProduction]
 
 	def __init__(self, tokens: Tokenizer, parent: Optional[ComplexProduction]) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._parent = parent
 
 	@property
@@ -175,7 +174,7 @@ class String(Production):
 		return tokens.pop_position((token is not None) and token.is_string())
 
 	def __init__(self, tokens: Tokenizer, include_trailing_space: bool = True) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.string = next(tokens).text
 		self._did_parse(tokens, include_trailing_space)
 
@@ -206,7 +205,7 @@ class Symbol(Production):
 		return tokens.pop_position((token is not None) and token.is_symbol(symbol))
 
 	def __init__(self, tokens: Tokenizer, symbol: Union[str, Container[str]] = None, include_trailing_space: bool = True) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.symbol = next(tokens).text
 		if (symbol):
 			assert(self.symbol == symbol)
@@ -242,7 +241,7 @@ class Integer(Production):
 		return tokens.pop_position((token is not None) and token.is_integer())
 
 	def __init__(self, tokens: Tokenizer, include_trailing_space: bool = True) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.integer = next(tokens).text
 		self._did_parse(tokens, include_trailing_space)
 
@@ -280,7 +279,7 @@ class IntegerType(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._space = None
 		token = next(tokens)
 		if ('long' == token.text):
@@ -333,7 +332,7 @@ class UnsignedIntegerType(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.unsigned = Symbol(tokens, 'unsigned') if (Symbol.peek(tokens, 'unsigned')) else None
 		self.type = IntegerType(tokens)
 		self._did_parse(tokens, False)
@@ -366,7 +365,7 @@ class FloatType(Production):
 		return tokens.pop_position((token is not None) and (token.is_symbol(('float', 'double'))))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		token = next(tokens)
 		self.type = token.text
 		self._did_parse(tokens, False)
@@ -403,7 +402,7 @@ class UnrestrictedFloatType(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.unrestricted = Symbol(tokens, 'unrestricted') if (Symbol.peek(tokens, 'unrestricted')) else None
 		self.type = FloatType(tokens)
 		self._did_parse(tokens, False)
@@ -435,7 +434,7 @@ class PrimitiveType(Production):
 		return (UnsignedIntegerType.peek(tokens) or UnrestrictedFloatType.peek(tokens) or Symbol.peek(tokens, ('undefined', 'boolean', 'byte', 'octet', 'bigint')))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		if (UnsignedIntegerType.peek(tokens)):
 			self.type = UnsignedIntegerType(tokens)
 		elif (UnrestrictedFloatType.peek(tokens)):
@@ -474,7 +473,7 @@ class Identifier(Production):
 		return tokens.pop_position((token is not None) and token.is_identifier())
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = next(tokens).text
 		self._did_parse(tokens, False)
 
@@ -509,7 +508,7 @@ class TypeIdentifier(Production):
 		return tokens.pop_position((token is not None) and token.is_identifier())
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = next(tokens).text
 		self._did_parse(tokens, False)
 
@@ -555,7 +554,7 @@ class ConstType(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		if (PrimitiveType.peek(tokens)):
 			self.type = PrimitiveType(tokens)
 		else:
@@ -604,7 +603,7 @@ class FloatLiteral(Production):
 		return tokens.pop_position((token is not None) and token.is_symbol(('-Infinity', 'Infinity', 'NaN')))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.value = next(tokens).text
 		self._did_parse(tokens)
 
@@ -640,7 +639,7 @@ class ConstValue(Production):
 		return tokens.pop_position((token is not None) and (token.is_symbol(('true', 'false', 'null')) or token.is_integer()))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		if (FloatLiteral.peek(tokens)):
 			self.value = FloatLiteral(tokens)
 		elif (Symbol.peek(tokens)):
@@ -681,7 +680,7 @@ class EnumValue(Production):
 		return tokens.pop_position((token is not None) and token.is_string())
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.value = next(tokens).text
 		self._did_parse(tokens)
 
@@ -722,7 +721,7 @@ class EnumValueList(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.values = []
 		self._commas = []
 		while (tokens.has_tokens()):
@@ -778,7 +777,7 @@ class TypeSuffix(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		if (Symbol.peek(tokens, '[')):
 			self._open_bracket = Symbol(tokens, '[')
 			self._close_bracket = Symbol(tokens, ']', False)
@@ -825,7 +824,7 @@ class TypeSuffixStartingWithArray(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._open_bracket = Symbol(tokens, '[')
 		self._close_bracket = Symbol(tokens, ']', False)
 		self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
@@ -858,7 +857,7 @@ class AnyType(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.any = Symbol(tokens, 'any', False)
 		self.suffix = TypeSuffixStartingWithArray(tokens) if (TypeSuffixStartingWithArray.peek(tokens)) else None
 		self._did_parse(tokens, False)
@@ -899,7 +898,7 @@ class SingleType(ComplexProduction):
 		return (NonAnyType.peek(tokens) or AnyType.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		if (NonAnyType.peek(tokens)):
 			self.type = NonAnyType(tokens, self)
 		else:
@@ -989,7 +988,7 @@ class NonAnyType(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.sequence = None
 		self.promise = None
 		self.record = None
@@ -1134,7 +1133,7 @@ class UnionMemberType(ComplexProduction):
 		return AnyType.peek(tokens)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._extended_attributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
 		self.suffix = None
 		if (NonAnyType.peek(tokens)):
@@ -1203,7 +1202,7 @@ class UnionType(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._open_paren = Symbol(tokens, '(')
 		self.types = []
 		self._ors = []
@@ -1267,7 +1266,7 @@ class Type(ComplexProduction):
 		return False
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		if (SingleType.peek(tokens)):
 			self.type = SingleType(tokens, self)
 			self.suffix = None
@@ -1315,7 +1314,7 @@ class TypeWithExtendedAttributes(ComplexProduction):
 		return False
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._extended_attributes = ExtendedAttributeList(tokens, self) if (ExtendedAttributeList.peek(tokens)) else None
 		if (SingleType.peek(tokens)):
 			self.type = SingleType(tokens, self)
@@ -1366,7 +1365,7 @@ class IgnoreInOut(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.text = next(tokens).text
 		self._did_parse(tokens)
 		tokens.did_ignore(self.text)
@@ -1398,7 +1397,7 @@ class Ignore(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.tokens = []
 		token = next(tokens)
 		self.tokens.append(token)
@@ -1442,7 +1441,7 @@ class IgnoreMultipleInheritance(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, continuation: bool = False) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._comma = Symbol(tokens, ',')
 		self._inherit = TypeIdentifier(tokens)
 		self.next = IgnoreMultipleInheritance(tokens, True) if (IgnoreMultipleInheritance.peek(tokens)) else None
@@ -1487,7 +1486,7 @@ class Inheritance(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._colon = Symbol(tokens, ':')
 		self._base = TypeIdentifier(tokens)
 		self._ignore = IgnoreMultipleInheritance(tokens) if (IgnoreMultipleInheritance.peek(tokens)) else None
@@ -1539,7 +1538,7 @@ class Default(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._equals = Symbol(tokens, '=')
 		self._open = None
 		self._close = None
@@ -1600,7 +1599,7 @@ class ArgumentName(Production):
 		return tokens.pop_position((token is not None) and (token.is_identifier() or (token.is_symbol(cls.ARGUMENT_NAME_KEYWORDS))))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = Identifier(tokens)
 		self._did_parse(tokens)
 
@@ -1642,7 +1641,7 @@ class ArgumentList(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self.arguments = []
 		self._commas = []
 		if (not ArgumentList.peek(tokens)):
@@ -1773,7 +1772,7 @@ class Special(Production):
 		return tokens.pop_position((token is not None) and token.is_symbol(cls.SPECIAL_SYMBOLS))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = next(tokens).text
 		self._did_parse(tokens)
 
@@ -1810,7 +1809,7 @@ class AttributeName(Production):
 		return tokens.pop_position((token is not None) and (token.is_identifier() or (token.is_symbol(cls.ATTRIBUTE_NAME_KEYWORDS))))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = Identifier(tokens)
 		self._did_parse(tokens)
 
@@ -1854,7 +1853,7 @@ class AttributeRest(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.readonly = Symbol(tokens, 'readonly') if (Symbol.peek(tokens, 'readonly')) else None
 		self._attribute = Symbol(tokens, 'attribute')
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -1906,7 +1905,7 @@ class MixinAttribute(ComplexProduction):
 		return AttributeRest.peek(tokens)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.attribute = AttributeRest(tokens, self)
 		self._did_parse(tokens)
 
@@ -1951,7 +1950,7 @@ class Attribute(ComplexProduction):
 		return tokens.pop_position(AttributeRest.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.inherit = Symbol(tokens, 'inherit') if (Symbol.peek(tokens, 'inherit')) else None
 		self.attribute = AttributeRest(tokens, self)
 		self._did_parse(tokens)
@@ -2001,7 +2000,7 @@ class OperationName(Production):
 		return tokens.pop_position((token is not None) and (token.is_identifier() or (token.is_symbol(cls.OPERATION_NAME_KEYWORDS))))
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._name = Identifier(tokens)
 		self._did_parse(tokens)
 
@@ -2046,7 +2045,7 @@ class OperationRest(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._name = OperationName(tokens) if (OperationName.peek(tokens)) else None
 		self._open_paren = Symbol(tokens, '(')
 		self._arguments = ArgumentList(tokens, parent)
@@ -2128,7 +2127,7 @@ class Iterable(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._iterable = Symbol(tokens)
 		self._open_type = Symbol(tokens, '<')
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -2224,7 +2223,7 @@ class AsyncIterable(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._async = Symbol(tokens)
 		self._iterable = Symbol(tokens)
 		self._open_type = Symbol(tokens, '<')
@@ -2331,7 +2330,7 @@ class Maplike(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.readonly = Symbol(tokens, 'readonly') if (Symbol.peek(tokens, 'readonly')) else None
 		self._maplike = Symbol(tokens, 'maplike')
 		self._open_type = Symbol(tokens, '<')
@@ -2397,7 +2396,7 @@ class Setlike(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.readonly = Symbol(tokens, 'readonly') if (Symbol.peek(tokens, 'readonly')) else None
 		self._setlike = Symbol(tokens, 'setlike')
 		self._open_type = Symbol(tokens, '<')
@@ -2455,7 +2454,7 @@ class SpecialOperation(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.specials = []
 		while (Special.peek(tokens)):
 			self.specials.append(Special(tokens))
@@ -2522,7 +2521,7 @@ class Operation(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self.return_type = Type(tokens, self)
 		self.operation = OperationRest(tokens, self)
 		self._did_parse(tokens)
@@ -2587,7 +2586,7 @@ class Stringifier(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._stringifier = Symbol(tokens, 'stringifier')
 		self.attribute = None
 		self.return_type = None
@@ -2682,7 +2681,7 @@ class Identifiers(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._comma = Symbol(tokens, ',')
 		self._name = Identifier(tokens)
 		self.next = Identifiers(tokens) if (Identifiers.peek(tokens)) else None
@@ -2722,7 +2721,7 @@ class TypeIdentifiers(Production):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer) -> None:
-		Production.__init__(self, tokens)
+		super().__init__(tokens)
 		self._comma = Symbol(tokens, ',')
 		self._name = TypeIdentifier(tokens)
 		self.next = TypeIdentifiers(tokens) if (TypeIdentifiers.peek(tokens)) else None
@@ -2764,7 +2763,7 @@ class StaticMember(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._static = Symbol(tokens, 'static')
 		if (AttributeRest.peek(tokens)):
 			self.attribute = AttributeRest(tokens, self)
@@ -2854,7 +2853,7 @@ class Constructor(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._constructor = Identifier(tokens)  # treat 'constructor' as a name
 		self._open_paren = Symbol(tokens, '(')
 		self._arguments = ArgumentList(tokens, self)
@@ -2934,7 +2933,7 @@ class ExtendedAttributeList(ComplexProduction):
 		return tokens.pop_position(False)
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
-		ComplexProduction.__init__(self, tokens, parent)
+		super().__init__(tokens, parent)
 		self._open_bracket = Symbol(tokens, '[')
 		self.attributes = []
 		self._commas = []

@@ -126,7 +126,7 @@ class MarkupType(MarkupGenerator):
 	"""MarkupGenerator subclass to markup types."""
 
 	def __init__(self, construct: Optional[Construct], type: Production) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		type._define_markup(self)
 
 	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
@@ -142,7 +142,7 @@ class MarkupPrimitiveType(MarkupGenerator):
 	"""MarkupGenerator subclass to markup primitive types."""
 
 	def __init__(self, construct: Optional[Construct], type: Production) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		type._define_markup(self)
 
 	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
@@ -158,7 +158,7 @@ class MarkupBufferType(MarkupGenerator):
 	"""MarkupGenerator subclass to markup buffer types."""
 
 	def __init__(self, construct: Optional[Construct], type: Production) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		type._define_markup(self)
 
 	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
@@ -174,7 +174,7 @@ class MarkupStringType(MarkupGenerator):
 	"""MarkupGenerator subclass to markup string types."""
 
 	def __init__(self, construct: Optional[Construct], type: Production) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		type._define_markup(self)
 
 	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
@@ -190,7 +190,7 @@ class MarkupObjectType(MarkupGenerator):
 	"""MarkupGenerator subclass to markup object types."""
 
 	def __init__(self, construct: Optional[Construct], type: Production) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		type._define_markup(self)
 
 	def _markup(self, marker: protocols.Marker) -> Tuple[Optional[str], Optional[str]]:
@@ -208,7 +208,7 @@ class MarkupText(MarkupGenerator):
 	_text: str
 
 	def __init__(self, construct: Optional[Construct], text: str) -> None:
-		MarkupGenerator.__init__(self, construct)
+		super().__init__(construct)
 		self._text = text
 
 	@property
@@ -227,7 +227,7 @@ class MarkupTypeName(MarkupText):
 	"""MarkupGenerator subclass to markup type names."""
 
 	def __init__(self, construct: Optional[Construct], type: str) -> None:
-		MarkupText.__init__(self, construct, type)
+		super().__init__(construct, type)
 
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up type name."""
@@ -247,7 +247,7 @@ class MarkupName(MarkupText):
 	"""MarkupGenerator subclass to markup names."""
 
 	def __init__(self, construct: Optional[Construct], name: str) -> None:
-		MarkupText.__init__(self, construct, name)
+		super().__init__(construct, name)
 
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up name."""
@@ -267,7 +267,7 @@ class MarkupKeyword(MarkupText):
 	"""MarkupGenerator subclass to markup keywords."""
 
 	def __init__(self, construct: Optional[Construct], keyword: str) -> None:
-		MarkupText.__init__(self, construct, keyword)
+		super().__init__(construct, keyword)
 
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up keyword."""
@@ -287,7 +287,7 @@ class MarkupEnumValue(MarkupText):
 	"""MarkupGenerator subclass to markup enum values."""
 
 	def __init__(self, construct: Optional[Construct], keyword: str) -> None:
-		MarkupText.__init__(self, construct, str(keyword))
+		super().__init__(construct, str(keyword))
 
 	def markup(self, marker: protocols.Marker, construct: Construct = None) -> str:
 		"""Generate marked up enum value."""
