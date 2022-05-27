@@ -22,8 +22,9 @@ from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
-	from .constructs import Construct
+	from .constructs import Argument, Construct
 	from .protocols import SymbolTable
+
 
 
 def _name(thing: Any) -> str:
@@ -1626,7 +1627,7 @@ class ArgumentList(Production):
 	Argument ["," Argument]...
 	"""
 
-	arguments: List[constructs.Argument]
+	arguments: List[Argument]
 	_commas: List[Symbol]
 
 	@classmethod
@@ -1644,6 +1645,8 @@ class ArgumentList(Production):
 		Production.__init__(self, tokens)
 		self.arguments = []
 		self._commas = []
+		if (not ArgumentList.peek(tokens)):
+			return
 		self.arguments.append(constructs.Argument(tokens, parent))
 		token = tokens.sneak_peek()
 		while (token and token.is_symbol(',')):
@@ -1674,7 +1677,9 @@ class ArgumentList(Production):
 
 	@property
 	def name(self) -> Optional[str]:
-		return self.arguments[0].name
+		if (self.arguments):
+			return self.arguments[0].name
+		return None
 
 	@property   # get all possible variants of argument names
 	def argument_names(self) -> Sequence[str]:
@@ -1702,7 +1707,7 @@ class ArgumentList(Production):
 	def __len__(self) -> int:
 		return len(self.arguments)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: Union[str, int]) -> Argument:
 		if (isinstance(key, str)):
 			for argument in self.arguments:
 				if (argument.name == key):
@@ -1724,13 +1729,13 @@ class ArgumentList(Production):
 	def keys(self) -> Sequence[str]:
 		return [argument.name for argument in self.arguments if (argument.name)]
 
-	def values(self) -> Sequence[Construct]:
+	def values(self) -> Sequence[Argument]:
 		return [argument for argument in self.arguments if (argument.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[Tuple[str, Argument]]:
 		return [(argument.name, argument) for argument in self.arguments if (argument.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: Union[str, int]) -> Optional[Argument]:
 		try:
 			return self[key]
 		except IndexError:
@@ -1917,10 +1922,6 @@ class MixinAttribute(ComplexProduction):
 	def name(self) -> Optional[str]:
 		return self.attribute.name
 
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
-
 	def _str(self) -> str:
 		return str(self.attribute)
 
@@ -1966,10 +1967,6 @@ class Attribute(ComplexProduction):
 	@property
 	def name(self) -> Optional[str]:
 		return self.attribute.name
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
 
 	def _str(self) -> str:
 		output = str(self.inherit) if (self.inherit) else ''
@@ -2033,7 +2030,7 @@ class OperationRest(ComplexProduction):
 
 	_name: Optional[OperationName]
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 	_ignore: Optional[Ignore]
 
@@ -2052,7 +2049,7 @@ class OperationRest(ComplexProduction):
 		ComplexProduction.__init__(self, tokens, parent)
 		self._name = OperationName(tokens) if (OperationName.peek(tokens)) else None
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, parent)
 		self._close_paren = Symbol(tokens, ')')
 		self._ignore = Ignore(tokens) if (Ignore.peek(tokens)) else None
 		self._consume_semicolon(tokens)
@@ -2067,7 +2064,7 @@ class OperationRest(ComplexProduction):
 		return self._name.name if (self._name) else None
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self._arguments
 
 	@property
@@ -2093,7 +2090,7 @@ class OperationRest(ComplexProduction):
 	def __repr__(self) -> str:
 		output = '[OperationRest: '
 		output += ('[name: ' + repr(self._name) + '] ') if (self._name) else ''
-		return output + '[ArgumentList: ' + (repr(self._arguments) if (self._arguments) else '') + ']]'
+		return output + '[ArgumentList: ' + repr(self._arguments) + ']]'
 
 
 class Iterable(ComplexProduction):
@@ -2154,10 +2151,6 @@ class Iterable(ComplexProduction):
 	@property
 	def name(self) -> Optional[str]:
 		return '__iterable__'
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
 
 	def _str(self) -> str:
 		output = str(self._iterable) + str(self._open_type)
@@ -2248,7 +2241,7 @@ class AsyncIterable(ComplexProduction):
 
 		if (Symbol.peek(tokens, '(')):
 			self._open_paren = Symbol(tokens, '(')
-			self._arguments = ArgumentList(tokens, parent) if (ArgumentList.peek(tokens)) else None
+			self._arguments = ArgumentList(tokens, parent)
 			self._close_paren = Symbol(tokens, ')')
 		else:
 			self._open_paren = None
@@ -2357,10 +2350,6 @@ class Maplike(ComplexProduction):
 	def name(self) -> Optional[str]:
 		return '__maplike__'
 
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
-
 	def _str(self) -> str:
 		output = str(self.readonly) if (self.readonly) else ''
 		output += str(self._maplike) + str(self._open_type) + str(self.key_type) + str(self._comma)
@@ -2425,10 +2414,6 @@ class Setlike(ComplexProduction):
 	def name(self) -> Optional[str]:
 		return '__setlike__'
 
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
-
 	def _str(self) -> str:
 		output = str(self.readonly) if (self.readonly) else ''
 		return output + str(self._setlike) + str(self._open_type) + str(self.type) + str(self._close_type)
@@ -2487,7 +2472,7 @@ class SpecialOperation(ComplexProduction):
 		return self.operation.name if (self.operation.name) else ('__' + _name(self.specials[0]) + '__')
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self.operation.arguments
 
 	@property
@@ -2551,7 +2536,7 @@ class Operation(ComplexProduction):
 		return self.operation.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self.operation.arguments
 
 	@property
@@ -2855,7 +2840,7 @@ class Constructor(ComplexProduction):
 
 	_constructor: Identifier
 	_open_paren: Symbol
-	_arguments: Optional[ArgumentList]
+	_arguments: ArgumentList
 	_close_paren: Symbol
 
 	@classmethod
@@ -2872,7 +2857,7 @@ class Constructor(ComplexProduction):
 		ComplexProduction.__init__(self, tokens, parent)
 		self._constructor = Identifier(tokens)  # treat 'constructor' as a name
 		self._open_paren = Symbol(tokens, '(')
-		self._arguments = ArgumentList(tokens, self) if (ArgumentList.peek(tokens)) else None
+		self._arguments = ArgumentList(tokens, self)
 		self._close_paren = Symbol(tokens, ')')
 		self._consume_semicolon(tokens)
 		self._did_parse(tokens)
@@ -2890,7 +2875,7 @@ class Constructor(ComplexProduction):
 		return False
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> ArgumentList:
 		return self._arguments
 
 	@property
@@ -2925,7 +2910,7 @@ class Constructor(ComplexProduction):
 
 	def __repr__(self) -> str:
 		output = '[Constructor: '
-		return output + '[ArgumentList: ' + (repr(self._arguments) if (self._arguments) else '') + ']]'
+		return output + '[ArgumentList: ' + repr(self._arguments) + ']]'
 
 
 class ExtendedAttributeList(ComplexProduction):
