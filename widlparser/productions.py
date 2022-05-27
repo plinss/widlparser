@@ -129,7 +129,7 @@ class ComplexProduction(Production):
 
 	@property
 	def has_parent(self) -> bool:
-		return self._parent is not None
+		return (self._parent is not None)
 
 	@property
 	def full_name(self) -> Optional[str]:
