@@ -1901,10 +1901,6 @@ class MixinAttribute(ChildProduction):
 	def name(self) -> Optional[str]:
 		return self.attribute.name
 
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
-
 	def _str(self) -> str:
 		return str(self.attribute)
 
@@ -1950,10 +1946,6 @@ class Attribute(ChildProduction):
 	@property
 	def name(self) -> Optional[str]:
 		return self.attribute.name
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
 
 	def _str(self) -> str:
 		output = str(self.inherit) if (self.inherit) else ''
@@ -2138,10 +2130,6 @@ class Iterable(ChildProduction):
 	@property
 	def name(self) -> Optional[str]:
 		return '__iterable__'
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
 
 	def _str(self) -> str:
 		output = str(self._iterable) + str(self._open_type)
@@ -2341,10 +2329,6 @@ class Maplike(ChildProduction):
 	def name(self) -> Optional[str]:
 		return '__maplike__'
 
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
-
 	def _str(self) -> str:
 		output = str(self.readonly) if (self.readonly) else ''
 		output += str(self._maplike) + str(self._open_type) + str(self.key_type) + str(self._comma)
@@ -2408,10 +2392,6 @@ class Setlike(ChildProduction):
 	@property
 	def name(self) -> Optional[str]:
 		return '__setlike__'
-
-	@property
-	def arguments(self) -> Optional[ArgumentList]:
-		return None
 
 	def _str(self) -> str:
 		output = str(self.readonly) if (self.readonly) else ''
