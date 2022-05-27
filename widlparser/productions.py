@@ -17,13 +17,14 @@ from __future__ import annotations
 import itertools
 from typing import Any, Container, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
-from . import constructs, tokenizer
-from . import protocols
+from . import constructs
 from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
-	from .constructs import Construct, Argument
+	from .constructs import Argument, Construct
+	from .protocols import SymbolTable
+
 
 
 def _name(thing: Any) -> str:
@@ -39,7 +40,7 @@ class Production(object):
 	"""
 
 	leading_space: str
-	_tail: Optional[List[tokenizer.Token]]
+	_tail: Optional[List[Token]]
 	semicolon: Union[str, Production]
 	trailing_space: str
 
@@ -135,7 +136,7 @@ class ChildProduction(Production):
 		return None
 
 	@property
-	def symbol_table(self) -> Optional[protocols.SymbolTable]:
+	def symbol_table(self) -> Optional[SymbolTable]:
 		return self.parent.symbol_table if (self.parent) else None
 
 
@@ -196,7 +197,7 @@ class Symbol(Production):
 		return self.symbol
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
-		if (self.symbol in tokenizer.Tokenizer.SYMBOL_IDENTS):
+		if (self.symbol in Tokenizer.SYMBOL_IDENTS):
 			generator.add_keyword(self.symbol)
 		else:
 			generator.add_text(self.symbol)
@@ -592,7 +593,7 @@ class FloatLiteral(Production):
 		return self.value
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
-		if (self.value in tokenizer.Tokenizer.SYMBOL_IDENTS):
+		if (self.value in Tokenizer.SYMBOL_IDENTS):
 			generator.add_keyword(self.value)
 		else:
 			generator.add_text(self.value)
@@ -634,7 +635,7 @@ class ConstValue(Production):
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (isinstance(self.value, str)):
-			if (self.value in tokenizer.Tokenizer.SYMBOL_IDENTS):
+			if (self.value in Tokenizer.SYMBOL_IDENTS):
 				generator.add_keyword(self.value)
 			else:
 				generator.add_text(self.value)
@@ -718,8 +719,8 @@ class EnumValueList(Production):
 		self._did_parse(tokens)
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
-		for value, _comma in itertools.zip_longest(self.values, self._commas, fillvalue=''):
-			value.define_markup(generator)
+		for value, _comma in itertools.zip_longest(self.values, self._commas, fillvalue=None):
+			cast(EnumValue, value).define_markup(generator)
 			if (_comma):
 				_comma.define_markup(generator)
 		return self
@@ -741,7 +742,7 @@ class TypeSuffix(Production):
 
 	_open_bracket: Optional[Symbol]
 	_close_bracket: Optional[Symbol]
-	suffix: Optional[Union['TypeSuffix', 'TypeSuffixStartingWithArray']]
+	suffix: Optional[Union[TypeSuffix, TypeSuffixStartingWithArray]]
 	array: bool
 	null: Optional[Symbol]
 
@@ -872,7 +873,7 @@ class SingleType(ChildProduction):
 	NonAnyType | AnyType
 	"""
 
-	type: Union['NonAnyType', AnyType]
+	type: Union[NonAnyType, AnyType]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1215,8 +1216,8 @@ class UnionType(ChildProduction):
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._open_paren)
-		for type, _or in itertools.zip_longest(self.types, self._ors, fillvalue=''):
-			generator.add_type(type)
+		for type, _or in itertools.zip_longest(self.types, self._ors, fillvalue=None):
+			generator.add_type(cast(UnionMemberType, type))
 			if (_or):
 				_or.define_markup(generator)
 		generator.add_text(self._close_paren)
@@ -1410,7 +1411,7 @@ class IgnoreMultipleInheritance(Production):
 
 	_comma: Symbol
 	_inherit: TypeIdentifier
-	next: Optional['IgnoreMultipleInheritance']
+	next: Optional[IgnoreMultipleInheritance]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1725,9 +1726,10 @@ class ArgumentList(Production):
 		return ''.join([str(argument) + str(comma) for argument, comma in itertools.zip_longest(self.arguments, self._commas, fillvalue='')])
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
-		for argument, comma in itertools.zip_longest(self.arguments, self._commas, fillvalue=''):
-			argument.define_markup(generator)
-			generator.add_text(comma)
+		for argument, comma in itertools.zip_longest(self.arguments, self._commas, fillvalue=None):
+			cast(constructs.Argument, argument).define_markup(generator)
+			if (comma):
+				generator.add_text(comma)
 		return self
 
 	def __repr__(self) -> str:
@@ -2649,7 +2651,7 @@ class Identifiers(Production):
 
 	_comma: Symbol
 	_name: Identifier
-	next: Optional['Identifiers']
+	next: Optional[Identifiers]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2689,7 +2691,7 @@ class TypeIdentifiers(Production):
 
 	_comma: Symbol
 	_name: TypeIdentifier
-	next: Optional['TypeIdentifiers']
+	next: Optional[TypeIdentifiers]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2901,7 +2903,7 @@ class ExtendedAttributeList(ChildProduction):
 	"""
 
 	_open_bracket: Symbol
-	attributes: List['constructs.ExtendedAttribute']
+	attributes: List[constructs.ExtendedAttribute]
 	_commas: List[Symbol]
 	_close_bracket: Symbol
 
@@ -2972,9 +2974,10 @@ class ExtendedAttributeList(ChildProduction):
 
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		generator.add_text(self._open_bracket)
-		for attribute, comma in itertools.zip_longest(self.attributes, self._commas, fillvalue=''):
-			attribute.define_markup(generator)
-			generator.add_text(comma)
+		for attribute, comma in itertools.zip_longest(self.attributes, self._commas, fillvalue=None):
+			cast(constructs.ExtendedAttribute, attribute).define_markup(generator)
+			if (comma):
+				generator.add_text(comma)
 		generator.add_text(self._close_bracket)
 		return self
 
