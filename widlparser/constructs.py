@@ -211,7 +211,7 @@ class Const(Construct):
 						return tokens.pop_position(ConstValue.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Optional[Construct] = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
 		Construct.__init__(self, tokens, parent, False, symbol_table=symbol_table)
 		self._const = Symbol(tokens, 'const')
 		self.type = ConstType(tokens)
