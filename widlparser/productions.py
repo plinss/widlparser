@@ -124,7 +124,7 @@ class ComplexProduction(Production):
 		raise KeyError()
 
 	@parent.setter
-	def parent(self, parent: ComplexProduction) -> None:
+	def parent(self, parent: Optional[ComplexProduction]) -> None:
 		self._parent = parent
 
 	@property
