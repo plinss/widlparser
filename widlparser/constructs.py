@@ -1933,7 +1933,7 @@ class ExtendedAttributeArgList(Construct):
 	@property
 	def normal_name(self) -> Optional[str]:
 		if ('constructor' == self.idl_type):
-			return (str(self.parent.name) + '('
+			return (f'{self.parent.name}('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
 		return self.attribute
 
