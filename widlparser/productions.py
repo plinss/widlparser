@@ -105,9 +105,10 @@ class Production(object):
 
 class ComplexProduction(Production):
 	"""
-		Base class for more complex productions;
-		things that can have names, parents, etc.
-		Also, all Constructs.
+	Base class for more complex productions.
+
+	Things that can have names, parents, etc.,
+	including all Constructs.
 	"""
 
 	_parent: Optional[ComplexProduction]
@@ -127,14 +128,14 @@ class ComplexProduction(Production):
 		self._parent = parent
 
 	@property
-	def hasParent(self) -> bool:
+	def has_parent(self) -> bool:
 		return self._parent is not None
 
 	@property
 	def full_name(self) -> Optional[str]:
 		if (not self.normal_name):
 			return None
-		return self.parent.full_name + '/' + self.normal_name if (self.hasParent and self.parent.full_name) else self.normal_name
+		return self.parent.full_name + '/' + self.normal_name if (self.has_parent and self.parent.full_name) else self.normal_name
 
 	@property
 	def normal_name(self) -> Optional[str]:

@@ -18,8 +18,8 @@ import re
 from typing import Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import constructs
-from . import productions
 from . import markup
+from . import productions
 from . import protocols
 from . import tokenizer
 
