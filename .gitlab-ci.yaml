@@ -57,14 +57,42 @@ test3.8:
         - test.py
 
 
+test3.9:
+  image: python:3.9
+  stage: test
+  before_script:
+    - pip install -e .
+    - chmod a+x test.py
+  script:
+    - ./test.py > test-actual.txt
+    - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
+
+
+test3.10:
+  image: python:3.10
+  stage: test
+  before_script:
+    - pip install -e .
+    - chmod a+x test.py
+  script:
+    - ./test.py > test-actual.txt
+    - diff -u test-expected.txt test-actual.txt
+  rules:
+    - exists:
+        - test.py
+
+
 package:
   stage: package
   before_script:
     - chmod a+x tools/set_version
     - tools/set_version
-    - pip install --upgrade wheel
+    - pip install --upgrade build
   script:
-    - python setup.py bdist_wheel
+    - python -m build --no-isolation --outdir dist
   artifacts:
     paths:
       - dist

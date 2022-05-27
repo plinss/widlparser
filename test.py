@@ -16,8 +16,7 @@ import itertools
 import sys
 from typing import cast
 
-import widlparser
-from widlparser import Construct
+from widlparser import Construct, Parser
 
 
 def debug_hook(type, value, tb):
@@ -133,7 +132,7 @@ def test_difference(input, output):
 
 if __name__ == "__main__":      # called from the command line
     sys.excepthook = debug_hook
-    parser = widlparser.Parser(ui=UI())
+    parser = Parser(ui=UI())
 
     if (1 < len(sys.argv)):
         for file_name in sys.argv[1:]:
