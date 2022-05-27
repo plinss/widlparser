@@ -1873,7 +1873,7 @@ class ExtendedAttributeNoArgs(Construct):
 
 	@property
 	def normal_name(self) -> Optional[str]:
-		return (str(self.parent.name) + '()') if ('constructor' == self.idl_type) else self.attribute
+		return f'{self.parent.name}()' if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
 		return str(self._attribute)
