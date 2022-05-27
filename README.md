@@ -101,7 +101,11 @@ For 'method' Constructs, contains the normalized method name, otherwise the name
 
 **Construct.parent**
 
-The parent construct, or None if it is a top-level Construct in the source WebIDL.
+The parent construct, if it has one. Throws a KeyError if it is a top-level Construct in the source WebIDL.
+
+**Construct.has_parent**
+
+A bool specifying whether the construct has a parent or not (and thus whether `.parent` will throw or not when accessed.)
 
 **Construct.extended_attributes**
 

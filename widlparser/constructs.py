@@ -17,7 +17,7 @@ from typing import Any, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple
 
 from . import markup
 from . import protocols
-from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ChildProduction, ConstType, ConstValue, Constructor, Default,
+from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Default,
                           EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Iterable,
                           Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
                           Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
@@ -32,7 +32,7 @@ def _name(thing: Any) -> str:
 	return getattr(thing, 'name', '') if (thing) else ''
 
 
-class Construct(ChildProduction):
+class Construct(ComplexProduction):
 	"""Base class for high-level language constructs."""
 
 	_symbol_table: Optional[protocols.SymbolTable]
@@ -43,9 +43,9 @@ class Construct(ChildProduction):
 		"""Check if construct is next in token stream."""
 		return ExtendedAttributeList.peek(tokens)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction = None, parse_extended_attributes: bool = True,
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None, parse_extended_attributes: bool = True,
 	             symbol_table: protocols.SymbolTable = None) -> None:
-		ChildProduction.__init__(self, tokens, parent)
+		ComplexProduction.__init__(self, tokens, parent)
 		self._symbol_table = symbol_table
 		self._extended_attributes = self._parse_extended_attributes(tokens, self) if (parse_extended_attributes) else None
 
@@ -71,7 +71,7 @@ class Construct(ChildProduction):
 		"""Get symbol table."""
 		if (self._symbol_table is not None):
 			return self._symbol_table
-		return self.parent.symbol_table if (self.parent) else None
+		return self.parent.symbol_table if (self.has_parent) else None
 
 	@property
 	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
@@ -419,7 +419,7 @@ class Argument(Construct):
 						return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None) -> None:
 		Construct.__init__(self, tokens, parent)
 		if (Symbol.peek(tokens, 'optional')):
 			self.optional = Symbol(tokens, 'optional')
@@ -487,7 +487,7 @@ class InterfaceMember(Construct):
 	| Iterable | Attribute | Maplike | Setlike
 	"""
 
-	member: ChildProduction
+	member: ComplexProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -586,7 +586,7 @@ class MixinMember(Construct):
 	[ExtendedAttributes] Const | Operation | Stringifier | ReadOnly AttributeRest
 	"""
 
-	member: ChildProduction
+	member: ComplexProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1051,7 +1051,7 @@ class NamespaceMember(Construct):
 	[ExtendedAttributes] Operation | "readonly" Attribute | Const
 	"""
 
-	member: ChildProduction
+	member: ComplexProduction
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1814,7 +1814,7 @@ class ExtendedAttributeUnknown(Construct):
 
 	tokens: List[Token]
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		skipped = tokens.seek_symbol((',', ']'))
 		self.tokens = skipped[:-1]
@@ -1854,7 +1854,7 @@ class ExtendedAttributeNoArgs(Construct):
 			return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._did_parse(tokens)
@@ -1869,11 +1869,11 @@ class ExtendedAttributeNoArgs(Construct):
 
 	@property
 	def name(self) -> Optional[str]:
-		return cast(ChildProduction, self.parent).name if ('constructor' == self.idl_type) else self.attribute
+		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
 	@property
 	def normal_name(self) -> Optional[str]:
-		return (str(cast(ChildProduction, self.parent).name) + '()') if ('constructor' == self.idl_type) else self.attribute
+		return f'{self.parent.name}()' if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
 		return str(self._attribute)
@@ -1910,7 +1910,7 @@ class ExtendedAttributeArgList(Construct):
 					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
@@ -1928,12 +1928,12 @@ class ExtendedAttributeArgList(Construct):
 
 	@property
 	def name(self) -> Optional[str]:
-		return cast(ChildProduction, self.parent).name if ('constructor' == self.idl_type) else self.attribute
+		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
 	@property
 	def normal_name(self) -> Optional[str]:
 		if ('constructor' == self.idl_type):
-			return (str(cast(ChildProduction, self.parent).name) + '('
+			return (f'{self.parent.name}('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
 		return self.attribute
 
@@ -1975,7 +1975,7 @@ class ExtendedAttributeIdent(Construct):
 					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -2043,7 +2043,7 @@ class ExtendedAttributeIdentList(Construct):
 							return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -2123,7 +2123,7 @@ class ExtendedAttributeNamedArgList(Construct):
 							return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
@@ -2206,7 +2206,7 @@ class ExtendedAttributeTypePair(Construct):
 								return tokens.pop_position((not token) or token.is_symbol((',', ']')))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._open_paren = Symbol(tokens, '(')
@@ -2267,7 +2267,7 @@ class ExtendedAttribute(Construct):
 		        or ExtendedAttributeIdentList.peek(tokens)
 		        or ExtendedAttributeIdent.peek(tokens))
 
-	def __init__(self, tokens: Tokenizer, parent: ChildProduction) -> None:
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		Construct.__init__(self, tokens, parent, False)
 		if (ExtendedAttributeNamedArgList.peek(tokens)):
 			self.attribute = ExtendedAttributeNamedArgList(tokens, parent)
