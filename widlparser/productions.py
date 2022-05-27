@@ -1687,7 +1687,7 @@ class ArgumentList(Production):
 	def __len__(self) -> int:
 		return len(self.arguments)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: Union[str, int]) -> Argument:
 		if (isinstance(key, str)):
 			for argument in self.arguments:
 				if (argument.name == key):
@@ -1709,13 +1709,13 @@ class ArgumentList(Production):
 	def keys(self) -> Sequence[str]:
 		return [argument.name for argument in self.arguments if (argument.name)]
 
-	def values(self) -> Sequence[Construct]:
+	def values(self) -> Sequence[Argument]:
 		return [argument for argument in self.arguments if (argument.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[Tuple[str, Argument]]:
 		return [(argument.name, argument) for argument in self.arguments if (argument.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: Union[str, int]) -> Optional[Argument]:
 		try:
 			return self[key]
 		except IndexError:
