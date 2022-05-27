@@ -71,7 +71,7 @@ class Construct(ComplexProduction):
 		"""Get symbol table."""
 		if (self._symbol_table is not None):
 			return self._symbol_table
-		return self.parent.symbol_table if (self.parent) else None
+		return self.parent.symbol_table if (self.has_parent) else None
 
 	@property
 	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
@@ -1869,11 +1869,11 @@ class ExtendedAttributeNoArgs(Construct):
 
 	@property
 	def name(self) -> Optional[str]:
-		return cast(ComplexProduction, self.parent).name if ('constructor' == self.idl_type) else self.attribute
+		return self.parent if ('constructor' == self.idl_type) else self.attribute
 
 	@property
 	def normal_name(self) -> Optional[str]:
-		return (str(cast(ComplexProduction, self.parent).name) + '()') if ('constructor' == self.idl_type) else self.attribute
+		return (str(self.parent.name) + '()') if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
 		return str(self._attribute)
@@ -1928,12 +1928,12 @@ class ExtendedAttributeArgList(Construct):
 
 	@property
 	def name(self) -> Optional[str]:
-		return cast(ComplexProduction, self.parent).name if ('constructor' == self.idl_type) else self.attribute
+		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
 	@property
 	def normal_name(self) -> Optional[str]:
 		if ('constructor' == self.idl_type):
-			return (str(cast(ComplexProduction, self.parent).name) + '('
+			return (str(self.parent.name) + '('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
 		return self.attribute
 

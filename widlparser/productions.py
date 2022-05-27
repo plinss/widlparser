@@ -155,7 +155,7 @@ class ComplexProduction(Production):
 
 	@property
 	def symbol_table(self) -> Optional[protocols.SymbolTable]:
-		return self.parent.symbol_table if (self.parent) else None
+		return self.parent.symbol_table if (self.has_parent) else None
 
 
 class String(Production):
