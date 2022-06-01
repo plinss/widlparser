@@ -730,7 +730,6 @@ class EnumValueList(Production):
 				self._commas.append(Symbol(tokens, ','))
 				token = tokens.sneak_peek()
 				if ((not token) or token.is_symbol('}')):
-					tokens.did_ignore(',')
 					break
 				continue
 			break
