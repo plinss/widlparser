@@ -218,12 +218,6 @@ typedef   short    shorttype  = error this is"
 
 IDL SYNTAX ERROR LINE: 43 - skipped: "const double invalid = - Infinity"
 
-IGNORED LEGACY IDL LINE: 46 - ","
-
-IGNORED LEGACY IDL LINE: 48 - ","
-
-IGNORED LEGACY IDL LINE: 54 - ","
-
 IGNORED LEGACY IDL LINE: 76 - "raises (hell)"
 
 IGNORED LEGACY IDL LINE: 80 - "getraises (an, exception)"
