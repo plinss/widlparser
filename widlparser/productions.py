@@ -941,7 +941,7 @@ class NonAnyType(ComplexProduction):
 	STRING_TYPES = frozenset(['ByteString', 'DOMString', 'USVString'])
 	OBJECT_TYPES = frozenset(['object', 'Error'])
 
-	type: Union[PrimitiveType, TypeIdentifier, 'TypeWithExtendedAttributes', 'Type', Symbol]
+	type: Union[PrimitiveType, TypeIdentifier, TypeWithExtendedAttributes, Type, Symbol]
 	type_name: Optional[str]
 	sequence: Optional[Symbol]
 	promise: Optional[Symbol]
@@ -1115,7 +1115,7 @@ class UnionMemberType(ComplexProduction):
 	[ExtendedAttributeList] NonAnyType | UnionType [TypeSuffix] | AnyType
 	"""
 
-	type: Union[NonAnyType, 'UnionType', AnyType]
+	type: Union[NonAnyType, UnionType, AnyType]
 	suffix: Optional[TypeSuffix]
 	_extended_attributes: Optional[ExtendedAttributeList]
 
