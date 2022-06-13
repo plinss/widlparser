@@ -16,11 +16,10 @@ from __future__ import annotations
 import sys
 from typing import List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
-from . import protocols
-
 if (TYPE_CHECKING):
-	from .productions import Production
 	from .constructs import Construct
+	from .productions import Production
+	from . import protocols
 
 
 def warning(method_name: str) -> None:

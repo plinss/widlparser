@@ -16,7 +16,6 @@ from __future__ import annotations
 from typing import Any, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
 
 from . import markup
-from . import protocols
 from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Default,
                           EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Iterable,
                           Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
@@ -26,6 +25,7 @@ from .tokenizer import Token, Tokenizer
 if (TYPE_CHECKING):
 	from .markup import MarkupGenerator
 	from .productions import Production
+	from . import protocols
 
 
 def _name(thing: Any) -> str:

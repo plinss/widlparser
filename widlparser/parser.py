@@ -20,11 +20,11 @@ from typing import Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tupl
 from . import constructs
 from . import markup
 from . import productions
-from . import protocols
 from . import tokenizer
 
 if (TYPE_CHECKING):
 	from .constructs import Construct
+	from . import protocols
 
 
 class Parser(object):
