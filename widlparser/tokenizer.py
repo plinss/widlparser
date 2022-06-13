@@ -99,6 +99,15 @@ class Token(object):
 		return '[' + self.type.value + ':' + self.text + ']'
 
 
+TOKEN_FLOAT_RE = re.compile(r'(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))(.*)', re.DOTALL)
+TOKEN_INTEGER_RE = re.compile(r'(-?(0[Xx][0-9A-Fa-f]+|0[0-7]*|[1-9][0-9]*))(.*)', re.DOTALL)
+TOKEN_IDENT_RE = re.compile(r'(_?[A-Z_a-z][0-9A-Z_a-z]*)(.*)', re.DOTALL)
+TOKEN_STRING_RE = re.compile(r'("[^"]*")(.*)', re.DOTALL)
+TOKEN_WHITESPACE_RE = re.compile(r'((\s+|//[^\n\r]*|/\*.*?\*/)+)(.*)', re.DOTALL)
+TOKEN_SYMBOL_RE = re.compile(r'(-Infinity|-|,|;|:|\?|\.\.\.|\.|\(|\)|\[|\]|\{|\}|\<|=|\>)(.*)', re.DOTALL)
+TOKEN_OTHER_RE = re.compile(r'([^\s0-9A-Z_a-z])(.*)', re.DOTALL)
+
+
 class Tokenizer(object):
 	"""Consume a string and convert to tokens."""
 
@@ -128,17 +137,17 @@ class Tokenizer(object):
 
 	def _tokenize(self, text: str) -> None:
 		while (0 < len(text)):
-			match = re.match(r'(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))(.*)', text, re.DOTALL)
+			match = TOKEN_FLOAT_RE.match(text)
 			if (match):
 				self.tokens.append(Token(TokenType.FLOAT, match.group(1)))
 				text = match.group(5)
 				continue
-			match = re.match(r'(-?(0[Xx][0-9A-Fa-f]+|0[0-7]*|[1-9][0-9]*))(.*)', text, re.DOTALL)
+			match = TOKEN_INTEGER_RE.match(text)
 			if (match):
 				self.tokens.append(Token(TokenType.INTEGER, match.group(1)))
 				text = match.group(3)
 				continue
-			match = re.match(r'(_?[A-Z_a-z][0-9A-Z_a-z]*)(.*)', text, re.DOTALL)
+			match = TOKEN_IDENT_RE.match(text)
 			if (match):
 				if (match.group(1) in self.SYMBOL_IDENTS):
 					self.tokens.append(Token(TokenType.SYMBOL, match.group(1)))
@@ -146,22 +155,22 @@ class Tokenizer(object):
 					self.tokens.append(Token(TokenType.IDENTIFIER, match.group(1)))
 				text = match.group(2)
 				continue
-			match = re.match(r'("[^"]*")(.*)', text, re.DOTALL)
+			match = TOKEN_STRING_RE.match(text)
 			if (match):
 				self.tokens.append(Token(TokenType.STRING, match.group(1)))
 				text = match.group(2)
 				continue
-			match = re.match(r'((\s+|//[^\n\r]*|/\*.*?\*/)+)(.*)', text, re.DOTALL)
+			match = TOKEN_WHITESPACE_RE.match(text)
 			if (match):
 				self.tokens.append(Token(TokenType.WHITESPACE, match.group(1)))
 				text = match.group(3)
 				continue
-			match = re.match(r'(-Infinity|-|,|;|:|\?|\.\.\.|\.|\(|\)|\[|\]|\{|\}|\<|=|\>)(.*)', text, re.DOTALL)
+			match = TOKEN_SYMBOL_RE.match(text)
 			if (match):
 				self.tokens.append(Token(TokenType.SYMBOL, match.group(1)))
 				text = match.group(2)
 				continue
-			match = re.match(r'([^\s0-9A-Z_a-z])(.*)', text, re.DOTALL)
+			match = TOKEN_OTHER_RE.match(text)
 			if (match is None):
 				break
 			self.tokens.append(Token(TokenType.OTHER, match.group(1)))
