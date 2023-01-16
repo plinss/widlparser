@@ -13,7 +13,7 @@ Installation
 
 Standard python package installation:
 
-    pip install widlparser3
+    pip install widlparser
 
 
 Usage
