@@ -1653,8 +1653,6 @@ class ArgumentList(Production):
 			if (len(self.arguments)):
 				if (self.arguments[-1].variadic):
 					tokens.error('Argument "', argument.name, '" not allowed to follow variadic argument "', self.arguments[-1].name, '"')
-				elif ((not self.arguments[-1].required) and argument.required):
-					tokens.error('Required argument "', argument.name, '" cannot follow optional argument "', self.arguments[-1].name, '"')
 			self.arguments.append(argument)
 			token = tokens.sneak_peek()
 		self._did_parse(tokens)
