@@ -15,12 +15,13 @@ from __future__ import annotations
 
 
 import itertools
-from typing import Any, Container, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
+from typing import Any, TYPE_CHECKING, cast
 
 from . import constructs
 from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
+	from collections.abc import Container, Iterator, Sequence
 	from .markup import MarkupGenerator
 	from .constructs import Argument, Construct
 	from .protocols import SymbolTable
@@ -39,8 +40,8 @@ class Production(object):
 	"""
 
 	leading_space: str
-	_tail: Optional[List[Token]]
-	semicolon: Union[str, Production]
+	_tail: (list[Token] | None)
+	semicolon: (str | Production)
 	trailing_space: str
 
 	def __init__(self, tokens: Tokenizer) -> None:
@@ -60,7 +61,7 @@ class Production(object):
 		raise NotImplementedError
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return None
 
 	@property
@@ -111,9 +112,9 @@ class ComplexProduction(Production):
 	including all Constructs.
 	"""
 
-	_parent: Optional[ComplexProduction]
+	_parent: (ComplexProduction | None)
 
-	def __init__(self, tokens: Tokenizer, parent: Optional[ComplexProduction]) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (ComplexProduction | None)) -> None:
 		super().__init__(tokens)
 		self._parent = parent
 
@@ -124,7 +125,7 @@ class ComplexProduction(Production):
 		raise KeyError()
 
 	@parent.setter
-	def parent(self, parent: Optional[ComplexProduction]) -> None:
+	def parent(self, parent: (ComplexProduction | None)) -> None:
 		self._parent = parent
 
 	@property
@@ -132,29 +133,29 @@ class ComplexProduction(Production):
 		return (self._parent is not None)
 
 	@property
-	def full_name(self) -> Optional[str]:
+	def full_name(self) -> (str | None):
 		if (not self.normal_name):
 			return None
 		return self.parent.full_name + '/' + self.normal_name if (self.has_parent and self.parent.full_name) else self.normal_name
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		return None
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		return []
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return None
 
 	@property
-	def symbol_table(self) -> Optional[SymbolTable]:
+	def symbol_table(self) -> (SymbolTable | None):
 		return self.parent.symbol_table if (self.has_parent) else None
 
 
@@ -200,15 +201,15 @@ class Symbol(Production):
 	symbol: str
 
 	@classmethod
-	def peek(cls, tokens: Tokenizer, symbol: Union[str, Container[str]] = None) -> bool:
+	def peek(cls, tokens: Tokenizer, symbol: (str | Container[str] | None) = None) -> bool:
 		token = tokens.push_position()
 		return tokens.pop_position((token is not None) and token.is_symbol(symbol))
 
-	def __init__(self, tokens: Tokenizer, symbol: Union[str, Container[str]] = None, include_trailing_space: bool = True) -> None:
+	def __init__(self, tokens: Tokenizer, symbol: (str | Container[str] | None) = None, include_trailing_space: bool = True) -> None:
 		super().__init__(tokens)
 		self.symbol = next(tokens).text
 		if (symbol):
-			assert(self.symbol == symbol)
+			assert (self.symbol == symbol)
 		self._did_parse(tokens, include_trailing_space)
 
 	def _str(self) -> str:
@@ -265,7 +266,7 @@ class IntegerType(Production):
 	"""
 
 	type: str
-	_space: Optional[str]
+	_space: (str | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -319,7 +320,7 @@ class UnsignedIntegerType(Production):
 	"unsigned" IntegerType | IntegerType
 	"""
 
-	unsigned: Optional[Symbol]
+	unsigned: (Symbol | None)
 	type: IntegerType
 
 	@classmethod
@@ -389,7 +390,7 @@ class UnrestrictedFloatType(Production):
 	"unrestricted" FloatType | FloatType
 	"""
 
-	unrestricted: Optional[Symbol]
+	unrestricted: (Symbol | None)
 	type: FloatType
 
 	@classmethod
@@ -427,7 +428,7 @@ class PrimitiveType(Production):
 	UnsignedIntegerType | UnrestrictedFloatType | "undefined" | "boolean" | "byte" | "octet" | "bigint"
 	"""
 
-	type: Union[UnsignedIntegerType, UnrestrictedFloatType, Symbol]
+	type: (UnsignedIntegerType | UnrestrictedFloatType | Symbol)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -444,7 +445,7 @@ class PrimitiveType(Production):
 		self._did_parse(tokens, False)
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return str(self.type)
 
 	def _str(self) -> str:
@@ -513,11 +514,11 @@ class TypeIdentifier(Production):
 		self._did_parse(tokens, False)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name[1:] if ('_' == self._name[0]) else self._name
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return self.name
 
 	def _str(self) -> str:
@@ -539,8 +540,8 @@ class ConstType(Production):
 	PrimitiveType [Null] | TypeIdentifier [Null]
 	"""
 
-	type: Union[PrimitiveType, TypeIdentifier]
-	null: Optional[Symbol]
+	type: (PrimitiveType | TypeIdentifier)
+	null: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -563,7 +564,7 @@ class ConstType(Production):
 		self._did_parse(tokens)
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return self.type.type_name
 
 	def _str(self) -> str:
@@ -629,7 +630,7 @@ class ConstValue(Production):
 	"true" | "false" | FloatLiteral | <integer-token> | "null"
 	"""
 
-	value: Union[FloatLiteral, Symbol, Integer]
+	value: (FloatLiteral | Symbol | Integer)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -703,8 +704,8 @@ class EnumValueList(Production):
 	EnumValue ["," EnumValue]... [","]
 	"""
 
-	values: List[EnumValue]
-	_commas: List[Symbol]
+	values: list[EnumValue]
+	_commas: list[Symbol]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -757,11 +758,11 @@ class TypeSuffix(Production):
 	"[" "]" [TypeSuffix] | "?" [TypeSuffixStartingWithArray]
 	"""
 
-	_open_bracket: Optional[Symbol]
-	_close_bracket: Optional[Symbol]
-	suffix: Optional[Union[TypeSuffix, TypeSuffixStartingWithArray]]
+	_open_bracket: (Symbol | None)
+	_close_bracket: (Symbol | None)
+	suffix: (TypeSuffix | TypeSuffixStartingWithArray | None)
 	array: bool
-	null: Optional[Symbol]
+	null: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -811,7 +812,7 @@ class TypeSuffixStartingWithArray(Production):
 
 	_open_bracket: Symbol
 	_close_bracket: Symbol
-	suffix: Optional[TypeSuffix]
+	suffix: (TypeSuffix | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -845,7 +846,7 @@ class AnyType(Production):
 	"""
 
 	any: Symbol
-	suffix: Optional[TypeSuffixStartingWithArray]
+	suffix: (TypeSuffixStartingWithArray | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -862,11 +863,11 @@ class AnyType(Production):
 		self._did_parse(tokens, False)
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return None
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return []
 
 	def _str(self) -> str:
@@ -890,7 +891,7 @@ class SingleType(ComplexProduction):
 	NonAnyType | AnyType
 	"""
 
-	type: Union[NonAnyType, AnyType]
+	type: (NonAnyType | AnyType)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -905,11 +906,11 @@ class SingleType(ComplexProduction):
 		self._did_parse(tokens, False)
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return self.type.type_name
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return self.type.type_names
 
 	def _str(self) -> str:
@@ -941,16 +942,16 @@ class NonAnyType(ComplexProduction):
 	STRING_TYPES = frozenset(['ByteString', 'DOMString', 'USVString'])
 	OBJECT_TYPES = frozenset(['object', 'Error'])
 
-	type: Union[PrimitiveType, TypeIdentifier, TypeWithExtendedAttributes, Type, Symbol]
-	type_name: Optional[str]
-	sequence: Optional[Symbol]
-	promise: Optional[Symbol]
-	record: Optional[Symbol]
-	_open_type: Optional[Symbol]
-	_close_type: Optional[Symbol]
-	null: Optional[Symbol]
-	suffix: Optional[TypeSuffix]
-	key_type: Optional[Symbol]
+	type: (PrimitiveType | TypeIdentifier | TypeWithExtendedAttributes | Type | Symbol)
+	type_name: (str | None)
+	sequence: (Symbol | None)
+	promise: (Symbol | None)
+	record: (Symbol | None)
+	_open_type: (Symbol | None)
+	_close_type: (Symbol | None)
+	null: (Symbol | None)
+	suffix: (TypeSuffix | None)
+	key_type: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1035,7 +1036,7 @@ class NonAnyType(ComplexProduction):
 		self._did_parse(tokens, False)
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return [self.type_name] if (self.type_name) else []
 
 	def _str(self) -> str:
@@ -1115,9 +1116,9 @@ class UnionMemberType(ComplexProduction):
 	[ExtendedAttributeList] NonAnyType | UnionType [TypeSuffix] | AnyType
 	"""
 
-	type: Union[NonAnyType, UnionType, AnyType]
-	suffix: Optional[TypeSuffix]
-	_extended_attributes: Optional[ExtendedAttributeList]
+	type: (NonAnyType | UnionType | AnyType)
+	suffix: (TypeSuffix | None)
+	_extended_attributes: (ExtendedAttributeList | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1145,15 +1146,15 @@ class UnionMemberType(ComplexProduction):
 		self._did_parse(tokens, False)
 
 	@property
-	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
+	def extended_attributes(self) -> (ExtendedAttributeList | None):
 		return self._extended_attributes
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return self.type.type_name
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return self.type.type_names
 
 	def _str(self) -> str:
@@ -1182,8 +1183,8 @@ class UnionType(ComplexProduction):
 	"""
 
 	_open_paren: Symbol
-	types: List[UnionMemberType]
-	_ors: List[Symbol]
+	types: list[UnionMemberType]
+	_ors: list[Symbol]
 	_close_paren: Symbol
 
 	@classmethod
@@ -1219,11 +1220,11 @@ class UnionType(ComplexProduction):
 		self._did_parse(tokens, False)
 
 	@property
-	def type_name(self) -> Optional[str]:
+	def type_name(self) -> (str | None):
 		return None
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return [type.type_name for type in self.types if (type.type_name)]
 
 	def _str(self) -> str:
@@ -1252,8 +1253,8 @@ class Type(ComplexProduction):
 	SingleType | UnionType [TypeSuffix]
 	"""
 
-	type: Union[SingleType, UnionType]
-	suffix: Optional[TypeSuffix]
+	type: (SingleType | UnionType)
+	suffix: (TypeSuffix | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1275,7 +1276,7 @@ class Type(ComplexProduction):
 		self._did_parse(tokens)
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return self.type.type_names
 
 	def _str(self) -> str:
@@ -1298,9 +1299,9 @@ class TypeWithExtendedAttributes(ComplexProduction):
 	[ExtendedAttributeList] SingleType | UnionType [TypeSuffix]
 	"""
 
-	_extended_attributes: Optional[ExtendedAttributeList]
-	type: Union[SingleType, UnionType]
-	suffix: Optional[TypeSuffix]
+	_extended_attributes: (ExtendedAttributeList | None)
+	type: (SingleType | UnionType)
+	suffix: (TypeSuffix | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1324,11 +1325,11 @@ class TypeWithExtendedAttributes(ComplexProduction):
 		self._did_parse(tokens)
 
 	@property
-	def type_names(self) -> List[str]:
+	def type_names(self) -> list[str]:
 		return self.type.type_names
 
 	@property
-	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
+	def extended_attributes(self) -> (ExtendedAttributeList | None):
 		return self._extended_attributes
 
 	def _str(self) -> str:
@@ -1381,7 +1382,7 @@ class Ignore(Production):
 	"inherits" "getter" | "getraises" "(" ... ")" | "setraises" "(" ... ")" | "raises" "(" ... ")"
 	"""
 
-	tokens: List[Token]
+	tokens: list[Token]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1428,7 +1429,7 @@ class IgnoreMultipleInheritance(Production):
 
 	_comma: Symbol
 	_inherit: TypeIdentifier
-	next: Optional[IgnoreMultipleInheritance]
+	next: (IgnoreMultipleInheritance | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1473,7 +1474,7 @@ class Inheritance(Production):
 
 	_colon: Symbol
 	_base: TypeIdentifier
-	_ignore: Optional[IgnoreMultipleInheritance]
+	_ignore: (IgnoreMultipleInheritance | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1518,9 +1519,9 @@ class Default(Production):
 	"""
 
 	_equals: Symbol
-	_open: Optional[Symbol]
-	_close: Optional[Symbol]
-	_value: Optional[Union[ConstValue, String]]
+	_open: (Symbol | None)
+	_close: (Symbol | None)
+	_value: (ConstValue | String | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1603,7 +1604,7 @@ class ArgumentName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1625,8 +1626,8 @@ class ArgumentList(Production):
 	Argument ["," Argument]...
 	"""
 
-	arguments: List[Argument]
-	_commas: List[Symbol]
+	arguments: list[Argument]
+	_commas: list[Symbol]
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1639,7 +1640,7 @@ class ArgumentList(Production):
 			return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (ComplexProduction | None) = None) -> None:
 		super().__init__(tokens)
 		self.arguments = []
 		self._commas = []
@@ -1672,7 +1673,7 @@ class ArgumentList(Production):
 								tokens.error('Dictionary argument "', argument.name, '" without required members must be marked optional')
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		if (self.arguments):
 			return self.arguments[0].name
 		return None
@@ -1703,7 +1704,7 @@ class ArgumentList(Production):
 	def __len__(self) -> int:
 		return len(self.arguments)
 
-	def __getitem__(self, key: Union[str, int]) -> Argument:
+	def __getitem__(self, key: (str | int)) -> Argument:
 		if (isinstance(key, str)):
 			for argument in self.arguments:
 				if (argument.name == key):
@@ -1711,7 +1712,7 @@ class ArgumentList(Production):
 			raise IndexError
 		return self.arguments[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for argument in self.arguments:
 				if (argument.name == key):
@@ -1728,10 +1729,10 @@ class ArgumentList(Production):
 	def values(self) -> Sequence[Argument]:
 		return [argument for argument in self.arguments if (argument.name)]
 
-	def items(self) -> Sequence[Tuple[str, Argument]]:
+	def items(self) -> Sequence[tuple[str, Argument]]:
 		return [(argument.name, argument) for argument in self.arguments if (argument.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Argument]:
+	def get(self, key: (str | int)) -> (Argument | None):
 		try:
 			return self[key]
 		except IndexError:
@@ -1774,7 +1775,7 @@ class Special(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name
 
 	def _str(self) -> str:
@@ -1811,7 +1812,7 @@ class AttributeName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1833,11 +1834,11 @@ class AttributeRest(ComplexProduction):
 	["readonly"] "attribute" TypeWithExtendedAttributes AttributeName [Ignore] ";"
 	"""
 
-	readonly: Optional[Symbol]
+	readonly: (Symbol | None)
 	_attribute: Symbol
 	type: TypeWithExtendedAttributes
 	_name: AttributeName
-	_ignore: Optional[Ignore]
+	_ignore: (Ignore | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1860,7 +1861,7 @@ class AttributeRest(ComplexProduction):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1915,7 +1916,7 @@ class MixinAttribute(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.attribute.name
 
 	def _str(self) -> str:
@@ -1937,7 +1938,7 @@ class Attribute(ComplexProduction):
 	["inherit"] AttributeRest
 	"""
 
-	inherit: Optional[Symbol]
+	inherit: (Symbol | None)
 	attribute: AttributeRest
 
 	@classmethod
@@ -1961,7 +1962,7 @@ class Attribute(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.attribute.name
 
 	def _str(self) -> str:
@@ -2002,7 +2003,7 @@ class OperationName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2024,11 +2025,11 @@ class OperationRest(ComplexProduction):
 	[OperationName] "(" [ArgumentList] ")" [Ignore] ";"
 	"""
 
-	_name: Optional[OperationName]
+	_name: (OperationName | None)
 	_open_paren: Symbol
 	_arguments: ArgumentList
 	_close_paren: Symbol
-	_ignore: Optional[Ignore]
+	_ignore: (Ignore | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2056,7 +2057,7 @@ class OperationRest(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name if (self._name) else None
 
 	@property
@@ -2099,10 +2100,10 @@ class Iterable(ComplexProduction):
 
 	_iterabe: Symbol
 	_open_type: Symbol
-	type: Optional[TypeWithExtendedAttributes]
-	key_type: Optional[TypeWithExtendedAttributes]
-	_comma: Optional[Symbol]
-	value_type: Optional[TypeWithExtendedAttributes]
+	type: (TypeWithExtendedAttributes | None)
+	key_type: (TypeWithExtendedAttributes | None)
+	_comma: (Symbol | None)
+	value_type: (TypeWithExtendedAttributes | None)
 	_close_type: Symbol
 
 	@classmethod
@@ -2145,7 +2146,7 @@ class Iterable(ComplexProduction):
 		return 'iterable'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return '__iterable__'
 
 	def _str(self) -> str:
@@ -2188,14 +2189,14 @@ class AsyncIterable(ComplexProduction):
 	_async: Symbol
 	_iterable: Symbol
 	_open_type: Symbol
-	type: Optional[TypeWithExtendedAttributes]
-	key_type: Optional[TypeWithExtendedAttributes]
-	_comma: Optional[Symbol]
-	value_type: Optional[TypeWithExtendedAttributes]
+	type: (TypeWithExtendedAttributes | None)
+	key_type: (TypeWithExtendedAttributes | None)
+	_comma: (Symbol | None)
+	value_type: (TypeWithExtendedAttributes | None)
 	_close_type: Symbol
-	_open_paren: Optional[Symbol]
-	_arguments: Optional[ArgumentList]
-	_close_paren: Optional[Symbol]
+	_open_paren: (Symbol | None)
+	_arguments: (ArgumentList | None)
+	_close_paren: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2251,11 +2252,11 @@ class AsyncIterable(ComplexProduction):
 		return 'async-iterable'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return '__async_iterable__'
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self._arguments
 
 	def _str(self) -> str:
@@ -2306,7 +2307,7 @@ class Maplike(ComplexProduction):
 	["readonly"] "maplike" "<" TypeWithExtendedAttributes "," TypeWithExtendedAttributes ">" ";"
 	"""
 
-	readonly: Optional[Symbol]
+	readonly: (Symbol | None)
 	_maplike: Symbol
 	_open_type: Symbol
 	key_type: TypeWithExtendedAttributes
@@ -2343,7 +2344,7 @@ class Maplike(ComplexProduction):
 		return 'maplike'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return '__maplike__'
 
 	def _str(self) -> str:
@@ -2376,7 +2377,7 @@ class Setlike(ComplexProduction):
 	["readonly"] "setlike" "<" TypeWithExtendedAttributes ">" ";"
 	"""
 
-	readonly: Optional[Symbol]
+	readonly: (Symbol | None)
 	_setlike: Symbol
 	_open_type: Symbol
 	type: TypeWithExtendedAttributes
@@ -2407,7 +2408,7 @@ class Setlike(ComplexProduction):
 		return 'setlike'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return '__setlike__'
 
 	def _str(self) -> str:
@@ -2436,7 +2437,7 @@ class SpecialOperation(ComplexProduction):
 	Special [Special]... Type OperationRest
 	"""
 
-	specials: List[Special]
+	specials: list[Special]
 	return_type: Type
 	operation: OperationRest
 
@@ -2464,7 +2465,7 @@ class SpecialOperation(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.operation.name if (self.operation.name) else ('__' + _name(self.specials[0]) + '__')
 
 	@property
@@ -2472,14 +2473,14 @@ class SpecialOperation(ComplexProduction):
 		return self.operation.arguments
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		name = self.name + '(' if (self.name) else '('
 		if (self.arguments):
 			name += self.arguments.argument_names[0]
 		return name + ')'
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		if (self.arguments):
 			return [_name(self) + '(' + argument_name + ')' for argument_name in self.arguments.argument_names]
 		return [self.method_name] if (self.method_name) else []
@@ -2528,7 +2529,7 @@ class Operation(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.operation.name
 
 	@property
@@ -2536,14 +2537,14 @@ class Operation(ComplexProduction):
 		return self.operation.arguments
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		name = self.name + '(' if (self.name) else '('
 		if (self.arguments):
 			name += self.arguments.argument_names[0]
 		return name + ')'
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		if (self.arguments):
 			return [_name(self) + '(' + argument_name + ')' for argument_name in self.arguments.argument_names]
 		return [self.method_name] if (self.method_name) else []
@@ -2568,9 +2569,9 @@ class Stringifier(ComplexProduction):
 	"""
 
 	_stringifier: Symbol
-	attribute: Optional[AttributeRest]
-	return_type: Optional[Type]
-	operation: Optional[OperationRest]
+	attribute: (AttributeRest | None)
+	return_type: (Type | None)
+	operation: (OperationRest | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2606,17 +2607,17 @@ class Stringifier(ComplexProduction):
 		return True
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		if (self.operation):
 			return self.operation.name if (self.operation.name) else '__stringifier__'
 		return self.attribute.name if (self.attribute and self.attribute.name) else '__stringifier__'
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self.operation.arguments if (self.operation) else None
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		if (self.operation):
 			name = self.name + '(' if (self.name) else '('
 			if (self.arguments):
@@ -2625,7 +2626,7 @@ class Stringifier(ComplexProduction):
 		return None
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		if (self.operation):
 			if (self.arguments):
 				return [_name(self) + '(' + argument_name + ')' for argument_name in self.arguments.argument_names]
@@ -2666,7 +2667,7 @@ class Identifiers(Production):
 
 	_comma: Symbol
 	_name: Identifier
-	next: Optional[Identifiers]
+	next: (Identifiers | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2685,7 +2686,7 @@ class Identifiers(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2706,7 +2707,7 @@ class TypeIdentifiers(Production):
 
 	_comma: Symbol
 	_name: TypeIdentifier
-	next: Optional[TypeIdentifiers]
+	next: (TypeIdentifiers | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2725,7 +2726,7 @@ class TypeIdentifiers(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2745,9 +2746,9 @@ class StaticMember(ComplexProduction):
 	"""
 
 	_static: Symbol
-	attribute: Optional[AttributeRest]
-	return_type: Optional[Type]
-	operation: Optional[OperationRest]
+	attribute: (AttributeRest | None)
+	return_type: (Type | None)
+	operation: (OperationRest | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2781,15 +2782,15 @@ class StaticMember(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.operation.name if (self.operation) else cast(AttributeRest, self.attribute).name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self.operation.arguments if (self.operation) else None
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		if (self.operation):
 			name = self.name + '(' if (self.name) else '('
 			if (self.arguments):
@@ -2798,7 +2799,7 @@ class StaticMember(ComplexProduction):
 		return None
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		if (self.operation):
 			if (self.arguments):
 				return [_name(self) + '(' + argument_name + ')' for argument_name in self.arguments.argument_names]
@@ -2863,7 +2864,7 @@ class Constructor(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._constructor.name
 
 	@property
@@ -2879,14 +2880,14 @@ class Constructor(ComplexProduction):
 		return self._arguments.argument_names if (self._arguments) else ['']
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		name = 'constructor('
 		if (self._arguments):
 			name += self._arguments.argument_names[0]
 		return name + ')'
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		if (self._arguments):
 			return ['constructor(' + argument_name + ')' for argument_name in self._arguments.argument_names]
 		return [self.method_name] if (self.method_name) else []
@@ -2918,8 +2919,8 @@ class ExtendedAttributeList(ComplexProduction):
 	"""
 
 	_open_bracket: Symbol
-	attributes: List[constructs.ExtendedAttribute]
-	_commas: List[Symbol]
+	attributes: list[constructs.ExtendedAttribute]
+	_commas: list[Symbol]
 	_close_bracket: Symbol
 
 	@classmethod
@@ -2948,7 +2949,7 @@ class ExtendedAttributeList(ComplexProduction):
 	def __len__(self) -> int:
 		return len(self.attributes)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (isinstance(key, str)):
 			for attribute in self.attributes:
 				if (key == attribute.name):
@@ -2956,7 +2957,7 @@ class ExtendedAttributeList(ComplexProduction):
 			raise IndexError
 		return self.attributes[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for attribute in self.attributes:
 				if (key == attribute.name):
@@ -2973,10 +2974,10 @@ class ExtendedAttributeList(ComplexProduction):
 	def values(self) -> Sequence[Construct]:
 		return [attribute for attribute in self.attributes if (attribute.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(attribute.name, attribute) for attribute in self.attributes if (attribute.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:

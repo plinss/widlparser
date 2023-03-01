@@ -100,7 +100,7 @@ from .tokenizer import (
 	UserInterface,
 )
 
-__all__ = [
+__all__ = (
 	'Parser',
 
 	# tokenizer
@@ -189,4 +189,4 @@ __all__ = [
 	'ExtendedAttributeNamedArgList',
 	'ExtendedAttributeTypePair',
 	'ExtendedAttribute',
-]
+)

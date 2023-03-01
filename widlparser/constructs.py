@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
+from typing import Any, TYPE_CHECKING, cast
 
 from . import markup
 from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Default,
@@ -23,6 +23,7 @@ from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, 
 from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
+	from collections.abc import Iterator, Sequence
 	from .markup import MarkupGenerator
 	from .productions import Production
 	from . import protocols
@@ -35,21 +36,21 @@ def _name(thing: Any) -> str:
 class Construct(ComplexProduction):
 	"""Base class for high-level language constructs."""
 
-	_symbol_table: Optional[protocols.SymbolTable]
-	_extended_attributes: Optional[ExtendedAttributeList]
+	_symbol_table: (protocols.SymbolTable | None)
+	_extended_attributes: (ExtendedAttributeList | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
 		"""Check if construct is next in token stream."""
 		return ExtendedAttributeList.peek(tokens)
 
-	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None, parse_extended_attributes: bool = True,
-	             symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (ComplexProduction | None) = None, parse_extended_attributes: bool = True,
+	             symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent)
 		self._symbol_table = symbol_table
 		self._extended_attributes = self._parse_extended_attributes(tokens, self) if (parse_extended_attributes) else None
 
-	def _parse_extended_attributes(self, tokens: Tokenizer, parent: Construct) -> Optional[ExtendedAttributeList]:
+	def _parse_extended_attributes(self, tokens: Tokenizer, parent: Construct) -> (ExtendedAttributeList | None):
 		return ExtendedAttributeList(tokens, parent) if (ExtendedAttributeList.peek(tokens)) else None
 
 	@property
@@ -58,23 +59,23 @@ class Construct(ComplexProduction):
 		raise NotImplementedError   # subclasses must override
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return None
 
 	@property
-	def constructors(self) -> List[Construct]:
+	def constructors(self) -> list[Construct]:
 		"""Get constructors."""
 		return [attribute for attribute in self._extended_attributes if ('constructor' == attribute.idl_type)] if (self._extended_attributes) else []
 
 	@property
-	def symbol_table(self) -> Optional[protocols.SymbolTable]:
+	def symbol_table(self) -> (protocols.SymbolTable | None):
 		"""Get symbol table."""
 		if (self._symbol_table is not None):
 			return self._symbol_table
 		return self.parent.symbol_table if (self.has_parent) else None
 
 	@property
-	def extended_attributes(self) -> Optional[ExtendedAttributeList]:
+	def extended_attributes(self) -> (ExtendedAttributeList | None):
 		"""Get extended attributes."""
 		return self._extended_attributes
 
@@ -86,11 +87,11 @@ class Construct(ComplexProduction):
 		"""Number of children."""
 		return 0
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		"""Access child by index."""
 		raise IndexError
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		"""Test if child is present."""
 		return False
 
@@ -109,33 +110,33 @@ class Construct(ComplexProduction):
 	def values(self) -> Sequence[Construct]:
 		return []
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return []
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		"""Search for child member of a given name."""
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		"""Search for all child members of a given name."""
 		return []
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[Construct]:
+	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		"""Search for a method of a given name."""
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[Construct]:
+	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
 		"""Search for all methods of a given name."""
 		return []
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		"""Search for an argument of a given name."""
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		"""Search for all arguments of a given name."""
 		return []
 
@@ -211,7 +212,7 @@ class Const(Construct):
 						return tokens.pop_position(ConstValue.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, False, symbol_table=symbol_table)
 		self._const = Symbol(tokens, 'const')
 		self.type = ConstType(tokens)
@@ -227,17 +228,17 @@ class Const(Construct):
 		return 'const'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		"""Get name."""
 		return self._name.name
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		"""Get method name."""
 		return None
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		"""Get method names."""
 		return []
 
@@ -292,7 +293,7 @@ class Enum(Construct):
 						return tokens.pop_position((token is not None) and token.is_symbol('}'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._enum = Symbol(tokens, 'enum')
 		self._name = Identifier(tokens)
@@ -309,7 +310,7 @@ class Enum(Construct):
 		return 'enum'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -353,7 +354,7 @@ class Typedef(Construct):
 				return tokens.pop_position(Identifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._typedef = Symbol(tokens, 'typedef')
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -368,7 +369,7 @@ class Typedef(Construct):
 		return 'typedef'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -395,12 +396,12 @@ class Argument(Construct):
 	| [ExtendedAttributeList] [IgnoreInOut] Type ["..."] ArgumentName
 	"""
 
-	optional: Optional[Symbol]
-	_ignore: Optional[IgnoreInOut]
-	type: Union[Type, TypeWithExtendedAttributes]
-	variadic: Optional[Symbol]
+	optional: (Symbol | None)
+	_ignore: (IgnoreInOut | None)
+	type: (Type | TypeWithExtendedAttributes)
+	variadic: (Symbol | None)
 	_name: ArgumentName
-	default: Optional[Default]
+	default: (Default | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -419,7 +420,7 @@ class Argument(Construct):
 						return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: ComplexProduction = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (ComplexProduction | None) = None) -> None:
 		super().__init__(tokens, parent)
 		if (Symbol.peek(tokens, 'optional')):
 			self.optional = Symbol(tokens, 'optional')
@@ -442,7 +443,7 @@ class Argument(Construct):
 		return 'argument'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -531,33 +532,33 @@ class InterfaceMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.member.name
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		return self.member.method_name
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		return self.member.method_names
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -612,33 +613,33 @@ class MixinMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.member.name
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		return self.member.method_name
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		return self.member.method_names
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -667,9 +668,9 @@ class SyntaxError(Construct):
 	... ";" | ... "}"
 	"""
 
-	tokens: List[Token]
+	tokens: list[Token]
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, False, symbol_table=symbol_table)
 		self.tokens = tokens.syntax_error((';', '}'), False)
 		if ((1 < len(self.tokens)) and self.tokens[-1].is_symbol('}')):
@@ -701,13 +702,13 @@ class Interface(Construct):
 	[ExtendedAttributes] ["partial"] "interface" Identifier [Inheritance] "{" [InterfaceMember]... "}" ";"
 	"""
 
-	partial: Optional[Symbol]
+	partial: (Symbol | None)
 	_interface: Symbol
 	_name: Identifier
-	inheritance: Optional[Inheritance]
+	inheritance: (Inheritance | None)
 	_open_brace: Symbol
-	members: List[Construct]
-	_close_brace: Optional[Symbol]
+	members: list[Construct]
+	_close_brace: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer, accept_extended_attributes: bool = True) -> bool:
@@ -721,7 +722,7 @@ class Interface(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
@@ -748,7 +749,7 @@ class Interface(Construct):
 		return 'interface'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -758,7 +759,7 @@ class Interface(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -766,7 +767,7 @@ class Interface(Construct):
 			raise IndexError
 		return self.members[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -786,36 +787,36 @@ class Interface(Construct):
 	def values(self) -> Sequence[Construct]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[Construct]:
+	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[Construct]:
+	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -823,8 +824,8 @@ class Interface(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
-		result: List[Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
+		result: list[Construct] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -874,14 +875,14 @@ class Mixin(Construct):
 	[ExtendedAttributes] ["partial"] "interface" "mixin" Identifier [Inheritance] "{" [MixinMember]... "}" ";"
 	"""
 
-	partial: Optional[Symbol]
+	partial: (Symbol | None)
 	_interface: Symbol
 	_mixin: Symbol
 	_name: Identifier
-	inheritance: Optional[Inheritance]
+	inheritance: (Inheritance | None)
 	_open_brace: Symbol
-	members: List[Construct]
-	_close_brace: Optional[Symbol]
+	members: list[Construct]
+	_close_brace: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer, accept_extended_attributes: bool = True) -> bool:
@@ -895,7 +896,7 @@ class Mixin(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._interface = Symbol(tokens, 'interface')
@@ -923,7 +924,7 @@ class Mixin(Construct):
 		return 'interface'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -933,7 +934,7 @@ class Mixin(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -941,7 +942,7 @@ class Mixin(Construct):
 			raise IndexError
 		return self.members[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -961,36 +962,36 @@ class Mixin(Construct):
 	def values(self) -> Sequence[Construct]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[Construct]:
+	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[Construct]:
+	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -998,8 +999,8 @@ class Mixin(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
-		result: List[Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
+		result: list[Construct] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -1077,33 +1078,33 @@ class NamespaceMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.member.name
 
 	@property
-	def method_name(self) -> Optional[str]:
+	def method_name(self) -> (str | None):
 		return self.member.method_name
 
 	@property
-	def method_names(self) -> List[str]:
+	def method_names(self) -> list[str]:
 		return self.member.method_names
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return self.method_name if (self.method_name) else self.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self.member.arguments
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			for argument in self.member.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		if (hasattr(self.member, 'arguments') and self.member.arguments):
 			return [argument for argument in self.member.arguments if (name == argument.name)]
 		return []
@@ -1132,12 +1133,12 @@ class Namespace(Construct):
 	[ExtendedAttributes] ["partial"] "namespace" Identifier "{" [NamespaceMember]... "}" ";"
 	"""
 
-	partial: Optional[Symbol]
+	partial: (Symbol | None)
 	_namespace: Symbol
 	_name: Identifier
 	_open_brace: Symbol
-	members: List[Union[NamespaceMember, SyntaxError]]
-	_close_brace: Optional[Symbol]
+	members: list[NamespaceMember | SyntaxError]
+	_close_brace: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer, accept_extended_attributes: bool = True) -> bool:
@@ -1150,7 +1151,7 @@ class Namespace(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, (not parent), symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._namespace = Symbol(tokens, 'namespace')
@@ -1176,7 +1177,7 @@ class Namespace(Construct):
 		return 'namespace'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -1186,7 +1187,7 @@ class Namespace(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1194,7 +1195,7 @@ class Namespace(Construct):
 			raise IndexError
 		return self.members[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1214,36 +1215,36 @@ class Namespace(Construct):
 	def values(self) -> Sequence[Construct]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		return [member for member in self.members if (name == member.name)]
 
-	def find_method(self, name: str, argument_names: Sequence[str] = None) -> Optional[Construct]:
+	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
 			if (('method' == member.idl_type) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
-	def find_methods(self, name: str, argument_names: Sequence[str] = None) -> List[Construct]:
+	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
 		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (search_members):
 			for member in reversed(self.members):
 				argument = member.find_argument(name)
@@ -1251,8 +1252,8 @@ class Namespace(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
-		result: List[Construct] = []
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
+		result: list[Construct] = []
 		if (search_members):
 			for member in self.members:
 				result += member.find_arguments(name)
@@ -1296,10 +1297,10 @@ class DictionaryMember(Construct):
 	[ExtendedAttributes] ["required"] TypeWithExtendedAttributes Identifier [Default] ";"
 	"""
 
-	required: Optional[Symbol]
+	required: (Symbol | None)
 	type: TypeWithExtendedAttributes
 	_name: Identifier
-	default: Optional[Default]
+	default: (Default | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1312,7 +1313,7 @@ class DictionaryMember(Construct):
 				return tokens.pop_position(True)
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None) -> None:
 		super().__init__(tokens, parent)
 		self.required = Symbol(tokens, 'required') if (Symbol.peek(tokens, 'required')) else None
 		self.type = TypeWithExtendedAttributes(tokens, self)
@@ -1326,7 +1327,7 @@ class DictionaryMember(Construct):
 		return 'dict-member'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1363,13 +1364,13 @@ class Dictionary(Construct):
 	[ExtendedAttributes] ["partial"] "dictionary" Identifier [Inheritance] "{" [DictionaryMember]... "}" ";"
 	"""
 
-	partial: Optional[Symbol]
+	partial: (Symbol | None)
 	_dictionary: Symbol
 	_name: Identifier
-	inheritance: Optional[Inheritance]
+	inheritance: (Inheritance | None)
 	_open_brace: Symbol
-	members: List[Union[DictionaryMember, SyntaxError]]
-	_close_brace: Optional[Symbol]
+	members: list[DictionaryMember | SyntaxError]
+	_close_brace: (Symbol | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1382,7 +1383,7 @@ class Dictionary(Construct):
 				return tokens.pop_position(Symbol.peek(tokens, '{'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self.partial = Symbol(tokens, 'partial') if (Symbol.peek(tokens, 'partial')) else None
 		self._dictionary = Symbol(tokens, 'dictionary')
@@ -1409,7 +1410,7 @@ class Dictionary(Construct):
 		return 'dictionary'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
@@ -1426,7 +1427,7 @@ class Dictionary(Construct):
 	def __len__(self) -> int:
 		return len(self.members)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1434,7 +1435,7 @@ class Dictionary(Construct):
 			raise IndexError
 		return self.members[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (isinstance(key, str)):
 			for member in self.members:
 				if (key == member.name):
@@ -1454,22 +1455,22 @@ class Dictionary(Construct):
 	def values(self) -> Sequence[Construct]:
 		return [member for member in self.members if (member.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(member.name, member) for member in self.members if (member.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		for member in reversed(self.members):
 			if (name == member.name):
 				return member
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		return [member for member in self.members if (name == member.name)]
 
 	def _str(self) -> str:
@@ -1518,12 +1519,12 @@ class Callback(Construct):
 
 	_callback: Symbol
 	_name: Identifier
-	_equals: Optional[Symbol]
-	return_type: Optional[Type]
-	_open_paren: Optional[Symbol]
-	_arguments: Optional[ArgumentList]
-	_close_paren: Optional[Symbol]
-	interface: Optional[Union[Mixin, Interface]]
+	_equals: (Symbol | None)
+	return_type: (Type | None)
+	_open_paren: (Symbol | None)
+	_arguments: (ArgumentList | None)
+	_close_paren: (Symbol | None)
+	interface: (Mixin | Interface | None)
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -1543,7 +1544,7 @@ class Callback(Construct):
 							return tokens.pop_position((token is not None) and token.is_symbol(')'))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._callback = Symbol(tokens, 'callback')
 		token = cast(Token, tokens.sneak_peek())
@@ -1576,11 +1577,11 @@ class Callback(Construct):
 		return 'callback'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		return self._arguments
 
 	@property
@@ -1590,7 +1591,7 @@ class Callback(Construct):
 	def __len__(self) -> int:
 		return len(self.interface.members) if (self.interface) else 0
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		if (self.interface):
 			if (isinstance(key, str)):
 				for member in self.interface.members:
@@ -1600,7 +1601,7 @@ class Callback(Construct):
 			return self.interface.members[key]
 		raise IndexError
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		if (self.interface):
 			if (isinstance(key, str)):
 				for member in self.interface.members:
@@ -1626,29 +1627,29 @@ class Callback(Construct):
 	def values(self) -> Sequence[Construct]:
 		return [member for member in self.interface.members if (member.name)] if (self.interface) else []
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(member.name, member) for member in self.interface.members if (member.name)] if (self.interface) else []
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
 			return None
 
-	def find_member(self, name: str) -> Optional[Construct]:
+	def find_member(self, name: str) -> (Construct | None):
 		if (self.interface):
 			for member in reversed(self.interface.members):
 				if (name == member.name):
 					return member
 		return None
 
-	def find_members(self, name: str) -> List[Construct]:
+	def find_members(self, name: str) -> list[Construct]:
 		if (self.interface):
 			return [member for member in self.interface.members if (name == member.name)]
 		return []
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
-		argument: Optional[Construct]
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
+		argument: (Construct | None)
 		if (self._arguments):
 			for argument in self._arguments:
 				if (name == argument.name):
@@ -1660,7 +1661,7 @@ class Callback(Construct):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		result = []
 		if (self._arguments):
 			result = [argument for argument in self._arguments if (name == argument.name)]
@@ -1718,7 +1719,7 @@ class ImplementsStatement(Construct):
 				return tokens.pop_position(TypeIdentifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._implements_symbol = Symbol(tokens, 'implements')
@@ -1731,11 +1732,11 @@ class ImplementsStatement(Construct):
 		return 'implements'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
-	def implements(self) -> Optional[str]:
+	def implements(self) -> (str | None):
 		return self._implements.name
 
 	def _str(self) -> str:
@@ -1771,7 +1772,7 @@ class IncludesStatement(Construct):
 				return tokens.pop_position(TypeIdentifier.peek(tokens))
 		return tokens.pop_position(False)
 
-	def __init__(self, tokens: Tokenizer, parent: Construct = None, symbol_table: protocols.SymbolTable = None) -> None:
+	def __init__(self, tokens: Tokenizer, parent: (Construct | None) = None, symbol_table: (protocols.SymbolTable | None) = None) -> None:
 		super().__init__(tokens, parent, symbol_table=symbol_table)
 		self._name = TypeIdentifier(tokens)
 		self._includes_symbol = Symbol(tokens, 'includes')
@@ -1784,11 +1785,11 @@ class IncludesStatement(Construct):
 		return 'includes'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self._name.name
 
 	@property
-	def includes(self) -> Optional[str]:
+	def includes(self) -> (str | None):
 		return self._includes.name
 
 	def _str(self) -> str:
@@ -1812,7 +1813,7 @@ class ExtendedAttributeUnknown(Construct):
 	list of tokens
 	"""
 
-	tokens: List[Token]
+	tokens: list[Token]
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		super().__init__(tokens, parent, False)
@@ -1826,7 +1827,7 @@ class ExtendedAttributeUnknown(Construct):
 		return 'extended-attribute'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return None
 
 	def _str(self) -> str:
@@ -1868,11 +1869,11 @@ class ExtendedAttributeNoArgs(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return f'{self.parent.name}()' if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -1927,11 +1928,11 @@ class ExtendedAttributeArgList(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		if ('constructor' == self.idl_type):
 			return (f'{self.parent.name}('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
@@ -1995,11 +1996,11 @@ class ExtendedAttributeIdent(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -2027,7 +2028,7 @@ class ExtendedAttributeIdentList(Construct):
 	_equals: Symbol
 	_open_paren: Symbol
 	_value: TypeIdentifier
-	next: Optional[TypeIdentifiers]
+	next: (TypeIdentifiers | None)
 	_close_paren: Symbol
 
 	@classmethod
@@ -2066,11 +2067,11 @@ class ExtendedAttributeIdentList(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -2146,11 +2147,11 @@ class ExtendedAttributeNamedArgList(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		if ('constructor' == self.idl_type):
 			return self.value + '(' + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')'
 		return self.attribute
@@ -2225,7 +2226,7 @@ class ExtendedAttributeTypePair(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.attribute
 
 	def _str(self) -> str:
@@ -2290,27 +2291,27 @@ class ExtendedAttribute(Construct):
 		return self.attribute.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> (str | None):
 		return self.attribute.name
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> (str | None):
 		return self.attribute.normal_name
 
 	@property
-	def arguments(self) -> Optional[ArgumentList]:
+	def arguments(self) -> (ArgumentList | None):
 		if (hasattr(self.attribute, 'arguments')):
 			return self.attribute.arguments
 		return None
 
-	def find_argument(self, name: str, search_members: bool = True) -> Optional[Construct]:
+	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
 		if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
 			for argument in self.attribute.arguments:
 				if (name == argument.name):
 					return argument
 		return None
 
-	def find_arguments(self, name: str, search_members: bool = True) -> List[Construct]:
+	def find_arguments(self, name: str, search_members: bool = True) -> list[Construct]:
 		if (hasattr(self.attribute, 'arguments') and self.attribute.arguments):
 			return [argument for argument in self.attribute.arguments if (name == argument.name)]
 		return []

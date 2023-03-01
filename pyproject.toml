@@ -1,0 +1,76 @@
+[build-system]
+requires = ['setuptools', 'setuptools_scm']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'widlparser'
+description = 'WebIDL Parser'
+readme = 'README.md'
+requires-python = '>= 3.7'
+keywords = ['config']
+classifiers = [
+	'Intended Audience :: Developers',
+	'License :: OSI Approved :: MIT License',
+	'Programming Language :: Python',
+	'Programming Language :: Python :: 3',
+	'Programming Language :: Python :: 3.7',
+	'Programming Language :: Python :: 3.8',
+	'Programming Language :: Python :: 3.9',
+	'Programming Language :: Python :: 3.10',
+	'Programming Language :: Python :: 3.11',
+	'Topic :: Software Development :: Libraries :: Python Modules',
+]
+dependencies = [
+	'typing-extensions >= 3.7.4.1',
+]
+dynamic = ['version']
+
+
+[[project.authors]]
+name = 'Peter Linss'
+email = 'pypi@linss.com'
+
+
+[project.urls]
+homepage = 'https://gitlab.linss.com/open-source/python/widlparser'
+
+
+[project.license]
+text = 'MIT Licence'
+
+
+[project.optional-dependencies]
+dev = [
+	'types-PyYAML',
+	'mypy',
+	'flake8',
+	'flake8-annotations',
+	'flake8-bandit',
+	'flake8-bugbear',
+	'flake8-commas',
+	'flake8-comprehensions',
+	'flake8-continuation',
+	'flake8-datetimez',
+	'flake8-docstrings',
+	'flake8-import-order',
+	'flake8-literal',
+	'flake8-modern-annotations',
+	'flake8-noqa',
+	'flake8-pyproject',
+	'flake8-requirements',
+	'flake8-typechecking-import',
+	'flake8-use-fstring',
+	'pep8-naming',
+]
+
+
+[tool.setuptools_scm]
+
+
+[tool.flake8]
+ignore = ['D102', 'D105', 'D107', 'D401', 'W503', 'ANN002', 'ANN003', 'ANN101', 'ANN102', 'ANN401', 'E101', 'E117', 'S101', 'W191', 'ET101', 'FS003']
+max-line-length = 160
+
+
+[tool.mypy]
+mypy_path = 'stubs'

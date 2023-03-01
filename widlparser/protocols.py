@@ -13,11 +13,12 @@
 
 from __future__ import annotations
 
-from typing import Iterator, Optional, Sequence, TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING
 
 from typing_extensions import Protocol
 
 if (TYPE_CHECKING):
+	from collections.abc import Iterator, Sequence
 	from .constructs import Construct
 
 
@@ -27,7 +28,7 @@ class SymbolTable(Protocol):
 	def add_type(self, type: Construct) -> None:
 		...
 
-	def get_type(self, name: str) -> Optional[Construct]:
+	def get_type(self, name: str) -> (Construct | None):
 		...
 
 
@@ -37,10 +38,10 @@ class ConstructMap(Protocol):
 	def __len__(self) -> int:
 		...
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		...
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		...
 
 	def __iter__(self) -> Iterator[Construct]:
@@ -52,44 +53,44 @@ class ConstructMap(Protocol):
 	def values(self) -> Sequence[Construct]:
 		...
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		...
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		...
 
 
 class Marker(Protocol):
 	"""Protocol to provide markup."""
 
-	def markup_construct(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_construct(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_type(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_primitive_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_primitive_type(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_buffer_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_buffer_type(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_string_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_string_type(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_object_type(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_object_type(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_type_name(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_type_name(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_name(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_name(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_keyword(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_keyword(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
-	def markup_enum_value(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:
+	def markup_enum_value(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:
 		...
 
 	def encode(self, text: str) -> str:
@@ -99,34 +100,34 @@ class Marker(Protocol):
 class LegacyMarker(Protocol):
 	"""Protocol to provide markup."""
 
-	def markupConstruct(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupConstruct(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupType(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupPrimitiveType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupPrimitiveType(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupBufferType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupBufferType(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupStringType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupStringType(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupObjectType(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupObjectType(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupTypeName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupTypeName(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupName(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupName(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupKeyword(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupKeyword(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
-	def markupEnumValue(self, text: str, construct: Construct) -> Tuple[Optional[str], Optional[str]]:  # noqa: N802
+	def markupEnumValue(self, text: str, construct: Construct) -> tuple[(str | None), (str | None)]:  # noqa: N802
 		...
 
 	def encode(self, text: str) -> str:

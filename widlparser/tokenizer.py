@@ -13,12 +13,15 @@
 
 from __future__ import annotations
 
-import collections
 import enum
 import re
-from typing import Any, Container, Deque, Iterator, List, Optional, Union
+from collections import deque
+from typing import Any, TYPE_CHECKING
 
 from typing_extensions import Protocol
+
+if (TYPE_CHECKING):
+	from collections.abc import Container, Iterator
 
 
 class UserInterface(Protocol):
@@ -54,7 +57,7 @@ class Token(object):
 		self.type = type
 		self.text = text
 
-	def is_symbol(self, symbol: Union[str, Container[str]] = None) -> bool:
+	def is_symbol(self, symbol: (str | Container[str] | None) = None) -> bool:
 		"""Check if token is a symbol, and optionally one of a given symbol."""
 		if (TokenType.SYMBOL == self.type):
 			if (symbol):
@@ -64,7 +67,7 @@ class Token(object):
 			return True
 		return False
 
-	def is_identifier(self, identifier: Union[str, Container[str]] = None) -> bool:
+	def is_identifier(self, identifier: (str | Container[str] | None) = None) -> bool:
 		"""Check if token is an identifier."""
 		if (TokenType.IDENTIFIER == self.type):
 			if (identifier):
@@ -120,16 +123,16 @@ class Tokenizer(object):
 		'sequence', 'setlike', 'setter', 'short', 'static', 'stringifier', 'true', 'typedef',
 		'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 'undefined', 'unrestricted', 'unsigned', 'USVString'))
 
-	ui: Optional[UserInterface]
-	tokens: Deque[Token]
-	position_stack: List[int]
+	ui: (UserInterface | None)
+	tokens: deque[Token]
+	position_stack: list[int]
 	peek_index: int
 	line_number: int
 	# XXX add column number
 
-	def __init__(self, text: str, ui: UserInterface = None) -> None:
+	def __init__(self, text: str, ui: (UserInterface | None) = None) -> None:
 		self.ui = ui
-		self.tokens = collections.deque()
+		self.tokens = deque()
 		self.position_stack = []
 		self.peek_index = -1
 		self.line_number = 1
@@ -201,7 +204,7 @@ class Tokenizer(object):
 			raise StopIteration
 		return token
 
-	def next_token(self, skip_whitespace: bool = True) -> Optional[Token]:
+	def next_token(self, skip_whitespace: bool = True) -> (Token | None):
 		"""Remove and return next available token, optionally skipping whitespace."""
 		self.reset_peek()
 		if (self.tokens):
@@ -221,7 +224,7 @@ class Tokenizer(object):
 			self.line_number -= token.text.count('\n')
 			self.tokens.appendleft(token)
 
-	def whitespace(self) -> Optional[Token]:
+	def whitespace(self) -> (Token | None):
 		"""Get next token only if it is whitespace."""
 		token = self.next_token(False)
 		if (token):
@@ -230,7 +233,7 @@ class Tokenizer(object):
 			self.restore(token)
 		return None
 
-	def push_position(self, and_peek: bool = True) -> Optional[Token]:  # XXX split into two functions
+	def push_position(self, and_peek: bool = True) -> (Token | None):  # XXX split into two functions
 		"""Save current lookahead index and optionally lookahead next token."""
 		self.position_stack.append(self.peek_index)
 		return self.peek() if (and_peek) else None
@@ -242,7 +245,7 @@ class Tokenizer(object):
 			self.peek_index = index
 		return hold_position
 
-	def peek(self, skip_whitespace: bool = True) -> Optional[Token]:
+	def peek(self, skip_whitespace: bool = True) -> (Token | None):
 		"""Return next available token without removing it, advance lookahead index, optionally skip whitespace."""
 		self.peek_index += 1
 		if (self.peek_index < len(self.tokens)):
@@ -253,7 +256,7 @@ class Tokenizer(object):
 			return token
 		return None
 
-	def sneak_peek(self, skip_whitespace: bool = True) -> Optional[Token]:
+	def sneak_peek(self, skip_whitespace: bool = True) -> (Token | None):
 		"""Return next available token without removing it or advancing lookahead index, optionally skip whitespace."""
 		if ((self.peek_index + 1) < len(self.tokens)):
 			token = self.tokens[self.peek_index + 1]
@@ -280,7 +283,7 @@ class Tokenizer(object):
 		assert (0 == len(self.position_stack))
 		self.peek_index = -1
 
-	def seek_symbol(self, symbol: Union[str, Container[str]]) -> List[Token]:
+	def seek_symbol(self, symbol: (str | Container[str])) -> list[Token]:
 		"""Return all tokens up to and inculding symbol, respect nesting of (), {}, []."""
 		token = self.next_token(False)
 		skipped = []
@@ -297,7 +300,7 @@ class Tokenizer(object):
 			skipped.append(token)
 		return skipped
 
-	def syntax_error(self, symbol: Union[None, str, Container[str]], ending: bool = True) -> List[Token]:
+	def syntax_error(self, symbol: (str | Container[str] | None), ending: bool = True) -> list[Token]:
 		"""Seek to symbol and report skipped tokens as syntax error."""
 		line_number = self.line_number
 		skipped = self.seek_symbol(symbol) if (symbol) else []

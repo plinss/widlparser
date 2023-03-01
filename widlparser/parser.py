@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import itertools
 import re
-from typing import Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from . import constructs
 from . import markup
@@ -23,6 +23,7 @@ from . import productions
 from . import tokenizer
 
 if (TYPE_CHECKING):
+	from collections.abc import Iterator, Sequence
 	from .constructs import Construct
 	from . import protocols
 
@@ -30,11 +31,11 @@ if (TYPE_CHECKING):
 class Parser(object):
 	"""Class to parse WebIDL."""
 
-	ui: Optional[tokenizer.UserInterface]
-	symbol_table: Dict[str, Construct]
-	constructs: List[Construct]
+	ui: (tokenizer.UserInterface | None)
+	symbol_table: dict[str, Construct]
+	constructs: list[Construct]
 
-	def __init__(self, text: str = None, ui: tokenizer.UserInterface = None, symbol_table: dict = None) -> None:
+	def __init__(self, text: (str | None) = None, ui: (tokenizer.UserInterface | None) = None, symbol_table: (dict | None) = None) -> None:
 		self.ui = ui
 		self.symbol_table = symbol_table if (symbol_table) else {}
 		self.reset()
@@ -101,7 +102,7 @@ class Parser(object):
 		"""Number of parsed constucts."""
 		return len(self.constructs)
 
-	def __getitem__(self, key: Union[str, int]) -> Construct:
+	def __getitem__(self, key: (str | int)) -> Construct:
 		"""Access a construct by name or index."""
 		if (isinstance(key, str)):
 			for construct in self.constructs:
@@ -110,7 +111,7 @@ class Parser(object):
 			raise IndexError
 		return self.constructs[key]
 
-	def __contains__(self, key: Union[str, int]) -> bool:
+	def __contains__(self, key: (str | int)) -> bool:
 		"""Test is construct is present by name or index."""
 		if (isinstance(key, str)):
 			for construct in self.constructs:
@@ -130,10 +131,10 @@ class Parser(object):
 	def values(self) -> Sequence[Construct]:
 		return [construct for construct in self.constructs if (construct.name)]
 
-	def items(self) -> Sequence[Tuple[str, Construct]]:
+	def items(self) -> Sequence[tuple[str, Construct]]:
 		return [(construct.name, construct) for construct in self.constructs if (construct.name)]
 
-	def get(self, key: Union[str, int]) -> Optional[Construct]:
+	def get(self, key: (str | int)) -> (Construct | None):
 		try:
 			return self[key]
 		except IndexError:
@@ -144,11 +145,11 @@ class Parser(object):
 		if (type.name):
 			self.symbol_table[type.name] = type
 
-	def get_type(self, name: str) -> Optional[Construct]:
+	def get_type(self, name: str) -> (Construct | None):
 		"""Lookup a type in the symbol table."""
 		return self.symbol_table.get(name)
 
-	def find(self, name: str) -> Optional[Construct]:
+	def find(self, name: str) -> (Construct | None):
 		"""
 		Find a construct by name.
 
@@ -165,8 +166,8 @@ class Parser(object):
 		elif ('.' in name):
 			path = name.split('.')
 
-		construct: Optional[Construct]
-		member: Optional[Construct]
+		construct: (Construct | None)
+		member: (Construct | None)
 		if (path):
 			construct_name = path[0]
 			member_name = path[1]
@@ -208,7 +209,7 @@ class Parser(object):
 
 		return None
 
-	def find_all(self, name: str) -> List[Construct]:
+	def find_all(self, name: str) -> list[Construct]:
 		"""
 		Find all constructs with a given name.
 
@@ -265,9 +266,9 @@ class Parser(object):
 
 		return result
 
-	def normalized_method_name(self, method_text: str, interface_name: str = None) -> str:
+	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
 		"""Return normalized name for a method description."""
-		argument_names: Optional[List[str]]
+		argument_names: (list[str] | None)
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
 			tokens = tokenizer.Tokenizer(match.group(2))
@@ -288,7 +289,7 @@ class Parser(object):
 					return cast(str, method.method_name)
 			return name + '(' + ', '.join(argument_names or []) + ')'
 
-		construct: Optional[Construct]
+		construct: (Construct | None)
 		for construct in self.constructs:
 			method = construct.find_method(name, argument_names)
 			if (method):
@@ -299,9 +300,9 @@ class Parser(object):
 			return cast(str, construct.method_name)
 		return name + '(' + ', '.join(argument_names or []) + ')'
 
-	def normalized_method_names(self, method_text: str, interface_name: str = None) -> List[str]:
+	def normalized_method_names(self, method_text: str, interface_name: (str | None) = None) -> list[str]:
 		"""Return all possible normalized names for a method description."""
-		argument_names: Optional[List[str]]
+		argument_names: (list[str] | None)
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
 			tokens = tokenizer.Tokenizer(match.group(2))
@@ -322,7 +323,7 @@ class Parser(object):
 					return list(itertools.chain(*[method.method_names for method in methods]))
 			return [name + '(' + ', '.join(argument_names or []) + ')']
 
-		construct: Optional[Construct]
+		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (methods):
@@ -333,7 +334,7 @@ class Parser(object):
 			return construct.method_names
 		return [name + '(' + ', '.join(argument_names or []) + ')']
 
-	def markup(self, marker: protocols.Marker = None) -> str:
+	def markup(self, marker: (protocols.Marker | None) = None) -> str:
 		"""Generate marked up version of parsed content."""
 		if (marker):
 			generator = markup.MarkupGenerator(None)
