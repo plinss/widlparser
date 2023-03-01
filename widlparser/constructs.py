@@ -55,11 +55,7 @@ class Construct(ComplexProduction):
 	@property
 	def idl_type(self) -> str:
 		"""Get construct type."""
-		raise NotImplementedError   # subclasses must override
-
-	@property
-	def name(self) -> Optional[str]:
-		return None
+		raise NotImplementedError()   # subclasses must override
 
 	@property
 	def constructors(self) -> List[Construct]:
@@ -227,7 +223,7 @@ class Const(Construct):
 		return 'const'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		"""Get name."""
 		return self._name.name
 
@@ -309,7 +305,7 @@ class Enum(Construct):
 		return 'enum'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -368,7 +364,7 @@ class Typedef(Construct):
 		return 'typedef'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -442,7 +438,7 @@ class Argument(Construct):
 		return 'argument'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -531,8 +527,8 @@ class InterfaceMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.member.name
+	def name(self) -> str:
+		return cast(str, self.member.name)
 
 	@property
 	def method_name(self) -> Optional[str]:
@@ -612,7 +608,8 @@ class MixinMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
+		assert (self.member.name is not None)
 		return self.member.name
 
 	@property
@@ -748,7 +745,7 @@ class Interface(Construct):
 		return 'interface'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -923,7 +920,7 @@ class Mixin(Construct):
 		return 'interface'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -1077,8 +1074,8 @@ class NamespaceMember(Construct):
 		return self.member.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.member.name
+	def name(self) -> str:
+		return cast(str, self.member.name)
 
 	@property
 	def method_name(self) -> Optional[str]:
@@ -1176,7 +1173,7 @@ class Namespace(Construct):
 		return 'namespace'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -1326,7 +1323,7 @@ class DictionaryMember(Construct):
 		return 'dict-member'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1409,7 +1406,7 @@ class Dictionary(Construct):
 		return 'dictionary'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -1576,7 +1573,7 @@ class Callback(Construct):
 		return 'callback'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
@@ -1731,11 +1728,11 @@ class ImplementsStatement(Construct):
 		return 'implements'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
-	def implements(self) -> Optional[str]:
+	def implements(self) -> str:
 		return self._implements.name
 
 	def _str(self) -> str:
@@ -1784,11 +1781,11 @@ class IncludesStatement(Construct):
 		return 'includes'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	@property
-	def includes(self) -> Optional[str]:
+	def includes(self) -> str:
 		return self._includes.name
 
 	def _str(self) -> str:
@@ -1826,8 +1823,12 @@ class ExtendedAttributeUnknown(Construct):
 		return 'extended-attribute'
 
 	@property
-	def name(self) -> Optional[str]:
-		return None
+	def name(self) -> str:
+		return ''
+
+	@property
+	def normal_name(self) -> str:
+		return ''
 
 	def _str(self) -> str:
 		return ''.join([str(token) for token in self.tokens])
@@ -1868,11 +1869,11 @@ class ExtendedAttributeNoArgs(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
+	def name(self) -> str:
+		return str(self.parent.name) if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> str:
 		return f'{self.parent.name}()' if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -1927,11 +1928,11 @@ class ExtendedAttributeArgList(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.parent.name if ('constructor' == self.idl_type) else self.attribute
+	def name(self) -> str:
+		return str(self.parent.name) if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> str:
 		if ('constructor' == self.idl_type):
 			return (f'{self.parent.name}('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
@@ -1995,11 +1996,11 @@ class ExtendedAttributeIdent(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> str:
 		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -2066,11 +2067,11 @@ class ExtendedAttributeIdentList(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> str:
 		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
 
 	def _str(self) -> str:
@@ -2146,11 +2147,11 @@ class ExtendedAttributeNamedArgList(Construct):
 		return _name(self._value)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.value if ('constructor' == self.idl_type) else self.attribute
 
 	@property
-	def normal_name(self) -> Optional[str]:
+	def normal_name(self) -> str:
 		if ('constructor' == self.idl_type):
 			return self.value + '(' + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')'
 		return self.attribute
@@ -2225,7 +2226,7 @@ class ExtendedAttributeTypePair(Construct):
 		return _name(self._attribute)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.attribute
 
 	def _str(self) -> str:
@@ -2256,7 +2257,7 @@ class ExtendedAttribute(Construct):
 	| ExtendedAttributeIdentList | ExtendedAttributeTypePair
 	"""
 
-	attribute: Construct
+	attribute: ExtendedAttributeType
 
 	@classmethod
 	def peek(cls, tokens: Tokenizer) -> bool:
@@ -2290,7 +2291,7 @@ class ExtendedAttribute(Construct):
 		return self.attribute.idl_type
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.attribute.name
 
 	@property
@@ -2328,3 +2329,14 @@ class ExtendedAttribute(Construct):
 
 	def __repr__(self) -> str:
 		return repr(self.attribute)
+
+
+ExtendedAttributeType = Union[
+	ExtendedAttributeNamedArgList,
+	ExtendedAttributeArgList,
+	ExtendedAttributeNoArgs,
+	ExtendedAttributeTypePair,
+	ExtendedAttributeIdentList,
+	ExtendedAttributeIdent,
+	ExtendedAttributeUnknown,
+]

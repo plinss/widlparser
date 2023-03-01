@@ -513,7 +513,7 @@ class TypeIdentifier(Production):
 		self._did_parse(tokens, False)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name[1:] if ('_' == self._name[0]) else self._name
 
 	@property
@@ -1603,7 +1603,7 @@ class ArgumentName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1670,12 +1670,6 @@ class ArgumentList(Production):
 									break
 							else:
 								tokens.error('Dictionary argument "', argument.name, '" without required members must be marked optional')
-
-	@property
-	def name(self) -> Optional[str]:
-		if (self.arguments):
-			return self.arguments[0].name
-		return None
 
 	@property   # get all possible variants of argument names
 	def argument_names(self) -> Sequence[str]:
@@ -1774,7 +1768,7 @@ class Special(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name
 
 	def _str(self) -> str:
@@ -1811,7 +1805,7 @@ class AttributeName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1860,7 +1854,7 @@ class AttributeRest(ComplexProduction):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -1915,7 +1909,7 @@ class MixinAttribute(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.attribute.name
 
 	def _str(self) -> str:
@@ -1961,7 +1955,7 @@ class Attribute(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.attribute.name
 
 	def _str(self) -> str:
@@ -2002,7 +1996,7 @@ class OperationName(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2056,8 +2050,8 @@ class OperationRest(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
-		return self._name.name if (self._name) else None
+	def name(self) -> str:
+		return self._name.name if (self._name) else ''
 
 	@property
 	def arguments(self) -> ArgumentList:
@@ -2145,7 +2139,7 @@ class Iterable(ComplexProduction):
 		return 'iterable'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return '__iterable__'
 
 	def _str(self) -> str:
@@ -2251,7 +2245,7 @@ class AsyncIterable(ComplexProduction):
 		return 'async-iterable'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return '__async_iterable__'
 
 	@property
@@ -2343,7 +2337,7 @@ class Maplike(ComplexProduction):
 		return 'maplike'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return '__maplike__'
 
 	def _str(self) -> str:
@@ -2407,7 +2401,7 @@ class Setlike(ComplexProduction):
 		return 'setlike'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return '__setlike__'
 
 	def _str(self) -> str:
@@ -2464,7 +2458,7 @@ class SpecialOperation(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.operation.name if (self.operation.name) else ('__' + _name(self.specials[0]) + '__')
 
 	@property
@@ -2528,7 +2522,7 @@ class Operation(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.operation.name
 
 	@property
@@ -2606,7 +2600,7 @@ class Stringifier(ComplexProduction):
 		return True
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		if (self.operation):
 			return self.operation.name if (self.operation.name) else '__stringifier__'
 		return self.attribute.name if (self.attribute and self.attribute.name) else '__stringifier__'
@@ -2685,7 +2679,7 @@ class Identifiers(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2725,7 +2719,7 @@ class TypeIdentifiers(Production):
 		self._did_parse(tokens)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._name.name
 
 	def _str(self) -> str:
@@ -2781,7 +2775,7 @@ class StaticMember(ComplexProduction):
 		return False
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self.operation.name if (self.operation) else cast(AttributeRest, self.attribute).name
 
 	@property
@@ -2863,7 +2857,7 @@ class Constructor(ComplexProduction):
 		return 'method'
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str:
 		return self._constructor.name
 
 	@property
