@@ -93,6 +93,11 @@ from .productions import (
 	UnrestrictedFloatType,
 	UnsignedIntegerType,
 )
+from .protocols import (
+	ConstructMap,
+	Marker,
+	SymbolTable,
+)
 from .tokenizer import (
 	Token,
 	TokenType,
@@ -162,6 +167,11 @@ __all__ = (
 	'StaticMember',
 	'Constructor',
 	'ExtendedAttributeList',
+
+	# protocols
+	'ConstructMap',
+	'Marker',
+	'SymbolTable',
 
 	# constructs
 	'Construct',
