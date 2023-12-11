@@ -158,6 +158,8 @@ interface Simple{
     readonly maplike<Foo, Bar>;
     setlike<Uint8ClampedArray>;
     attribute boolean required;
+    attribute boolean foo-bar;
+    attribute boolean -foo-bar;
     static attribute Foo foo;
     static Foo foo();
     Promise<ReallyISwear>? theCheckIsInTheMail();
