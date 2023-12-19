@@ -13,6 +13,8 @@ interface Simple{
     readonly maplike<Foo, Bar>;
     setlike<Uint8ClampedArray>;
     attribute boolean required;
+    attribute boolean foo-bar;
+    attribute boolean -foo-bar;
     static attribute Foo foo;
     static Foo foo();
     Promise<ReallyISwear>? theCheckIsInTheMail();
@@ -201,53 +203,53 @@ IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
 
 IDL SYNTAX ERROR LINE: 4 - skipped: "serializer = { foo }"
 
-IGNORED LEGACY IDL LINE: 19 - "  ,  Two   ,   Three     "
+IGNORED LEGACY IDL LINE: 21 - "  ,  Two   ,   Three     "
 
-IDL SYNTAX ERROR LINE: 30 - skipped: "typedef record<any, any> recordBroken"
+IDL SYNTAX ERROR LINE: 32 - skipped: "typedef record<any, any> recordBroken"
 
-IDL SYNTAX ERROR LINE: 33 - expected ";" skipped: "bar"
+IDL SYNTAX ERROR LINE: 35 - expected ";" skipped: "bar"
 
-IDL SYNTAX ERROR LINE: 34 - expected ";" 
+IDL SYNTAX ERROR LINE: 36 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 34 - expected ";" 
+IDL SYNTAX ERROR LINE: 36 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 34 - skipped: "}"
+IDL SYNTAX ERROR LINE: 36 - skipped: "}"
 
-IDL SYNTAX ERROR LINE: 34 - skipped: "foo
+IDL SYNTAX ERROR LINE: 36 - skipped: "foo
 typedef   short    shorttype  = error this is"
 
-IDL SYNTAX ERROR LINE: 43 - skipped: "const double invalid = - Infinity"
+IDL SYNTAX ERROR LINE: 45 - skipped: "const double invalid = - Infinity"
 
-IGNORED LEGACY IDL LINE: 76 - "raises (hell)"
+IGNORED LEGACY IDL LINE: 78 - "raises (hell)"
 
-IGNORED LEGACY IDL LINE: 80 - "getraises (an, exception)"
+IGNORED LEGACY IDL LINE: 82 - "getraises (an, exception)"
 
-IDL SYNTAX ERROR LINE: 87 - expected ";" 
+IDL SYNTAX ERROR LINE: 89 - expected ";" 
 
-IDL SYNTAX ERROR LINE: 98 - skipped: "this is a syntax error, naturally
+IDL SYNTAX ERROR LINE: 100 - skipped: "this is a syntax error, naturally
 "
 
-IDL SYNTAX ERROR LINE: 106 - expected ";" 
+IDL SYNTAX ERROR LINE: 108 - expected ";" 
 
-IGNORED LEGACY IDL LINE: 109 - "setraises (for the heck of it)"
+IGNORED LEGACY IDL LINE: 111 - "setraises (for the heck of it)"
 
-IDL SYNTAX ERROR LINE: 132 - skipped: "attribute long error"
+IDL SYNTAX ERROR LINE: 134 - skipped: "attribute long error"
 
-IDL ERROR LINE: 148 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL ERROR LINE: 150 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL ERROR LINE: 149 - Dictionary argument "optionalDict" without required members must be marked optional
+IDL ERROR LINE: 151 - Dictionary argument "optionalDict" without required members must be marked optional
 
-IDL SYNTAX ERROR LINE: 168 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
+IDL SYNTAX ERROR LINE: 170 - skipped: "[LegacyNoInterfaceObject] Interface includes Mixin"
 
-IDL SYNTAX ERROR LINE: 171 - skipped: "getter long (unsigned long argument)"
+IDL SYNTAX ERROR LINE: 173 - skipped: "getter long (unsigned long argument)"
 
-IDL SYNTAX ERROR LINE: 175 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
+IDL SYNTAX ERROR LINE: 177 - skipped: "static readonly attribute long staticReadOnlyAttributeMember"
 
-IDL SYNTAX ERROR LINE: 179 - skipped: "iterable<long>"
+IDL SYNTAX ERROR LINE: 181 - skipped: "iterable<long>"
 
-IDL SYNTAX ERROR LINE: 183 - skipped: "readonly maplike<DOMString, DOMString>"
+IDL SYNTAX ERROR LINE: 185 - skipped: "readonly maplike<DOMString, DOMString>"
 
-IDL SYNTAX ERROR LINE: 187 - skipped: "readonly setlike<DOMString>"
+IDL SYNTAX ERROR LINE: 189 - skipped: "readonly setlike<DOMString>"
 
 [Parser: [Dictionary: [name: CSSFontFaceLoadEventInit] [Inheritance: EventInit][members: 
   [DictionaryMember: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [sequence] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: CSSFontFaceRule]]]]]] [name: fontfaces] = [default: [Default: '[]']]]
@@ -265,6 +267,8 @@ IDL SYNTAX ERROR LINE: 187 - skipped: "readonly setlike<DOMString>"
   [Member: [Maplike: [readonly] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Bar]]]]]
   [Member: [Setlike: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Uint8ClampedArray]]]]]
   [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [name: required]]]]
+  [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [name: foo-bar]]]]
+  [Member: [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [PrimitiveType: boolean]]]] [name: -foo-bar]]]]
   [Member: [StaticMember: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: Foo]]] [name: foo]]]]
   [Member: [StaticMember: [Type: [SingleType: [NonAnyType: Foo]]] [OperationRest: [name: [OperationName: foo]] [ArgumentList: ]]]]
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [Promise] [Type: [SingleType: [NonAnyType: ReallyISwear]]][null]]]] [OperationRest: [name: [OperationName: theCheckIsInTheMail]] [ArgumentList: ]]]]
@@ -446,6 +450,8 @@ MARKED UP:
     <c maplike><k>readonly</k> <k>maplike</k>&lt;<t><tn>Foo</tn></t>, <t><tn>Bar</tn></t>&gt;;</c>
     <c setlike><k>setlike</k>&lt;<t><b><k>Uint8ClampedArray</k></b></t>&gt;;</c>
     <c attribute><k>attribute</k> <t><p><k>boolean</k></p></t> <n>required</n>;</c>
+    <c attribute><k>attribute</k> <t><p><k>boolean</k></p></t> <n>foo-bar</n>;</c>
+    <c attribute><k>attribute</k> <t><p><k>boolean</k></p></t> <n>-foo-bar</n>;</c>
     <c attribute><k>static</k> <k>attribute</k> <t><tn>Foo</tn></t> <n>foo</n>;</c>
     <c method><k>static</k> <t><tn>Foo</tn></t> <n>foo</n>();</c>
     <c method><t><k>Promise</k>&lt;<t><tn>ReallyISwear</tn></t>&gt;?</t> <n>theCheckIsInTheMail</n>();</c>
@@ -629,7 +635,7 @@ typedef   short    shorttype  = error this is;</c>
   <c const><k>const</k> <t><p><k>bigint</k></p></t> <n>biiig</n> = 42;</c>
 };</c>
 
-Complexity: 149
+Complexity: 151
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -645,6 +651,8 @@ interface: Simple
     maplike: __maplike__ (__maplike__)
     setlike: __setlike__ (__setlike__)
     attribute: required (required)
+    attribute: foo-bar (foo-bar)
+    attribute: -foo-bar (-foo-bar)
     attribute: foo (foo)
     method: foo() (foo)
     method: theCheckIsInTheMail() (theCheckIsInTheMail)

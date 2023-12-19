@@ -102,9 +102,10 @@ class Token(object):
 		return '[' + self.type.value + ':' + self.text + ']'
 
 
+# https://webidl.spec.whatwg.org/#idl-grammar
 TOKEN_FLOAT_RE = re.compile(r'(-?(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+))(.*)', re.DOTALL)
 TOKEN_INTEGER_RE = re.compile(r'(-?(0[Xx][0-9A-Fa-f]+|0[0-7]*|[1-9][0-9]*))(.*)', re.DOTALL)
-TOKEN_IDENT_RE = re.compile(r'(_?[A-Z_a-z][0-9A-Z_a-z]*)(.*)', re.DOTALL)
+TOKEN_IDENT_RE = re.compile(r'([_-]?[A-Z_a-z][0-9A-Z_a-z-]*)(.*)', re.DOTALL)
 TOKEN_STRING_RE = re.compile(r'("[^"]*")(.*)', re.DOTALL)
 TOKEN_WHITESPACE_RE = re.compile(r'((\s+|//[^\n\r]*|/\*.*?\*/)+)(.*)', re.DOTALL)
 TOKEN_SYMBOL_RE = re.compile(r'(-Infinity|-|,|;|:|\?|\.\.\.|\.|\(|\)|\[|\]|\{|\}|\<|=|\>)(.*)', re.DOTALL)
