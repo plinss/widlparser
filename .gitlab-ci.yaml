@@ -2,4 +2,19 @@
 include:
   - project: 'open-source/python/ci-common'
     ref: main
-    file: 'gitlab-ci-3.7.yaml'
+    file: 'gitlab-ci.yaml'
+
+variables:
+  LINT_PYTHON_VERSION: '3.7'
+
+test:
+  extends: .test
+  parallel:
+    matrix:
+      - TEST_PYTHON_VERSION:
+        - '3.7'
+        - '3.8'
+        - '3.9'
+        - '3.10'
+        - '3.11'
+        - '3.12'
