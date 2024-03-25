@@ -214,6 +214,8 @@ typedef foo barType;
 typedef foo [ ] [ ]  barTypes;
 typedef sequence<DOMString[]> sequins;
 typedef sequence<DOMString[]>? sequinses;
+typedef async iterable<DOMString[]> asynciterables;
+typedef async iterable<DOMString[]>? asynciterableses;
 typedef object obj;
 typedef (short or [Extended] double) union;
 typedef (short or sequence < DOMString [ ] ? [ ] > ? or DOMString[]?[] or unsigned long long or unrestricted double) craziness;
