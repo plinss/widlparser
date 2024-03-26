@@ -1085,7 +1085,7 @@ class NonAnyType(ComplexProduction):
 			self.async_iterable[0].define_markup(generator)
 			self.async_iterable[1].define_markup(generator)
 			generator.add_text(self._open_type)
-			self.type.define_markup(generator)
+			generator.add_type(self.type)  
 			generator.add_text(self._close_type)
 			generator.add_text(self.null)
 			return self
