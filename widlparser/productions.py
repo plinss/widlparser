@@ -938,7 +938,7 @@ class NonAnyType(ComplexProduction):
 
 	BUFFER_RELATED_TYPES = frozenset(['ArrayBuffer', 'DataView', 'Int8Array', 'Int16Array', 'Int32Array',
 	                                  'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray',
-	                                  'Float32Array', 'Float64Array'])
+	                                  'Float16Array', 'Float32Array', 'Float64Array'])
 	STRING_TYPES = frozenset(['ByteString', 'DOMString', 'USVString'])
 	OBJECT_TYPES = frozenset(['object', 'Error'])
 
