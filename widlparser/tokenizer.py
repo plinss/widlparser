@@ -118,7 +118,7 @@ class Tokenizer(object):
 	SYMBOL_IDENTS = frozenset((
 		'any', 'async', 'attribute', 'ArrayBuffer', 'bigint', 'boolean', 'byte', 'ByteString', 'callback', 'const', 'constructor', 'creator', 'DataView',
 		'deleter', 'dictionary', 'DOMString', 'double', 'enum', 'Error', 'false', 'float',
-		'Float32Array', 'Float64Array', 'FrozenArray', 'getter', 'implements', 'includes', 'Infinity', '-Infinity', 'inherit', 'Int8Array',
+		'Float16Array', 'Float32Array', 'Float64Array', 'FrozenArray', 'getter', 'implements', 'includes', 'Infinity', '-Infinity', 'inherit', 'Int8Array',
 		'Int16Array', 'Int32Array', 'interface', 'iterable', 'legacycaller', 'legacyiterable', 'long', 'maplike', 'mixin',
 		'namespace', 'NaN', 'null', 'object', 'ObservableArray', 'octet', 'optional', 'or', 'partial', 'Promise', 'readonly', 'record', 'required',
 		'sequence', 'setlike', 'setter', 'short', 'static', 'stringifier', 'true', 'typedef',
