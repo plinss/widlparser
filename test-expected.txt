@@ -198,6 +198,12 @@ interface BigNumbers {
   const bigint biiig = 42;
 };
 
+typedef async iterable<DOMString[]> asynciterables;
+typedef async iterable<DOMString[]>? asynciterableses;
+interface Concat {
+  Promise<DOMString> concat(async iterable<DOMString> iter);
+};
+
 <<<
 IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
 
@@ -434,6 +440,11 @@ IDL SYNTAX ERROR LINE: 189 - skipped: "readonly setlike<DOMString>"
 [Interface: [name: BigNumbers] [members: 
   [Member: [Const: [ConstType: [PrimitiveType: bigint]][name: biiig] = [value: 42]]]
 ]]
+[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString[TypeSuffix: [array] ]]]]]]] [name: asynciterables]]
+[Typedef: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString[TypeSuffix: [array] ]]]][null]]]] [name: asynciterableses]]
+[Interface: [name: Concat] [members: 
+  [Member: [Operation: [Type: [SingleType: [NonAnyType: [Promise] [Type: [SingleType: [NonAnyType: DOMString]]]]]] [OperationRest: [name: [OperationName: concat]] [ArgumentList: [Argument: [type: async iterable<DOMString> ] [name: [ArgumentName: iter]]]]]]]
+]]
 ]
 MARKED UP:
 <c dictionary><k>dictionary</k> <n>CSSFontFaceLoadEventInit</n> : <tn>EventInit</tn> { <c dict-member><t><k>sequence</k>&lt;<t><tn>CSSFontFaceRule</tn></t>&gt;</t> <n>fontfaces</n> = [ ];</c> };</c>
@@ -635,7 +646,13 @@ typedef   short    shorttype  = error this is;</c>
   <c const><k>const</k> <t><p><k>bigint</k></p></t> <n>biiig</n> = 42;</c>
 };</c>
 
-Complexity: 151
+<c typedef><k>typedef</k> <t><k>async</k> <k>iterable</k>&lt;<t><s><k>DOMString</k></s>[]</t>&gt;</t> <n>asynciterables</n>;</c>
+<c typedef><k>typedef</k> <t><k>async</k> <k>iterable</k>&lt;<t><s><k>DOMString</k></s>[]</t>&gt;?</t> <n>asynciterableses</n>;</c>
+<c interface><k>interface</k> <n>Concat</n> {
+  <c method><t><k>Promise</k>&lt;<t><s><k>DOMString</k></s></t>&gt;</t> <n>concat</n>(<c argument><t><k>async</k> <k>iterable</k>&lt;<t><s><k>DOMString</k></s></t>&gt;</t> <n>iter</n></c>);</c>
+};</c>
+
+Complexity: 155
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -793,6 +810,10 @@ interface: Underscores
     method: includes(value) (includes)
 interface: BigNumbers
     const: biiig (biiig)
+typedef: asynciterables
+typedef: asynciterableses
+interface: Concat
+    method: concat(iter) (concat)
 FIND:
 callMe/round
 Foo/method(x, y, inf, ...fooArg)/y
