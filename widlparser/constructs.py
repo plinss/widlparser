@@ -753,6 +753,13 @@ class Interface(Construct):
 		return self._name.name
 
 	@property
+	def super(self) -> Interface | None:
+		if self.inheritance and self.symbol_table:
+			return cast('Interface|None', self.symbol_table.get_type(self.inheritance.base))
+		else:
+			return None
+
+	@property
 	def complexity_factor(self) -> int:
 		return len(self.members) + 1
 
@@ -926,6 +933,13 @@ class Mixin(Construct):
 	@property
 	def name(self) -> (str | None):
 		return self._name.name
+
+	@property
+	def super(self) -> Mixin | None:
+		if self.inheritance and self.symbol_table:
+			return cast('Mixin|None', self.symbol_table.get_type(self.inheritance.base))
+		else:
+			return None
 
 	@property
 	def complexity_factor(self) -> int:
@@ -1422,7 +1436,17 @@ class Dictionary(Construct):
 		for member in self.members:
 			if (member.required):
 				return True
-		return False
+		if (self.super):
+			return self.super.required
+		else:
+			return False
+
+	@property
+	def super(self) -> Dictionary | None:
+		if self.inheritance and self.symbol_table:
+			return cast('Dictionary|None', self.symbol_table.get_type(self.inheritance.base))
+		else:
+			return None
 
 	def __len__(self) -> int:
 		return len(self.members)
