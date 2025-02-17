@@ -343,6 +343,12 @@ interface Underscores {
 interface BigNumbers {
   const bigint biiig = 42;
 };
+
+typedef async iterable<DOMString[]> asynciterables;
+typedef async iterable<DOMString[]>? asynciterableses;
+interface Concat {
+  Promise<DOMString> concat(async iterable<DOMString> iter);
+};
 """
 #    idl = idl.replace(' ', '  ')
     print("IDL >>>\n" + idl + "\n<<<")

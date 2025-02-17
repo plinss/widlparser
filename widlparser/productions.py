@@ -938,7 +938,8 @@ class NonAnyType(ComplexProduction):
 	Syntax:
 	PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix]
 	| "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null]
-	| "object" [TypeSuffix] | "Error" TypeSuffix | "Promise" "<" Type ">" [Null] | BufferRelatedType [Null]
+	| "async" "iterable" "<" TypeWithExtendedAttributes ">" [Null] | "object" [TypeSuffix] | "Error" TypeSuffix
+	| "Promise" "<" Type ">" [Null] | BufferRelatedType [Null]
 	| "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "ObservableArray" "<" TypeWithExtendedAttributes ">" [Null]
 	| "record" "<" StringType "," TypeWithExtendedAttributes ">"
 	"""
@@ -952,6 +953,7 @@ class NonAnyType(ComplexProduction):
 	type: (PrimitiveType | TypeIdentifier | TypeWithExtendedAttributes | Type | Symbol)
 	type_name: (str | None)
 	sequence: (Symbol | None)
+	async_iterable: (tuple[Symbol, Symbol] | None)
 	promise: (Symbol | None)
 	record: (Symbol | None)
 	_open_type: (Symbol | None)
@@ -975,6 +977,13 @@ class NonAnyType(ComplexProduction):
 					if (Symbol.peek(tokens, '>')):
 						Symbol.peek(tokens, '?')
 						return tokens.pop_position(True)
+		elif (token and token.is_symbol('async')):
+			if (Symbol.peek(tokens, 'iterable')):
+				if (Symbol.peek(tokens, '<')):
+					if (TypeWithExtendedAttributes.peek(tokens)):
+						if (Symbol.peek(tokens, '>')):
+							Symbol.peek(tokens, '?')
+							return tokens.pop_position(True)
 		elif (token and token.is_symbol('Promise')):
 			if (Symbol.peek(tokens, '<')):
 				if (Type.peek(tokens)):
@@ -997,6 +1006,7 @@ class NonAnyType(ComplexProduction):
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		super().__init__(tokens, parent)
 		self.sequence = None
+		self.async_iterable = None
 		self.promise = None
 		self.record = None
 		self._open_type = None
@@ -1016,6 +1026,12 @@ class NonAnyType(ComplexProduction):
 				self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
 			elif (token.is_symbol(('sequence', 'FrozenArray', 'ObservableArray'))):
 				self.sequence = Symbol(tokens)
+				self._open_type = Symbol(tokens, '<')
+				self.type = TypeWithExtendedAttributes(tokens, self)
+				self._close_type = Symbol(tokens, '>', False)
+				self.null = Symbol(tokens, '?', False) if (Symbol.peek(tokens, '?')) else None
+			elif (token.is_symbol('async')):
+				self.async_iterable = (Symbol(tokens), Symbol(tokens))
 				self._open_type = Symbol(tokens, '<')
 				self.type = TypeWithExtendedAttributes(tokens, self)
 				self._close_type = Symbol(tokens, '>', False)
@@ -1050,6 +1066,9 @@ class NonAnyType(ComplexProduction):
 		if (self.sequence):
 			output = str(self.sequence) + str(self._open_type) + str(self.type) + str(self._close_type)
 			return output + (str(self.null) if (self.null) else '')
+		if (self.async_iterable):
+			output = str(self.async_iterable[0]) + str(self.async_iterable[1]) + str(self._open_type) + str(self.type) + str(self._close_type)
+			return output + (str(self.null) if (self.null) else '')
 		if (self.promise):
 			output = str(self.promise) + str(self._open_type) + str(self.type) + str(self._close_type)
 			return output + (str(self.null) if (self.null) else '')
@@ -1064,6 +1083,14 @@ class NonAnyType(ComplexProduction):
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.sequence):
 			self.sequence.define_markup(generator)
+			generator.add_text(self._open_type)
+			generator.add_type(self.type)
+			generator.add_text(self._close_type)
+			generator.add_text(self.null)
+			return self
+		if (self.async_iterable):
+			self.async_iterable[0].define_markup(generator)
+			self.async_iterable[1].define_markup(generator)
 			generator.add_text(self._open_type)
 			generator.add_type(self.type)
 			generator.add_text(self._close_type)
