@@ -158,6 +158,13 @@ class ComplexProduction(Production):
 	def symbol_table(self) -> (SymbolTable | None):
 		return self.parent.symbol_table if (self.has_parent) else None
 
+	def _get_symbol(self, name: str) -> (Construct | None):
+		"""Lookup a type in the symbol table."""
+		symbol_table = self.symbol_table
+		if (symbol_table is None):
+			return None
+		return symbol_table.get_type(name)
+
 
 class String(Production):
 	"""
@@ -1662,10 +1669,9 @@ class ArgumentList(Production):
 				argument = self.arguments[index]
 				if (argument.required):
 					for type_name in argument.type.type_names:
-						symbol_table = parent.symbol_table
-						type = symbol_table.get_type(type_name) if (symbol_table) else None
+						type = parent._get_symbol(type_name)
 						# dictionary must be optional unless followed by required argument
-						if (type and ('dictionary' == type.idl_type) and (not cast(constructs.Dictionary, type).required)):
+						if ((type is not None) and ('dictionary' == type.idl_type) and (not cast(constructs.Dictionary, type).required)):
 							for index2 in range(index + 1, len(self.arguments)):
 								if (self.arguments[index2].required):
 									break

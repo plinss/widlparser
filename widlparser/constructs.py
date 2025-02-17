@@ -74,6 +74,19 @@ class Construct(ComplexProduction):
 			return self._symbol_table
 		return self.parent.symbol_table if (self.has_parent) else None
 
+	def _add_symbol(self, type: Construct) -> None:
+		"""Add a type to the symbol table."""
+		symbol_table = self.symbol_table
+		if (symbol_table is not None):
+			symbol_table.add_type(type)
+
+	def _get_symbol(self, name: str) -> (Construct | None):
+		"""Lookup a type in the symbol table."""
+		symbol_table = self.symbol_table
+		if (symbol_table is None):
+			return None
+		return symbol_table.get_type(name)
+
 	@property
 	def extended_attributes(self) -> (ExtendedAttributeList | None):
 		"""Get extended attributes."""
@@ -302,8 +315,7 @@ class Enum(Construct):
 		self._close_brace = Symbol(tokens, '}')
 		self._consume_semicolon(tokens, False)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -361,8 +373,7 @@ class Typedef(Construct):
 		self._name = Identifier(tokens)
 		self._consume_semicolon(tokens)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -741,8 +752,7 @@ class Interface(Construct):
 				self.members.append(SyntaxError(tokens, parent if (parent) else self))
 		self._consume_semicolon(tokens, False)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -916,8 +926,7 @@ class Mixin(Construct):
 				self.members.append(SyntaxError(tokens, parent if (parent) else self))
 		self._consume_semicolon(tokens, False)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -1169,8 +1178,7 @@ class Namespace(Construct):
 				self.members.append(SyntaxError(tokens, parent if (parent) else self))
 		self._consume_semicolon(tokens, False)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -1402,8 +1410,7 @@ class Dictionary(Construct):
 				self.members.append(SyntaxError(tokens, self))
 		self._consume_semicolon(tokens, False)
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
@@ -1422,6 +1429,10 @@ class Dictionary(Construct):
 		for member in self.members:
 			if (member.required):
 				return True
+		if (self.inheritance is not None):
+			base_type = self._get_symbol(self.inheritance.base)
+			if (base_type is not None):
+				return cast(Dictionary, base_type).required
 		return False
 
 	def __len__(self) -> int:
@@ -1569,8 +1580,7 @@ class Callback(Construct):
 				self.interface = Interface(tokens, self)
 			self._name = self.interface._name
 		self._did_parse(tokens)
-		if (self.symbol_table):
-			self.symbol_table.add_type(self)
+		self._add_symbol(self)
 
 	@property
 	def idl_type(self) -> str:
