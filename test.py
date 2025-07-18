@@ -349,6 +349,9 @@ typedef async_iterable<DOMString[]>? asynciterableses;
 interface Concat {
   Promise<DOMString> concat(async_iterable<DOMString> iter);
 };
+interface ExtendedAttributeGrammars {
+  [One="foo",Two=2,Three=3.0,Four=(1,100)] attribute DOMString test;
+};
 """
 #    idl = idl.replace(' ', '  ')
     print("IDL >>>\n" + idl + "\n<<<")

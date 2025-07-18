@@ -16,10 +16,10 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING, cast
 
 from .markup import MarkupGenerator
-from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Default,
-                          EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Iterable,
-                          Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, Stringifier, Symbol,
-                          Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
+from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Decimal, Default,
+						  EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Integer, Integers, Iterable,
+						  Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, String, Stringifier, Symbol,
+						  Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
 from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
@@ -2042,6 +2042,189 @@ class ExtendedAttributeIdent(Construct):
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeIdent: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
 
+class ExtendedAttributeString(Construct):
+	"""
+	WebIDL extended attribute with string.
+
+	Syntax:
+	Identifier "=" String
+	"""
+
+	_attribute: Identifier
+	_equals: Symbol
+	_value: String
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		tokens.push_position(False)
+		if (Identifier.peek(tokens)):
+			if (Symbol.peek(tokens, '=')):
+				if (String.peek(tokens)):
+					token = tokens.sneak_peek()
+					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+		return tokens.pop_position(False)
+
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
+		super().__init__(tokens, parent, False)
+		self._attribute = Identifier(tokens)
+		self._equals = Symbol(tokens, '=')
+		self._value = String(tokens)
+		self._did_parse(tokens)
+
+	@property
+	def idl_type(self) -> str:
+		return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
+
+	@property
+	def attribute(self) -> str:
+		return _name(self._attribute)
+
+	@property
+	def value(self) -> str:
+		return _name(self._value)
+
+	@property
+	def name(self) -> (str | None):
+		return self.value if ('constructor' == self.idl_type) else self.attribute
+
+	@property
+	def normal_name(self) -> (str | None):
+		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
+
+	def _str(self) -> str:
+		return str(self._attribute) + str(self._equals) + str(self._value)
+
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
+		self._attribute.define_markup(generator)
+		generator.add_text(self._equals)
+		self._value.define_markup(generator)
+		return self
+
+	def __repr__(self) -> str:
+		return ('[ExtendedAttributeString: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
+
+class ExtendedAttributeInteger(Construct):
+	"""
+	WebIDL extended attribute with integer.
+
+	Syntax:
+	Identifier "=" Integer
+	"""
+
+	_attribute: Identifier
+	_equals: Symbol
+	_value: Integer
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		tokens.push_position(False)
+		if (Identifier.peek(tokens)):
+			if (Symbol.peek(tokens, '=')):
+				if (Integer.peek(tokens)):
+					token = tokens.sneak_peek()
+					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+		return tokens.pop_position(False)
+
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
+		super().__init__(tokens, parent, False)
+		self._attribute = Identifier(tokens)
+		self._equals = Symbol(tokens, '=')
+		self._value = String(tokens)
+		self._did_parse(tokens)
+
+	@property
+	def idl_type(self) -> str:
+		return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
+
+	@property
+	def attribute(self) -> str:
+		return _name(self._attribute)
+
+	@property
+	def value(self) -> str:
+		return _name(self._value)
+
+	@property
+	def name(self) -> (str | None):
+		return self.value if ('constructor' == self.idl_type) else self.attribute
+
+	@property
+	def normal_name(self) -> (str | None):
+		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
+
+	def _str(self) -> str:
+		return str(self._attribute) + str(self._equals) + str(self._value)
+
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
+		self._attribute.define_markup(generator)
+		generator.add_text(self._equals)
+		self._value.define_markup(generator)
+		return self
+
+	def __repr__(self) -> str:
+		return ('[ExtendedAttributeInteger: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
+
+class ExtendedAttributeDecimal(Construct):
+	"""
+	WebIDL extended attribute with decimal.
+
+	Syntax:
+	Identifier "=" Decimal
+	"""
+
+	_attribute: Identifier
+	_equals: Symbol
+	_value: Decimal
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		tokens.push_position(False)
+		if (Identifier.peek(tokens)):
+			if (Symbol.peek(tokens, '=')):
+				if (Decimal.peek(tokens)):
+					token = tokens.sneak_peek()
+					return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+		return tokens.pop_position(False)
+
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
+		super().__init__(tokens, parent, False)
+		self._attribute = Identifier(tokens)
+		self._equals = Symbol(tokens, '=')
+		self._value = String(tokens)
+		self._did_parse(tokens)
+
+	@property
+	def idl_type(self) -> str:
+		return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
+
+	@property
+	def attribute(self) -> str:
+		return _name(self._attribute)
+
+	@property
+	def value(self) -> str:
+		return _name(self._value)
+
+	@property
+	def name(self) -> (str | None):
+		return self.value if ('constructor' == self.idl_type) else self.attribute
+
+	@property
+	def normal_name(self) -> (str | None):
+		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
+
+	def _str(self) -> str:
+		return str(self._attribute) + str(self._equals) + str(self._value)
+
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
+		self._attribute.define_markup(generator)
+		generator.add_text(self._equals)
+		self._value.define_markup(generator)
+		return self
+
+	def __repr__(self) -> str:
+		return ('[ExtendedAttributeDecimal: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
+
 
 class ExtendedAttributeIdentList(Construct):
 	"""
@@ -2120,6 +2303,86 @@ class ExtendedAttributeIdentList(Construct):
 
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeIdentList: ' + self.attribute + ' [value: ' + repr(self._value) + ']'
+		        + (repr(self.next) if (self.next) else '') + ']')
+
+
+class ExtendedAttributeIntegerList(Construct):
+	"""
+	WebIDL extended attribute with list of integers.
+
+	Syntax:
+	Identifier "=" "(" Integer [Integers] ")"
+	"""
+
+	_attribute: Identifier
+	_equals: Symbol
+	_open_paren: Symbol
+	_value: Integer
+	next: (Integers | None)
+	_close_paren: Symbol
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		tokens.push_position(False)
+		if (Identifier.peek(tokens)):
+			if (Symbol.peek(tokens, '=')):
+				if (Symbol.peek(tokens, '(')):
+					if (Integer.peek(tokens)):
+						Integers.peek(tokens)
+						if (Symbol.peek(tokens, ')')):
+							token = tokens.sneak_peek()
+							return tokens.pop_position((not token) or token.is_symbol((',', ']')))
+		return tokens.pop_position(False)
+
+	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
+		super().__init__(tokens, parent, False)
+		self._attribute = Identifier(tokens)
+		self._equals = Symbol(tokens, '=')
+		self._open_paren = Symbol(tokens, '(')
+		self._value = Integer(tokens)
+		self.next = Integers(tokens) if (Integers.peek(tokens)) else None
+		self._close_paren = Symbol(tokens, ')')
+		self._did_parse(tokens)
+
+	@property
+	def idl_type(self) -> str:
+		return 'constructor' if (self.attribute in ('LegacyFactoryFunction', 'NamedConstructor')) else 'extended-attribute'
+
+	@property
+	def attribute(self) -> str:
+		return _name(self._attribute)
+
+	@property
+	def value(self) -> str:
+		return _name(self._value)
+
+	@property
+	def name(self) -> (str | None):
+		return self.value if ('constructor' == self.idl_type) else self.attribute
+
+	@property
+	def normal_name(self) -> (str | None):
+		return (str(self.value) + '()') if ('constructor' == self.idl_type) else self.attribute
+
+	def _str(self) -> str:
+		return (str(self._attribute) + str(self._equals) + str(self._open_paren) + str(self._value)
+		        + (str(self.next) if (self.next) else '') + str(self._close_paren))
+
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
+		self._attribute.define_markup(generator)
+		generator.add_text(self._equals)
+		generator.add_text(self._open_paren)
+		self._value.define_markup(generator)
+		next = self.next
+		while (next):
+			generator.add_text(next._comma)
+			next._name.define_markup(generator)
+			next = next.next
+		generator.add_text(self._close_paren)
+		return self
+
+	def __repr__(self) -> str:
+		return ('[ExtendedAttributeIntegerList: ' + self.attribute + ' [value: ' + repr(self._value) + ']'
 		        + (repr(self.next) if (self.next) else '') + ']')
 
 
@@ -2282,6 +2545,8 @@ class ExtendedAttribute(Construct):
 	ExtendedAttributeNoArgs | ExtendedAttributeArgList
 	| ExtendedAttributeIdent | ExtendedAttributeNamedArgList
 	| ExtendedAttributeIdentList | ExtendedAttributeTypePair
+	| ExtendedAttributeString | ExtendedAttributeInteger
+	| ExtendedAttributeDecimal | ExtendedAttributeIntegerList
 	"""
 
 	attribute: Construct
@@ -2293,7 +2558,11 @@ class ExtendedAttribute(Construct):
 		        or ExtendedAttributeNoArgs.peek(tokens)
 		        or ExtendedAttributeTypePair.peek(tokens)
 		        or ExtendedAttributeIdentList.peek(tokens)
-		        or ExtendedAttributeIdent.peek(tokens))
+		        or ExtendedAttributeIdent.peek(tokens)
+		        or ExtendedAttributeString.peek(tokens)
+		        or ExtendedAttributeDecimal.peek(tokens)
+		        or ExtendedAttributeInteger.peek(tokens)
+		        or ExtendedAttributeIntegerList.peek(tokens))
 
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		super().__init__(tokens, parent, False)
@@ -2309,6 +2578,14 @@ class ExtendedAttribute(Construct):
 			self.attribute = ExtendedAttributeIdentList(tokens, parent)
 		elif (ExtendedAttributeIdent.peek(tokens)):
 			self.attribute = ExtendedAttributeIdent(tokens, parent)
+		elif (ExtendedAttributeString.peek(tokens)):
+			self.attribute = ExtendedAttributeString(tokens, parent)
+		elif (ExtendedAttributeDecimal.peek(tokens)):
+			self.attribute = ExtendedAttributeDecimal(tokens, parent)
+		elif (ExtendedAttributeInteger.peek(tokens)):
+			self.attribute = ExtendedAttributeInteger(tokens, parent)
+		elif (ExtendedAttributeIntegerList.peek(tokens)):
+			self.attribute = ExtendedAttributeIntegerList(tokens, parent)
 		else:
 			self.attribute = ExtendedAttributeUnknown(tokens, parent)
 		self._did_parse(tokens)

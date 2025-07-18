@@ -203,6 +203,9 @@ typedef async_iterable<DOMString[]>? asynciterableses;
 interface Concat {
   Promise<DOMString> concat(async_iterable<DOMString> iter);
 };
+interface ExtendedAttributeGrammars {
+  [One="foo",Two=2,Three=3.0,Four=(1,100)] attribute DOMString test;
+};
 
 <<<
 IDL SYNTAX ERROR LINE: 3 - skipped: "serializer"
@@ -445,6 +448,9 @@ IDL SYNTAX ERROR LINE: 189 - skipped: "readonly setlike<DOMString>"
 [Interface: [name: Concat] [members: 
   [Member: [Operation: [Type: [SingleType: [NonAnyType: [Promise] [Type: [SingleType: [NonAnyType: DOMString]]]]]] [OperationRest: [name: [OperationName: concat]] [ArgumentList: [Argument: [type: async_iterable<DOMString> ] [name: [ArgumentName: iter]]]]]]]
 ]]
+[Interface: [name: ExtendedAttributeGrammars] [members: 
+  [Member: [ExtendedAttributes: [ExtendedAttributeString: One [value: "foo"]] [ExtendedAttributeInteger: Two [value: 2]] [ExtendedAttributeDecimal: Three [value: 3.0]] [ExtendedAttributeIntegerList: Four [value: 1] 100]] [Attribute: [AttributeRest: [TypeWithExtendedAttributes: [SingleType: [NonAnyType: DOMString]]] [name: test]]]]
+]]
 ]
 MARKED UP:
 <c dictionary><k>dictionary</k> <n>CSSFontFaceLoadEventInit</n> : <tn>EventInit</tn> { <c dict-member><t><k>sequence</k>&lt;<t><tn>CSSFontFaceRule</tn></t>&gt;</t> <n>fontfaces</n> = [ ];</c> };</c>
@@ -651,8 +657,11 @@ typedef   short    shorttype  = error this is;</c>
 <c interface><k>interface</k> <n>Concat</n> {
   <c method><t><k>Promise</k>&lt;<t><s><k>DOMString</k></s></t>&gt;</t> <n>concat</n>(<c argument><t><k>async_iterable</k>&lt;<t><s><k>DOMString</k></s></t>&gt;</t> <n>iter</n></c>);</c>
 };</c>
+<c interface><k>interface</k> <n>ExtendedAttributeGrammars</n> {
+  <c attribute>[<c extended-attribute><n>One</n>="foo"</c>,<c extended-attribute><n>Two</n>=2</c>,<c extended-attribute><n>Three</n>=3.0</c>,<c extended-attribute><n>Four</n>=(1,100)</c>] <k>attribute</k> <t><s><k>DOMString</k></s></t> <n>test</n>;</c>
+};</c>
 
-Complexity: 155
+Complexity: 157
 dictionary: CSSFontFaceLoadEventInit
     dict-member: fontfaces (fontfaces)
 interface: Simple
@@ -814,6 +823,8 @@ typedef: asynciterables
 typedef: asynciterableses
 interface: Concat
     method: concat(iter) (concat)
+interface: ExtendedAttributeGrammars
+    attribute: test (test)
 FIND:
 callMe/round
 Foo/method(x, y, inf, ...fooArg)/y

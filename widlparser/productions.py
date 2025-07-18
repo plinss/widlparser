@@ -234,6 +234,37 @@ class Symbol(Production):
 		return self.symbol
 
 
+class Decimal(Production):
+	"""
+	Decimal literal production.
+
+	Syntax:
+	<decimal-token>
+	"""
+
+	decimal: str
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		token = tokens.push_position()
+		return tokens.pop_position((token is not None) and token.is_float())
+
+	def __init__(self, tokens: Tokenizer, include_trailing_space: bool = True) -> None:
+		super().__init__(tokens)
+		self.decimal = next(tokens).text
+		self._did_parse(tokens, include_trailing_space)
+
+	def _str(self) -> str:
+		return self.decimal
+
+	def _define_markup(self, generator: MarkupGenerator) -> Production:
+		generator.add_text(self.decimal)
+		return self
+
+	def __repr__(self) -> str:
+		return self.decimal
+
+
 class Integer(Production):
 	"""
 	Integer literal production.
@@ -2751,6 +2782,46 @@ class TypeIdentifiers(Production):
 		self._comma = Symbol(tokens, ',')
 		self._name = TypeIdentifier(tokens)
 		self.next = TypeIdentifiers(tokens) if (TypeIdentifiers.peek(tokens)) else None
+		self._did_parse(tokens)
+
+	@property
+	def name(self) -> (str | None):
+		return self._name.name
+
+	def _str(self) -> str:
+		output = str(self._comma) + str(self._name)
+		return output + (str(self.next) if (self.next) else '')
+
+	def __repr__(self) -> str:
+		return ' ' + repr(self._name) + (repr(self.next) if (self.next) else '')
+
+
+class Integers(Production):
+	"""
+	Type integers production.
+
+	Syntax:
+	"," Integer ["," Integer]...
+	"""
+
+	_comma: Symbol
+	_name: Integer
+	next: (Integers | None)
+
+	@classmethod
+	def peek(cls, tokens: Tokenizer) -> bool:
+		tokens.push_position(False)
+		if (Symbol.peek(tokens, ',')):
+			if (Integer.peek(tokens)):
+				Integers.peek(tokens)
+				return tokens.pop_position(True)
+		return tokens.pop_position(False)
+
+	def __init__(self, tokens: Tokenizer) -> None:
+		super().__init__(tokens)
+		self._comma = Symbol(tokens, ',')
+		self._name = Integer(tokens)
+		self.next = Integers(tokens) if (Integers.peek(tokens)) else None
 		self._did_parse(tokens)
 
 	@property
