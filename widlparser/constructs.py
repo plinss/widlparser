@@ -17,9 +17,9 @@ from typing import Any, TYPE_CHECKING, cast
 
 from .markup import MarkupGenerator
 from .productions import (ArgumentList, ArgumentName, AsyncIterable, Attribute, ComplexProduction, ConstType, ConstValue, Constructor, Decimal, Default,
-						  EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Integer, Integers, Iterable,
-						  Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, String, Stringifier, Symbol,
-						  Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
+                          EnumValue, EnumValueList, ExtendedAttributeList, Identifier, IgnoreInOut, Inheritance, Integer, Integers, Iterable,
+                          Maplike, MixinAttribute, Operation, Setlike, SpecialOperation, StaticMember, String, Stringifier, Symbol,
+                          Type, TypeIdentifier, TypeIdentifiers, TypeWithExtendedAttributes)
 from .tokenizer import Token, Tokenizer
 
 if (TYPE_CHECKING):
@@ -2042,6 +2042,7 @@ class ExtendedAttributeIdent(Construct):
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeIdent: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
 
+
 class ExtendedAttributeString(Construct):
 	"""
 	WebIDL extended attribute with string.
@@ -2103,6 +2104,7 @@ class ExtendedAttributeString(Construct):
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeString: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
 
+
 class ExtendedAttributeInteger(Construct):
 	"""
 	WebIDL extended attribute with integer.
@@ -2129,7 +2131,7 @@ class ExtendedAttributeInteger(Construct):
 		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
-		self._value = String(tokens)
+		self._value = Integer(tokens)
 		self._did_parse(tokens)
 
 	@property
@@ -2164,6 +2166,7 @@ class ExtendedAttributeInteger(Construct):
 	def __repr__(self) -> str:
 		return ('[ExtendedAttributeInteger: ' + str(self.attribute) + ' [value: ' + repr(self._value) + ']]')
 
+
 class ExtendedAttributeDecimal(Construct):
 	"""
 	WebIDL extended attribute with decimal.
@@ -2190,7 +2193,7 @@ class ExtendedAttributeDecimal(Construct):
 		super().__init__(tokens, parent, False)
 		self._attribute = Identifier(tokens)
 		self._equals = Symbol(tokens, '=')
-		self._value = String(tokens)
+		self._value = Decimal(tokens)
 		self._did_parse(tokens)
 
 	@property
