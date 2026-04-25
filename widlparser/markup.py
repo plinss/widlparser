@@ -93,7 +93,7 @@ class MarkupGenerator(object):
 		"""Add plain text."""
 		if (text):
 			if ((0 < len(self.children)) and (type(self.children[-1]) is MarkupText)):
-				cast('MarkupText', self.children[-1])._append_text(str(text))
+				self.children[-1]._append_text(str(text))
 			else:
 				self.children.append(MarkupText(self.construct, str(text)))
 

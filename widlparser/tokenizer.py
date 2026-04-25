@@ -114,11 +114,13 @@ class Tokenizer(object):
 	"""Consume a string and convert to tokens."""
 
 	SYMBOL_IDENTS = frozenset((
-		'any', 'async', 'async_iterable', 'async_sequence', 'attribute', 'ArrayBuffer', 'bigint', 'boolean', 'byte', 'ByteString', 'callback', 'const', 'constructor', 'creator',
-		'DataView', 'deleter', 'dictionary', 'DOMString', 'double', 'enum', 'Error', 'false', 'float',
-		'Float16Array', 'Float32Array', 'Float64Array', 'FrozenArray', 'getter', 'implements', 'includes', 'Infinity', '-Infinity', 'inherit', 'Int8Array',
-		'Int16Array', 'Int32Array', 'interface', 'iterable', 'legacycaller', 'legacyiterable', 'long', 'maplike', 'mixin',
-		'namespace', 'NaN', 'null', 'object', 'ObservableArray', 'octet', 'optional', 'or', 'partial', 'Promise', 'readonly', 'record', 'required',
+		'any', 'async', 'async_iterable', 'async_sequence', 'attribute', 'ArrayBuffer',
+		'bigint', 'boolean', 'byte', 'ByteString', 'callback', 'const', 'constructor', 'creator',
+		'DataView', 'deleter', 'dictionary', 'DOMString', 'double', 'enum', 'Error',
+		'false', 'float', 'Float16Array', 'Float32Array', 'Float64Array', 'FrozenArray', 'getter',
+		'implements', 'includes', 'Infinity', '-Infinity', 'inherit', 'Int8Array', 'Int16Array', 'Int32Array', 'interface', 'iterable',
+		'legacycaller', 'legacyiterable', 'long', 'maplike', 'mixin', 'namespace', 'NaN', 'null',
+		'object', 'ObservableArray', 'octet', 'optional', 'or', 'partial', 'Promise', 'readonly', 'record', 'required',
 		'sequence', 'setlike', 'setter', 'short', 'static', 'stringifier', 'true', 'typedef',
 		'Uint8Array', 'Uint16Array', 'Uint32Array', 'Uint8ClampedArray', 'undefined', 'unrestricted', 'unsigned', 'USVString'))
 
