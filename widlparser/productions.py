@@ -970,7 +970,7 @@ class NonAnyType(ComplexProduction):
 	Syntax:
 	PrimitiveType [TypeSuffix] | "ByteString" [TypeSuffix] | "DOMString" [TypeSuffix]
 	| "USVString" TypeSuffix | Identifier [TypeSuffix] | "sequence" "<" TypeWithExtendedAttributes ">" [Null]
-	| "async_iterable" "<" TypeWithExtendedAttributes ">" [Null] | "object" [TypeSuffix] | "Error" TypeSuffix
+	| "async_sequence" "<" TypeWithExtendedAttributes ">" [Null] | "object" [TypeSuffix] | "Error" TypeSuffix
 	| "Promise" "<" Type ">" [Null] | BufferRelatedType [Null]
 	| "FrozenArray" "<" TypeWithExtendedAttributes ">" [Null] | "ObservableArray" "<" TypeWithExtendedAttributes ">" [Null]
 	| "record" "<" StringType "," TypeWithExtendedAttributes ">"
@@ -985,7 +985,6 @@ class NonAnyType(ComplexProduction):
 	type: (PrimitiveType | TypeIdentifier | TypeWithExtendedAttributes | Type | Symbol)
 	type_name: (str | None)
 	sequence: (Symbol | None)
-	async_iterable: (Symbol | None)
 	promise: (Symbol | None)
 	record: (Symbol | None)
 	_open_type: (Symbol | None)
@@ -1003,13 +1002,7 @@ class NonAnyType(ComplexProduction):
 		if (token and (token.is_symbol(cls.STRING_TYPES | cls.OBJECT_TYPES) or token.is_identifier())):
 			TypeSuffix.peek(tokens)
 			return tokens.pop_position(True)
-		elif (token and token.is_symbol(('sequence', 'FrozenArray', 'ObservableArray'))):
-			if (Symbol.peek(tokens, '<')):
-				if (TypeWithExtendedAttributes.peek(tokens)):
-					if (Symbol.peek(tokens, '>')):
-						Symbol.peek(tokens, '?')
-						return tokens.pop_position(True)
-		elif (token and token.is_symbol('async_iterable')):
+		elif (token and token.is_symbol(('sequence', 'async_sequence', 'FrozenArray', 'ObservableArray'))):
 			if (Symbol.peek(tokens, '<')):
 				if (TypeWithExtendedAttributes.peek(tokens)):
 					if (Symbol.peek(tokens, '>')):
@@ -1037,7 +1030,6 @@ class NonAnyType(ComplexProduction):
 	def __init__(self, tokens: Tokenizer, parent: ComplexProduction) -> None:
 		super().__init__(tokens, parent)
 		self.sequence = None
-		self.async_iterable = None
 		self.promise = None
 		self.record = None
 		self._open_type = None
@@ -1055,14 +1047,8 @@ class NonAnyType(ComplexProduction):
 				self.type = TypeIdentifier(tokens)
 				self.type_name = self.type.type_name
 				self.suffix = TypeSuffix(tokens) if (TypeSuffix.peek(tokens)) else None
-			elif (token.is_symbol(('sequence', 'FrozenArray', 'ObservableArray'))):
+			elif (token.is_symbol(('sequence', 'async_sequence', 'FrozenArray', 'ObservableArray'))):
 				self.sequence = Symbol(tokens)
-				self._open_type = Symbol(tokens, '<')
-				self.type = TypeWithExtendedAttributes(tokens, self)
-				self._close_type = Symbol(tokens, '>', False)
-				self.null = Symbol(tokens, '?', False) if (Symbol.peek(tokens, '?')) else None
-			elif (token.is_symbol('async_iterable')):
-				self.async_iterable = Symbol(tokens)
 				self._open_type = Symbol(tokens, '<')
 				self.type = TypeWithExtendedAttributes(tokens, self)
 				self._close_type = Symbol(tokens, '>', False)
@@ -1097,9 +1083,6 @@ class NonAnyType(ComplexProduction):
 		if (self.sequence):
 			output = str(self.sequence) + str(self._open_type) + str(self.type) + str(self._close_type)
 			return output + (str(self.null) if (self.null) else '')
-		if (self.async_iterable):
-			output = str(self.async_iterable) + str(self._open_type) + str(self.type) + str(self._close_type)
-			return output + (str(self.null) if (self.null) else '')
 		if (self.promise):
 			output = str(self.promise) + str(self._open_type) + str(self.type) + str(self._close_type)
 			return output + (str(self.null) if (self.null) else '')
@@ -1114,13 +1097,6 @@ class NonAnyType(ComplexProduction):
 	def _define_markup(self, generator: MarkupGenerator) -> Production:
 		if (self.sequence):
 			self.sequence.define_markup(generator)
-			generator.add_text(self._open_type)
-			generator.add_type(self.type)
-			generator.add_text(self._close_type)
-			generator.add_text(self.null)
-			return self
-		if (self.async_iterable):
-			self.async_iterable.define_markup(generator)
 			generator.add_text(self._open_type)
 			generator.add_type(self.type)
 			generator.add_text(self._close_type)

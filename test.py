@@ -344,10 +344,10 @@ interface BigNumbers {
   const bigint biiig = 42;
 };
 
-typedef async_iterable<DOMString[]> asynciterables;
-typedef async_iterable<DOMString[]>? asynciterableses;
+typedef async_sequence<DOMString[]> asyncsequences;
+typedef async_sequence<DOMString[]>? asyncsequenceses;
 interface Concat {
-  Promise<DOMString> concat(async_iterable<DOMString> iter);
+  Promise<DOMString> concat(async_sequence<DOMString> iter);
 };
 interface ExtendedAttributeGrammars {
   [One="foo",Two=2,Three=3.0,Four=(1,100)] attribute DOMString test;
