@@ -269,6 +269,82 @@ class Parser(object):
 		result.reverse()
 		return result
 
+	def find_method(self, method_text: str) -> Construct | None:
+		"""
+		Find all methods with a given name, and matching args if passed.
+		"""
+
+		match = re.match(r"(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?", method_text)
+		if (not match):
+			return []
+		interface_name, name, arg_text = match.groups()
+
+		if (arg_text):
+			tokens = Tokenizer(arg_text)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
+				arg_text = arguments.argument_names[0]
+			argument_names = [argument.strip() for argument in arg_text.split(',')]
+		else:
+			argument_names = None
+
+		if (interface_name):
+			interface = self.find(interface_name)
+			if (interface):
+				return interface.find_method(name, argument_names)
+			return None
+
+		construct: (Construct | None)
+		for construct in self.constructs:
+			method = construct.find_method(name, argument_names)
+			if (method):
+				return method
+
+		construct = self.find(name)
+		if (construct and ('method' == construct.idl_type)):
+			return construct
+
+		return None
+
+	def find_methods(self, method_text: str) -> list[Construct]:
+		"""
+		Find all methods with a given name, and matching args if passed.
+		"""
+
+		match = re.match(r"(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?", method_text)
+		if (not match):
+			return []
+		interface_name, name, arg_text = match.groups()
+
+		if (arg_text):
+			tokens = Tokenizer(arg_text)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
+				arg_text = arguments.argument_names[0]
+			argument_names = [argument.strip() for argument in arg_text.split(',')]
+		else:
+			argument_names = None
+
+		if (interface_name):
+			interface = self.find(interface_name)
+			if (interface):
+				return interface.find_methods(name, argument_names)
+			return []
+
+		construct: (Construct | None)
+		for construct in self.constructs:
+			methods = construct.find_methods(name, argument_names)
+			if (methods):
+				return methods
+
+		construct = self.find(name)
+		if (construct and ('method' == construct.idl_type)):
+			return [construct]
+
+		return []
+
+
+
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
 		"""Return normalized name for a method description."""
 		argument_names: (list[str] | None)
