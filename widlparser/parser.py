@@ -282,6 +282,12 @@ class Parser(object):
 			name = method_text
 			argument_names = None
 
+		if (not interface_name):
+			if "/" in name:
+				interface_name, name = name.split("/", 1)
+			elif "." in name:
+				interface_name, name = name.split(".", 1)
+
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
@@ -315,6 +321,12 @@ class Parser(object):
 		else:
 			name = method_text
 			argument_names = None
+
+		if (not interface_name):
+			if "/" in name:
+				interface_name, name = name.split("/", 1)
+			elif "." in name:
+				interface_name, name = name.split(".", 1)
 
 		if (interface_name):
 			interface = self.find(interface_name)
