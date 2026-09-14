@@ -214,7 +214,7 @@ class Parser(object):
 		"""
 		Find all constructs with a given name.
 
-		Searches entire tree.
+		Searches entire tree in reverse order.
 		"""
 		match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
 		while (match):
@@ -251,6 +251,7 @@ class Parser(object):
 							argument = construct.find_argument(argument_name, False)
 							if (argument):
 								result.append(argument)
+			result.reverse()
 			return result
 
 		for construct in self.constructs:
@@ -265,6 +266,7 @@ class Parser(object):
 		for construct in self.constructs:
 			result += construct.find_arguments(name)
 
+		result.reverse()
 		return result
 
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
