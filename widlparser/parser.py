@@ -295,7 +295,7 @@ class Parser(object):
 			return None
 
 		construct: (Construct | None)
-		for construct in self.constructs:
+		for construct in reversed(self.constructs):
 			method = construct.find_method(name, argument_names)
 			if (method):
 				return method
@@ -328,13 +328,14 @@ class Parser(object):
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
-				return interface.find_methods(name, argument_names)
+				return list(reversed(interface.find_methods(name, argument_names)))
 			return []
 
 		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (methods):
+				methods.reverse()
 				return methods
 
 		construct = self.find(name)
