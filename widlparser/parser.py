@@ -274,24 +274,32 @@ class Parser(object):
 			return None
 		interface_name, name, arg_text = match.groups()
 
-		if (arg_text):
+		empty_args = False  # Empty args might indicate explicitly zero arguments, or just args not passed
+		if (arg_text is not None):
 			tokens = Tokenizer(arg_text)
 			if (productions.ArgumentList.peek(tokens)):
 				arguments = productions.ArgumentList(tokens, None)
 				arg_text = arguments.argument_names[0]
-			argument_names = [argument.strip() for argument in arg_text.split(',')]
+			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
+			if len(argument_names) == 0:
+				empty_args = True
 		else:
 			argument_names = None
 
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
-				return interface.find_method(name, argument_names)
+				method = interface.find_method(name, argument_names)
+				if (not method and empty_args):
+					method = interface.find_method(name)
+				return method
 			return None
 
 		construct: (Construct | None)
 		for construct in reversed(self.constructs):
 			method = construct.find_method(name, argument_names)
+			if (not method and empty_args):
+				method = construct.find_method(name)
 			if (method):
 				return method
 
@@ -308,27 +316,39 @@ class Parser(object):
 			return []
 		interface_name, name, arg_text = match.groups()
 
-		if (arg_text):
+		empty_args = False  # Empty args might indicate explicitly zero arguments, or just args not passed
+		if (arg_text is not None):
 			tokens = Tokenizer(arg_text)
 			if (productions.ArgumentList.peek(tokens)):
 				arguments = productions.ArgumentList(tokens, None)
 				arg_text = arguments.argument_names[0]
-			argument_names = [argument.strip() for argument in arg_text.split(',')]
+			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
+			if len(argument_names) == 0:
+				empty_args = True
 		else:
 			argument_names = None
 
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
-				return list(reversed(interface.find_methods(name, argument_names)))
+				methods = interface.find_methods(name, argument_names)
+				if (not methods and empty_args):
+					methods = interface.find_methods(name)
+				methods.reverse()
+				return methods
 			return []
 
+		result = []
 		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
+			if (not methods and empty_args):
+				methods = construct.find_methods(name)
 			if (methods):
-				methods.reverse()
-				return methods
+				result.extend(methods)
+		if (result):
+			result.reverse()
+			return result
 
 		construct = self.find(name)
 		if (construct and ('method' == construct.idl_type)):
