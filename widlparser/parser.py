@@ -344,8 +344,6 @@ class Parser(object):
 
 		return []
 
-
-
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
 		"""Return normalized name for a method description."""
 		argument_names: (list[str] | None)
