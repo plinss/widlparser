@@ -156,10 +156,10 @@ class Parser(object):
 
 		Searches entire tree in reverse order.
 		"""
-		match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
-		while (match):
-			name = match.group(1) + match.group(2)
-			match = re.match(r'(.*)\(.*\)(.*)', name)
+
+		# Specialize on methods
+		if "(" in name:
+			return self.find_method(name)
 
 		path = None
 		if ('/' in name):
@@ -216,10 +216,10 @@ class Parser(object):
 
 		Searches entire tree in reverse order.
 		"""
-		match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
-		while (match):
-			name = match.group(1) + match.group(2)
-			match = re.match(r'(.*)\(.*\)(.*)', name)
+
+		# Specialize on methods
+		if "(" in name:
+			return self.find_methods(name)
 
 		path = None
 		if ('/' in name):
