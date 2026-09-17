@@ -345,7 +345,15 @@ class Parser(object):
 		return []
 
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
-		"""Return normalized name for a method description."""
+		"""
+		Return normalized name for a method description.
+		If passed a full WebIDL signature, normalize purely based on the parsed text.
+		Otherwise, try to find the construct in the parser and use that to normalize;
+		if that fails, then do a naive normalization based on the text.
+		The interface for a method is optional,
+		can be specified in the method_text as a path (like `find()`)
+		or as a separate argument.
+		"""
 		argument_names: (list[str] | None)
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
