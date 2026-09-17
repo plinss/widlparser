@@ -156,9 +156,8 @@ class Parser(object):
 
 		Searches entire tree in reverse order.
 		"""
-
 		# Specialize on methods
-		if "(" in name:
+		if '(' in name:
 			return self.find_method(name)
 
 		path = None
@@ -216,9 +215,8 @@ class Parser(object):
 
 		Searches entire tree in reverse order.
 		"""
-
 		# Specialize on methods
-		if "(" in name:
+		if '(' in name:
 			return self.find_methods(name)
 
 		path = None
@@ -270,13 +268,10 @@ class Parser(object):
 		return result
 
 	def find_method(self, method_text: str) -> Construct | None:
-		"""
-		Find all methods with a given name, and matching args if passed.
-		"""
-
-		match = re.match(r"(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?", method_text)
+		"""Find a method with a given name, and matching args if passed."""
+		match = re.match(r'(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?', method_text)
 		if (not match):
-			return []
+			return None
 		interface_name, name, arg_text = match.groups()
 
 		if (arg_text):
@@ -307,11 +302,8 @@ class Parser(object):
 		return None
 
 	def find_methods(self, method_text: str) -> list[Construct]:
-		"""
-		Find all methods with a given name, and matching args if passed.
-		"""
-
-		match = re.match(r"(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?", method_text)
+		"""Find all methods with a given name, and matching args if passed."""
+		match = re.match(r'(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?', method_text)
 		if (not match):
 			return []
 		interface_name, name, arg_text = match.groups()
@@ -347,6 +339,7 @@ class Parser(object):
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
 		"""
 		Return normalized name for a method description.
+
 		If passed a full WebIDL signature, normalize purely based on the parsed text.
 		Otherwise, try to find the construct in the parser and use that to normalize;
 		if that fails, then do a naive normalization based on the text.
@@ -368,10 +361,10 @@ class Parser(object):
 			argument_names = None
 
 		if (not interface_name):
-			if "/" in name:
-				interface_name, name = name.split("/", 1)
-			elif "." in name:
-				interface_name, name = name.split(".", 1)
+			if '/' in name:
+				interface_name, name = name.split('/', 1)
+			elif '.' in name:
+				interface_name, name = name.split('.', 1)
 
 		if (interface_name):
 			interface = self.find(interface_name)
@@ -408,10 +401,10 @@ class Parser(object):
 			argument_names = None
 
 		if (not interface_name):
-			if "/" in name:
-				interface_name, name = name.split("/", 1)
-			elif "." in name:
-				interface_name, name = name.split(".", 1)
+			if '/' in name:
+				interface_name, name = name.split('/', 1)
+			elif '.' in name:
+				interface_name, name = name.split('.', 1)
 
 		if (interface_name):
 			interface = self.find(interface_name)
