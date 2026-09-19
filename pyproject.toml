@@ -18,6 +18,7 @@ classifiers = [
 	'Programming Language :: Python :: 3.11',
 	'Programming Language :: Python :: 3.12',
 	'Programming Language :: Python :: 3.13',
+	'Programming Language :: Python :: 3.14',
 	'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 dependencies = [
@@ -44,10 +45,10 @@ dev = [
 	'flake8',
 	'flake8-annotations',
 	'flake8-bandit',
+	'flake8-broken-line',
 	'flake8-bugbear',
 	'flake8-commas',
 	'flake8-comprehensions',
-	'flake8-continuation',
 	'flake8-datetimez',
 	'flake8-docstrings',
 	'flake8-import-order',
@@ -59,7 +60,7 @@ dev = [
 	'flake8-typechecking-import',
 	'flake8-use-fstring',
 	'pep8-naming',
-	'ty',
+	'pyright',
 ]
 
 
