@@ -388,8 +388,23 @@ interface ExtendedAttributeGrammars {
     print(cast(Construct, parser.find('Window')).full_name)
     print(cast(Construct, parser.find('mediaText')).full_name)
     print(cast(Construct, parser.find('Foo.method')).markup(Marker()))
+
+    print(cast(Construct, parser.find_method('Foo/Foo()')).full_name)
+    print(cast(Construct, parser.find_method('Foo(one)')).full_name)
+    print(cast(Construct, parser.find_method('MyConstructor()')).full_name)
+    print(cast(Construct, parser.find_method('method()')).full_name)
+    print(cast(Construct, parser.find_method('Foo/method()')).full_name)
+    print(cast(Construct, parser.find_method('method(string)')).full_name)
+    print(cast(Construct, parser.find_method('method(string, foo)')).full_name)
+
     for method in parser.find_all('Foo.method'):
         print(method.full_name)
+    for method in parser.find_methods('Foo.method'):
+        print(method.full_name)
+    for method in parser.find_methods('method()'):
+        print(method.full_name)
+
+
 
     print("NORMALIZE:")
     print(parser.normalized_method_name('foo'))
