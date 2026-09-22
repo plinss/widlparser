@@ -384,7 +384,6 @@ class Parser(object):
 					return cast(str, method.method_name)
 			return name + '(' + ', '.join(argument_names or []) + ')'
 
-		construct: (Construct | None)
 		for construct in self.constructs:
 			method = construct.find_method(name, argument_names)
 			if (method):
@@ -424,7 +423,6 @@ class Parser(object):
 					return list(itertools.chain(*[method.method_names for method in methods]))
 			return [name + '(' + ', '.join(argument_names or []) + ')']
 
-		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (methods):
