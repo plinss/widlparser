@@ -281,7 +281,7 @@ class Parser(object):
 				arguments = productions.ArgumentList(tokens, None)
 				arg_text = arguments.argument_names[0]
 			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
-			if len(argument_names) == 0:
+			if (len(argument_names) == 0):
 				empty_args = True
 		else:
 			argument_names = None
@@ -323,7 +323,7 @@ class Parser(object):
 				arguments = productions.ArgumentList(tokens, None)
 				arg_text = arguments.argument_names[0]
 			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
-			if len(argument_names) == 0:
+			if (len(argument_names) == 0):
 				empty_args = True
 		else:
 			argument_names = None
@@ -381,9 +381,9 @@ class Parser(object):
 			argument_names = None
 
 		if (not interface_name):
-			if '/' in name:
+			if ('/' in name):
 				interface_name, name = name.split('/', 1)
-			elif '.' in name:
+			elif ('.' in name):
 				interface_name, name = name.split('.', 1)
 
 		if (interface_name):
@@ -421,9 +421,9 @@ class Parser(object):
 			argument_names = None
 
 		if (not interface_name):
-			if '/' in name:
+			if ('/' in name):
 				interface_name, name = name.split('/', 1)
-			elif '.' in name:
+			elif ('.' in name):
 				interface_name, name = name.split('.', 1)
 
 		if (interface_name):
