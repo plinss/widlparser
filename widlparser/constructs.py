@@ -823,13 +823,13 @@ class Interface(Construct):
 
 	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
-			if (('method' == member.idl_type) and (name == member.name)
+			if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
 	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
-		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+		return [member for member in self.members if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
 	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
@@ -1003,13 +1003,13 @@ class Mixin(Construct):
 
 	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
-			if (('method' == member.idl_type) and (name == member.name)
+			if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
 	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
-		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+		return [member for member in self.members if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
 	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
@@ -1255,13 +1255,13 @@ class Namespace(Construct):
 
 	def find_method(self, name: str, argument_names: (Sequence[str] | None) = None) -> (Construct | None):
 		for member in reversed(self.members):
-			if (('method' == member.idl_type) and (name == member.name)
+			if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 			    	and ((argument_names is None) or member.matches_argument_names(argument_names))):
 				return member
 		return None
 
 	def find_methods(self, name: str, argument_names: (Sequence[str] | None) = None) -> list[Construct]:
-		return [member for member in self.members if (('method' == member.idl_type) and (name == member.name)
+		return [member for member in self.members if ((member.idl_type in ('method', 'constructor')) and (name == member.name)
 		                                              and ((argument_names is None) or member.matches_argument_names(argument_names)))]
 
 	def find_argument(self, name: str, search_members: bool = True) -> (Construct | None):
@@ -1964,6 +1964,10 @@ class ExtendedAttributeArgList(Construct):
 			return (f'{self.parent.name}('
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
 		return self.attribute
+
+	@property
+	def arguments(self) -> ArgumentList:
+		return self._arguments
 
 	def _str(self) -> str:
 		return str(self._attribute) + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)

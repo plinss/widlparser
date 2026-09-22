@@ -58,6 +58,14 @@ Return a named construct. If a single name is provided, a breadth-first search t
 
 Return a list of named constructs. Accepts the same search paths as Parser.find(name).
 
+**Parser.find_method(name)**
+
+Returns a specific method. Uses the path syntax of `Parser.find()`, and also takes arguments into account if possible (normalizing as per `Parser.normalized_method_name()`), to distinguish between overloads. If multiple methods match the passed string, returns the last such one.
+
+**Parser.find_methods(name)**
+
+Returns all matching methods.
+
 **Parser.normalized_method_name(name [, interface_name=None])**
 
 Provide a normalized version of a method name, including the names of all arguments, e.g. "drawCircle(long x, long y, long radius)" becomes: "drawCircle(x, y, radius)". If a valid set of arguments is passed, the passed argument names will be returned in the normalized form. Otherwise, a search is performed for a matching previously parsed method name. The search may be narrowed to a particular interface by passing the name fo the interface or callbak in interface_name.

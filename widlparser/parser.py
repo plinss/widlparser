@@ -156,10 +156,9 @@ class Parser(object):
 
 		Searches entire tree in reverse order.
 		"""
-		match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
-		while (match):
-			name = match.group(1) + match.group(2)
-			match = re.match(r'(.*)\(.*\)(.*)', name)
+		# Specialize on methods
+		if '(' in name:
+			return self.find_method(name)
 
 		path = None
 		if ('/' in name):
@@ -214,12 +213,11 @@ class Parser(object):
 		"""
 		Find all constructs with a given name.
 
-		Searches entire tree.
+		Searches entire tree in reverse order.
 		"""
-		match = re.match(r'(.*)\(.*\)(.*)', name)    # strip ()'s
-		while (match):
-			name = match.group(1) + match.group(2)
-			match = re.match(r'(.*)\(.*\)(.*)', name)
+		# Specialize on methods
+		if '(' in name:
+			return self.find_methods(name)
 
 		path = None
 		if ('/' in name):
@@ -251,6 +249,7 @@ class Parser(object):
 							argument = construct.find_argument(argument_name, False)
 							if (argument):
 								result.append(argument)
+			result.reverse()
 			return result
 
 		for construct in self.constructs:
@@ -265,10 +264,99 @@ class Parser(object):
 		for construct in self.constructs:
 			result += construct.find_arguments(name)
 
+		result.reverse()
 		return result
 
+	def find_method(self, method_text: str) -> Construct | None:
+		"""Find a method with a given name, and matching args if passed."""
+		match = re.match(r'(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?', method_text)
+		if (not match):
+			return None
+		interface_name, name, arg_text = match.groups()
+
+		empty_args = False  # Empty args might indicate explicitly zero arguments, or just args not passed
+		if (arg_text is not None):
+			tokens = Tokenizer(arg_text)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
+				arg_text = arguments.argument_names[0]
+			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
+			if (len(argument_names) == 0):
+				empty_args = True
+		else:
+			argument_names = None
+
+		if (interface_name):
+			interface = self.find(interface_name)
+			if (interface):
+				method = interface.find_method(name, argument_names)
+				if (not method and empty_args):
+					method = interface.find_method(name)
+				return method
+			return None
+
+		for construct in reversed(self.constructs):
+			method = construct.find_method(name, argument_names)
+			if (not method and empty_args):
+				method = construct.find_method(name)
+			if (method):
+				return method
+
+		return None
+
+	def find_methods(self, method_text: str) -> list[Construct]:
+		"""Find all methods with a given name, and matching args if passed."""
+		match = re.match(r'(?:([^./(]+)[./])?([^./(]+)(?:\((.*)\))?', method_text)
+		if (not match):
+			return []
+		interface_name, name, arg_text = match.groups()
+
+		empty_args = False  # Empty args might indicate explicitly zero arguments, or just args not passed
+		if (arg_text is not None):
+			tokens = Tokenizer(arg_text)
+			if (productions.ArgumentList.peek(tokens)):
+				arguments = productions.ArgumentList(tokens, None)
+				arg_text = arguments.argument_names[0]
+			argument_names = [argument.strip() for argument in arg_text.split(',') if argument.strip() != '']
+			if (len(argument_names) == 0):
+				empty_args = True
+		else:
+			argument_names = None
+
+		if (interface_name):
+			interface = self.find(interface_name)
+			if (interface):
+				methods = interface.find_methods(name, argument_names)
+				if (not methods and empty_args):
+					methods = interface.find_methods(name)
+				methods.reverse()
+				return methods
+			return []
+
+		result = []
+		for construct in self.constructs:
+			methods = construct.find_methods(name, argument_names)
+			if (not methods and empty_args):
+				methods = construct.find_methods(name)
+			if (methods):
+				result.extend(methods)
+		if (result):
+			result.reverse()
+			return result
+
+		return []
+
 	def normalized_method_name(self, method_text: str, interface_name: (str | None) = None) -> str:
-		"""Return normalized name for a method description."""
+		"""
+		Return normalized name for a method description.
+
+		If passed a full WebIDL signature, normalize purely based on the parsed text.
+		Otherwise, try to find the construct in the parser and use that to normalize;
+		if that fails, then do a naive normalization based on the text.
+		The interface for a method is optional,
+		can be specified in the method_text as a path (like `find()`)
+		or as a separate argument.
+		"""
 		argument_names: (list[str] | None)
 		match = re.match(r'(.*)\((.*)\)(.*)', method_text)
 		if (match):
@@ -282,6 +370,12 @@ class Parser(object):
 			name = method_text
 			argument_names = None
 
+		if (not interface_name):
+			if ('/' in name):
+				interface_name, name = name.split('/', 1)
+			elif ('.' in name):
+				interface_name, name = name.split('.', 1)
+
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
@@ -290,7 +384,6 @@ class Parser(object):
 					return cast(str, method.method_name)
 			return name + '(' + ', '.join(argument_names or []) + ')'
 
-		construct: (Construct | None)
 		for construct in self.constructs:
 			method = construct.find_method(name, argument_names)
 			if (method):
@@ -316,6 +409,12 @@ class Parser(object):
 			name = method_text
 			argument_names = None
 
+		if (not interface_name):
+			if ('/' in name):
+				interface_name, name = name.split('/', 1)
+			elif ('.' in name):
+				interface_name, name = name.split('.', 1)
+
 		if (interface_name):
 			interface = self.find(interface_name)
 			if (interface):
@@ -324,7 +423,6 @@ class Parser(object):
 					return list(itertools.chain(*[method.method_names for method in methods]))
 			return [name + '(' + ', '.join(argument_names or []) + ')']
 
-		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (methods):
