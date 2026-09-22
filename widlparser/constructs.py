@@ -1965,6 +1965,10 @@ class ExtendedAttributeArgList(Construct):
 			        + (', '.join(argument.name for argument in self._arguments if (argument.name)) if (self._arguments) else '') + ')')
 		return self.attribute
 
+	@property
+	def arguments(self) -> ArgumentList:
+		return self._arguments
+
 	def _str(self) -> str:
 		return str(self._attribute) + str(self._open_paren) + (str(self._arguments) if (self._arguments) else '') + str(self._close_paren)
 
