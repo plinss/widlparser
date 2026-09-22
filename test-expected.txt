@@ -829,14 +829,18 @@ FIND:
 callMe/round
 Foo/method(x, y, inf, ...fooArg)/y
 Foo/method(string, foo)
-Foo
+foo
+Foo/Foo()
+Foo/Foo()
+Foo/Foo(one)
+Foo/MyConstructor()
 Foo/MyOtherConstructor(two, longest)/longest
 Foo/method(x, y, inf, ...fooArg)/fooArg
 Window
 LinkStyle/mediaText
 <c method><t><p><k>unsigned</k> <k>long</k> <k>long</k></p></t> <n>method</n>(<c argument><t><s><k>DOMString</k></s></t> <n>string</n></c>, <c argument><k>optional</k> <t><tn>Foo</tn></t> <n>foo</n> = {}</c>);</c>
-Foo/method(x, y, inf, ...fooArg)
 Foo/method(string, foo)
+Foo/method(x, y, inf, ...fooArg)
 NORMALIZE:
 foo()
 unknown()
