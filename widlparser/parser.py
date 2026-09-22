@@ -295,17 +295,12 @@ class Parser(object):
 				return method
 			return None
 
-		construct: (Construct | None)
 		for construct in reversed(self.constructs):
 			method = construct.find_method(name, argument_names)
 			if (not method and empty_args):
 				method = construct.find_method(name)
 			if (method):
 				return method
-
-		construct = self.find(name)
-		if (construct and ('method' == construct.idl_type)):
-			return construct
 
 		return None
 
@@ -339,7 +334,6 @@ class Parser(object):
 			return []
 
 		result = []
-		construct: (Construct | None)
 		for construct in self.constructs:
 			methods = construct.find_methods(name, argument_names)
 			if (not methods and empty_args):
@@ -349,10 +343,6 @@ class Parser(object):
 		if (result):
 			result.reverse()
 			return result
-
-		construct = self.find(name)
-		if (construct and ('method' == construct.idl_type)):
-			return [construct]
 
 		return []
 
